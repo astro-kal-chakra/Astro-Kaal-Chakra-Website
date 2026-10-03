@@ -1,26 +1,182 @@
 @import "tailwindcss";
 
+/* Class-based dark mode: <html class="dark"> */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ------------------------------------------------------------------
+ * Design tokens
+ * Brand (Astro-Kaal-Chakra logo): bhagwa (saffron) + white only — no black.
+ *   brand-* = logo saffron (#F26B1D), gold-* = light saffron accent tints.
+ * Semantic tokens (bg, surface, text...) switch with the theme.
+ * ------------------------------------------------------------------ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #fffaf5;
+  --surface: #ffffff;
+  --surface-muted: #fff1e5;
+  --text: #2b1608;
+  --text-muted: #6b4e3d;
+  --border: #f6dcc6;
+  --ring: #c2410c;
+}
+
+.dark {
+  --bg: #0f0804;
+  --surface: #1a0f08;
+  --surface-muted: #24150b;
+  --text: #fdf3ea;
+  --text-muted: #c9a991;
+  --border: #3a2414;
+  --ring: #fb8a3c;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-poppins), var(--font-inter), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-poppins), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-fg: var(--text);
+  --color-muted: var(--text-muted);
+  --color-line: var(--border);
+  --color-ring: var(--ring);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@theme {
+  /* Logo saffron. 600+ carry white text (WCAG AA); 300–500 carry dark text. */
+  --color-brand-50: #fff6ed;
+  --color-brand-100: #ffead5;
+  --color-brand-200: #fed0aa;
+  --color-brand-300: #fdae74;
+  --color-brand-400: #fb8a3c;
+  --color-brand-500: #f26b1d;
+  --color-brand-600: #c2410c;
+  --color-brand-700: #9a3412;
+  --color-brand-800: #7c2d12;
+  --color-brand-900: #6a260f;
+  --color-brand-950: #431407;
+
+  /* Light saffron accent (logo glow) */
+  --color-gold-100: #fff7ed;
+  --color-gold-200: #ffedd5;
+  --color-gold-300: #fed7aa;
+  --color-gold-400: #fdba74;
+  --color-gold-500: #fb923c;
+  --color-gold-600: #c2410c;
+  --color-gold-700: #9a3412;
+
+  --color-online: #16a34a;
+  --color-busy: #f59e0b;
+  --color-offline: #9ca3af;
+
+  --animate-pulse-dot: pulse-dot 1.6s ease-in-out infinite;
+  --animate-orbit: orbit 80s linear infinite;
+  --animate-orbit-reverse: orbit 80s linear infinite reverse;
+  --animate-orbit-fast: orbit 14s linear infinite;
+  --animate-orbit-mid: orbit 22s linear infinite reverse;
+  --animate-orbit-slow: orbit 34s linear infinite;
+  --animate-sun-pulse: sun-pulse 5s ease-in-out infinite;
+  --animate-sun-rays: orbit 40s linear infinite;
+  --animate-twinkle: twinkle 3s ease-in-out infinite;
+  --animate-float: float 6s ease-in-out infinite;
+
+  --animate-sheet-up: sheet-up 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-dialog-in: dialog-in 0.2s ease-out;
+
+  @keyframes sheet-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  @keyframes dialog-in {
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @keyframes orbit {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes sun-pulse {
+    0%, 100% { box-shadow: 0 0 60px 10px rgb(251 138 60 / 0.45), inset 0 0 30px rgb(255 255 255 / 0.25); transform: scale(1); }
+    50% { box-shadow: 0 0 110px 30px rgb(251 138 60 / 0.65), inset 0 0 40px rgb(255 255 255 / 0.35); transform: scale(1.04); }
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.15; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.35); }
   }
 }
 
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+@utility container-page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 80rem;
+  padding-inline: 1rem;
+  @media (width >= 40rem) {
+    padding-inline: 1.5rem;
+  }
+}
+
+@utility bg-cosmic {
+  background-image:
+    radial-gradient(ellipse at 85% 20%, rgb(255 255 255 / 0.22), transparent 50%),
+    radial-gradient(ellipse at 10% 90%, rgb(253 186 116 / 0.35), transparent 55%),
+    linear-gradient(135deg, #fb8a3c, #f26b1d 45%, #d9520f);
+}
+
+@utility text-gradient-gold {
+  /* Headline on saffron bands: white → light saffron */
+  background-image: linear-gradient(90deg, #ffffff, #ffffff 40%, var(--color-gold-200));
+  background-clip: text;
+  color: transparent;
+}
+
+/* ------------------------------------------------------------------
+ * Google Translate: keep the widget off-screen and hide Google's own UI
+ * (top banner, hover tooltips, highlight). <LanguageToggle /> replaces it.
+ * ------------------------------------------------------------------ */
+.google-translate-host {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  top: 0 !important;
+}
+.goog-te-banner-frame,
+iframe.skiptranslate,
+#goog-gt-tt,
+.goog-te-balloon-frame,
+.goog-tooltip,
+.VIpgJd-ZVi9od-ORHb-OEVmcd,
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,
+.VIpgJd-yAWNEb-L7lbkb {
+  display: none !important;
+}
+.goog-text-highlight {
+  background: none !important;
+  box-shadow: none !important;
 }
