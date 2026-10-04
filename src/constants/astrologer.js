@@ -26,6 +26,8 @@ export const SORT_OPTIONS = {
   RATING: "rating",
   PRICE_LOW: "price_asc",
   PRICE_HIGH: "price_desc",
+  EXP_HIGH: "exp_desc",
+  EXP_LOW: "exp_asc",
 };
 
 export const PRICE_RANGES = [

@@ -26,6 +26,8 @@ function applyFilters(list, f = {}) {
     [SORT_OPTIONS.PRICE_LOW]: (a, b) => a.chatPrice - b.chatPrice,
     [SORT_OPTIONS.PRICE_HIGH]: (a, b) => b.chatPrice - a.chatPrice,
     [SORT_OPTIONS.POPULARITY]: (a, b) => b.popularity - a.popularity,
+    [SORT_OPTIONS.EXP_HIGH]: (a, b) => b.experienceYears - a.experienceYears,
+    [SORT_OPTIONS.EXP_LOW]: (a, b) => a.experienceYears - b.experienceYears,
   };
   const sorter = sorters[f.sort] || sorters[SORT_OPTIONS.POPULARITY];
   // Online astrologers always float to the top, then the chosen sort.

@@ -37,6 +37,8 @@ export function AstrologerFilters({ filters, onChange, onReset }) {
           <option value={SORT_OPTIONS.RATING}>Rating</option>
           <option value={SORT_OPTIONS.PRICE_LOW}>Price: low to high</option>
           <option value={SORT_OPTIONS.PRICE_HIGH}>Price: high to low</option>
+          <option value={SORT_OPTIONS.EXP_HIGH}>Experience: high to low</option>
+          <option value={SORT_OPTIONS.EXP_LOW}>Experience: low to high</option>
         </Select>
       </div>
 
