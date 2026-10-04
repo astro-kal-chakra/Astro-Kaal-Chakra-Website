@@ -45,7 +45,7 @@ function AuthArea() {
       <NotificationBell />
       <LocaleLink
         href={routes.wallet}
-        className="flex h-9 items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 text-sm font-semibold text-brand-700 hover:bg-brand-100 dark:border-brand-800 dark:bg-brand-950/40 dark:text-brand-200"
+        className="flex h-9 items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 text-sm font-semibold text-brand-700 hover:bg-brand-100 dark:border-brand-800 dark:bg-brand-950/40 dark:text-brand-200 dark:hover:bg-brand-900/60 dark:hover:text-brand-100"
       >
         <Wallet className="size-4" aria-hidden />
         <span translate="no" className="notranslate">{formatCurrency(user?.walletBalance ?? 0, locale)}</span>
@@ -68,7 +68,9 @@ export function Header() {
   const open = openOn === pathname;
   const setOpen = (fn) => setOpenOn(fn(open) ? pathname : null);
 
-  const isActive = (href) => pathname.startsWith(`${href}`);
+  // Match whole path segments so "/kundli" isn't active on "/kundli-matching".
+  const rel = pathname.replace(new RegExp(`^/${SITE_LOCALE}(?=/|$)`), "") || "/";
+  const isActive = (href) => rel === href || rel.startsWith(`${href}/`);
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-surface/90 backdrop-blur-md">
@@ -87,7 +89,8 @@ export function Header() {
                 // Active: saffron text + a short saffron bar under it
                 "relative whitespace-nowrap px-3 py-2 text-sm font-medium text-muted transition-colors hover:text-fg",
                 "after:absolute after:inset-x-3 after:-bottom-[13px] after:h-0.5 after:rounded-full after:bg-brand-500 after:opacity-0 after:transition-opacity",
-                item.wideOnly && "hidden 2xl:block",
+                // Logged in, the account controls take that room, so secondary links stay in the menu + footer.
+                item.wideOnly && (isAuthenticated ? "hidden" : "hidden 2xl:block"),
                 isActive(item.href) && "text-accent after:opacity-100"
               )}
             >
@@ -97,8 +100,9 @@ export function Header() {
         </nav>
         <div className="ml-auto flex items-center gap-2">
           {/* Phones: compact EN/हिं (guests only, logged-in header is full) · tablet+: full labels */}
-          <LanguageToggle variant="compact" className={cn("md:hidden", isAuthenticated ? "hidden sm:inline-flex" : "inline-flex")} />
-          <LanguageToggle className="hidden md:inline-flex" />
+          {/* Logged in: keep the compact toggle on desktop too, so the header fits its container */}
+          <LanguageToggle variant="compact" className={isAuthenticated ? "hidden sm:inline-flex" : "inline-flex md:hidden"} />
+          {!isAuthenticated && <LanguageToggle className="hidden md:inline-flex" />}
           <span className="hidden sm:block">
             <ThemeToggle />
           </span>
