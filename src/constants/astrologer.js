@@ -9,6 +9,7 @@ export const CONSULT_MODE = {
   VIDEO: "video",
 };
 
+
 export const CATEGORIES = [
   { slug: "love", icon: "Heart" },
   { slug: "career", icon: "Briefcase" },
