@@ -3,7 +3,9 @@
  * Records live in localStorage so a page reload mid-session behaves like the
  * real app (the server keeps the session; the browser just re-joins).
  *
- * Shape of a session record mirrors what GET /sessions/:id should return.
+ * Shape of a session record mirrors what GET /user/sessions/:id should return
+ * (mode chat | call | video, status pending | active | completed | rejected | missed |
+ * cancelled | failed, durationSec, billedMinutes, totalCharged, unusedReturned).
  */
 
 import { __mockWallet } from "../services/wallet.service";
@@ -11,9 +13,6 @@ import { __mockWallet } from "../services/wallet.service";
 const SESSIONS_KEY = "mock_sessions";
 const MESSAGES_KEY = "mock_session_messages";
 const USER_KEY = "mock_user";
-
-/** Free first chat length (seconds). */
-export const MOCK_FREE_CHAT_SECONDS = 5 * 60;
 
 const canUseStorage = () => typeof window !== "undefined";
 
@@ -90,7 +89,31 @@ export function setMockBalance(value) {
   __mockWallet.write(store);
 }
 
-/** The free first chat is one per account — persist it on the mock user. */
+/**
+ * Wallet history line for a finished paid session: the exact amount used (billed by
+ * the second). The held-then-returned part never shows as a charge.
+ */
+export function recordMockConsultation(record) {
+  if (record.isFree || !(record.totalCharged > 0)) return;
+  const store = __mockWallet.read();
+  store.txns.push({
+    id: `txn_${record.id}`,
+    type: "consultation",
+    amount: -record.totalCharged,
+    status: "success",
+    createdAt: record.endedAt || Date.now(),
+    meta: {
+      astrologer: record.astrologer?.name,
+      mode: record.mode,
+      durationSec: record.durationSec,
+      ratePerMin: record.ratePerMin,
+      unusedReturned: record.unusedReturned,
+    },
+  });
+  __mockWallet.write(store);
+}
+
+/** The free first chat is one per account / device — persist it on the mock user. */
 export function consumeMockFreeChat() {
   const user = readJson(USER_KEY, null);
   if (user) writeJson(USER_KEY, { ...user, freeChatAvailable: false });

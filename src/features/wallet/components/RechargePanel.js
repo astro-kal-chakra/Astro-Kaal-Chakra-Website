@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Field, Input } from "@/components/ui/Input";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { openCheckout } from "../lib/cashfree";
+import { openCheckout } from "../lib/razorpay";
 import { useInflightOrder } from "../lib/inflight";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
@@ -77,13 +77,14 @@ export function RechargePanel() {
     gstRate: config.gstRate,
   });
 
-  const applyCoupon = (code, forAmount) => {
+  /** Coupons are applied through the quote step (POST /user/wallet/quote with couponCode). */
+  const applyCoupon = (code, forAmount, forPackId = pack?.id) => {
     if (!code) return;
     const req = ++couponReq.current;
     setCoupon({ status: "checking", code });
     walletService
-      .validateCoupon({ code, amount: forAmount })
-      .then((r) => req === couponReq.current && setCoupon({ status: "applied", code: r.code, bonus: r.bonus }))
+      .quote({ packId: forPackId, amount: forAmount, couponCode: code })
+      .then((q) => req === couponReq.current && setCoupon({ status: "applied", code: q.coupon?.code || code, bonus: q.couponBonus }))
       .catch(
         (e) =>
           req === couponReq.current &&
@@ -96,10 +97,10 @@ export function RechargePanel() {
   };
 
   /** Any change to what's being bought starts a new attempt (new idempotency key) and re-checks the coupon. */
-  const onOrderChange = (nextAmount) => {
+  const onOrderChange = (nextAmount, nextPackId) => {
     idemKey.current = null;
     if (coupon.status !== "idle") {
-      if (nextAmount > 0) applyCoupon(coupon.code, nextAmount);
+      if (nextAmount > 0) applyCoupon(coupon.code, nextAmount, nextPackId);
       else {
         couponReq.current++;
         setCoupon({ status: "idle" });
@@ -109,7 +110,7 @@ export function RechargePanel() {
 
   const selectPack = (p) => {
     setChoice({ packId: p.id, custom: "" });
-    onOrderChange(p.amount);
+    onOrderChange(p.amount, p.id);
   };
 
   const changeCustom = (value) => {
@@ -134,11 +135,19 @@ export function RechargePanel() {
       const order = await walletService.createOrder({
         packId: pack?.id,
         amount,
-        coupon: coupon.status === "applied" ? coupon.code : undefined,
+        couponCode: coupon.status === "applied" ? coupon.code : undefined,
         idempotencyKey: idemKey.current,
       });
       setInflight({ orderId: order.orderId, total: order.total });
-      const { outcome } = await openCheckout(order);
+      const { outcome, payment } = await openCheckout(order);
+
+      if (outcome === "success" && payment) {
+        // The backend checks Razorpay's signature and credits the wallet. If this call fails
+        // the Razorpay webhook still credits it — the status page polls either way.
+        await walletService
+          .verifyPayment({ orderId: order.orderId, razorpayPaymentId: payment.razorpay_payment_id, signature: payment.razorpay_signature })
+          .catch(() => {});
+      }
 
       if (outcome === "closed") {
         // The user may still have paid (e.g. UPI app) — confirm with the backend before giving up.
@@ -339,7 +348,7 @@ export function RechargePanel() {
           <Lock className="size-4" aria-hidden />
           {valid ? `Pay ${formatCurrency(quote.total, locale)}` : "Add money"}
         </Button>
-        <p className="text-center text-xs text-muted">GST is charged on the recharge amount as per government rules. Bonus credit is tax-free.</p>
+        <p className="text-center text-xs text-muted">{`GST (${Math.round(config.gstRate * 100)}%) is added on top of the recharge amount as per government rules. Bonus credit is tax-free.`}</p>
       </Card>
     </div>
   );
@@ -365,7 +374,7 @@ function PaymentMethodsNote() {
   return (
     <div className="rounded-2xl border border-line bg-surface-muted/60 p-4">
       <p className="flex items-center gap-2 text-sm font-semibold">
-        <ShieldCheck className="size-4 text-green-600 dark:text-green-400" aria-hidden /> 100% secure payments via Cashfree
+        <ShieldCheck className="size-4 text-green-600 dark:text-green-400" aria-hidden /> 100% secure payments via Razorpay
       </p>
       <ul className="mt-3 flex flex-wrap gap-2">
         {methods.map(([Icon, label]) => (
@@ -374,7 +383,7 @@ function PaymentMethodsNote() {
           </li>
         ))}
       </ul>
-      <p className="mt-3 text-xs text-muted">Pay with any UPI app (GPay, PhonePe, Paytm), debit/credit cards or net banking. Your wallet is credited as soon as the bank confirms the payment.</p>
+      <p className="mt-3 text-xs text-muted">Pay with any UPI app (GPay, PhonePe, Paytm), debit/credit cards or net banking. Your wallet is credited as soon as Razorpay confirms the payment.</p>
     </div>
   );
 }

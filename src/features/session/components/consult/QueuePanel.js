@@ -11,6 +11,7 @@ import { QUEUE_ACCEPT_SECONDS } from "../../lib/sessionEvents";
 
 /** Waitlist position, estimated wait and leave / rejoin actions. */
 export function QueuePanel({ astrologer, queue, expired, onLeave, leaving, onRejoin, rejoining }) {
+  const cleared = queue.endReason === "cleared";
 
   if (expired) {
     return (
@@ -18,8 +19,12 @@ export function QueuePanel({ astrologer, queue, expired, onLeave, leaving, onRej
         <div className="flex size-16 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
           <Hourglass className="size-8" aria-hidden />
         </div>
-        <h2 className="mt-4 font-display text-xl font-semibold">You missed your turn</h2>
-        <p className="mt-1 max-w-xs text-sm text-muted">{`Your place with ${astrologer.name} has expired because it wasn't accepted in time. You can join the waitlist again.`}</p>
+        <h2 className="mt-4 font-display text-xl font-semibold">{cleared ? "The waitlist was closed" : "You missed your turn"}</h2>
+        <p className="mt-1 max-w-xs text-sm text-muted">
+          {cleared
+            ? `${astrologer.name} is no longer taking people from the waitlist right now. Join again later or pick someone available below.`
+            : `Your place with ${astrologer.name} has expired because it wasn't accepted within ${QUEUE_ACCEPT_SECONDS} seconds. You can join the waitlist again.`}
+        </p>
         <Button size="lg" variant="gold" className="mt-6 min-w-48" onClick={onRejoin} loading={rejoining}>
           <RotateCcw className="size-4" aria-hidden />
           Rejoin waitlist
@@ -59,7 +64,7 @@ export function QueuePanel({ astrologer, queue, expired, onLeave, leaving, onRej
 
       <p className="flex gap-2 rounded-2xl bg-surface-muted p-3 text-sm text-muted">
         <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
-        {`Keep this page open. When it's your turn you'll have ${QUEUE_ACCEPT_SECONDS} seconds to accept.`}
+        {`Keep this page open. When it's your turn you'll have ${QUEUE_ACCEPT_SECONDS} seconds to accept or decline. You're only charged once the session starts.`}
       </p>
 
       <Button variant="outline" size="lg" className="w-full" onClick={onLeave} loading={leaving}>
@@ -70,17 +75,17 @@ export function QueuePanel({ astrologer, queue, expired, onLeave, leaving, onRej
   );
 }
 
-/** "It's your turn" — must be accepted inside the window or the place is lost. */
-export function YourTurnModal({ astrologer, expiresAt, onAccept, accepting, onDecline, declining, onExpire }) {
+/** "It's your turn" (queue:offer) — accept or decline inside the window, or the place is lost. */
+export function YourTurnModal({ astrologer, expiresAt, seconds = QUEUE_ACCEPT_SECONDS, onAccept, accepting, onDecline, declining, onExpire }) {
   const nowSec = useClockSeconds();
-  const remaining = nowSec ? Math.max(0, Math.ceil(expiresAt / 1000) - nowSec) : QUEUE_ACCEPT_SECONDS;
+  const remaining = nowSec ? Math.max(0, Math.ceil(expiresAt / 1000) - nowSec) : seconds;
   const expire = useEffectEvent(onExpire);
 
   useEffect(() => {
     if (remaining === 0 && !accepting) expire();
   }, [remaining, accepting]);
 
-  const pct = Math.min(100, (remaining / QUEUE_ACCEPT_SECONDS) * 100);
+  const pct = Math.min(100, (remaining / seconds) * 100);
 
   return (
     <Modal open onClose={onDecline} dismissible={false} title="It's your turn!">
@@ -92,7 +97,7 @@ export function YourTurnModal({ astrologer, expiresAt, onAccept, accepting, onDe
             <BellRing className="size-4" aria-hidden />
           </span>
         </div>
-        <p className="mt-4 text-sm text-muted">{`${astrologer.name} is ready for you. Accept now to start your session.`}</p>
+        <p className="mt-4 text-sm text-muted">{`${astrologer.name} is ready for you. Accept to start your session, or decline to let the next person go.`}</p>
         <p translate="no" className="notranslate mt-4 text-3xl font-bold tabular-nums" role="timer" aria-live="off">
           {remaining}s
         </p>
@@ -101,7 +106,7 @@ export function YourTurnModal({ astrologer, expiresAt, onAccept, accepting, onDe
           role="progressbar"
           aria-label="Time left to accept"
           aria-valuemin={0}
-          aria-valuemax={QUEUE_ACCEPT_SECONDS}
+          aria-valuemax={seconds}
           aria-valuenow={remaining}
         >
           <div className="h-full rounded-full bg-gold-500 transition-[width] duration-1000 ease-linear" style={{ width: `${pct}%` }} />

@@ -15,7 +15,8 @@ import { label as t } from "@/lib/labels";
 
 const STEPS = ["personal", "expertise", "availability", "documents", "review"];
 const EXPERIENCE = ["2-5", "5-10", "10-20", "20+"];
-const MODES = ["chat", "video"];
+const MODES = ["chat", "call", "video"]; // backend modes; "call" is a voice call
+const MODE_LABEL = { chat: "modeChat", call: "modeCall", video: "modeVideo" };
 const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 const SLOTS = ["morning", "afternoon", "evening", "night"];
 const HOURS = ["1-2", "2-4", "4-6", "6+"];
@@ -261,7 +262,7 @@ export function ApplicationForm() {
             <ChoiceChips
               legend={f("modes")}
               name="modes"
-              options={MODES.map((m) => ({ value: m, label: f(m === "chat" ? "modeChat" : "modeVideo") }))}
+              options={MODES.map((m) => ({ value: m, label: f(MODE_LABEL[m]) }))}
               value={values.modes}
               onChange={(v) => set("modes", v)}
               error={err("modes")}
@@ -334,6 +335,7 @@ export function ApplicationForm() {
             onError={(msg) => setFileErrors((fe) => ({ ...fe, certificate: msg }))}
             error={fileErrors.certificate}
           />
+          <p className="text-xs text-muted sm:col-span-2">{f("kycNote")}</p>
         </div>
       )}
 
@@ -350,7 +352,7 @@ export function ApplicationForm() {
             <ReviewRow label={f("specialties")} value={values.specialties.join(", ")} />
             <ReviewRow label={f("languages")} value={values.languages.join(", ")} />
             <ReviewRow label={f("experience")} value={values.experience ? t(`content.become.form.experienceOptions.${values.experience}`) : ""} />
-            <ReviewRow label={f("modes")} value={values.modes.map((m) => f(m === "chat" ? "modeChat" : "modeVideo")).join(", ")} />
+            <ReviewRow label={f("modes")} value={values.modes.map((m) => f(MODE_LABEL[m])).join(", ")} />
             {values.bio && <ReviewRow label={f("bio")} value={values.bio} />}
           </ReviewBlock>
           <ReviewBlock title="Availability" onEdit={() => goTo(2)} editLabel="Edit">

@@ -2,17 +2,30 @@ import { env } from "@/config/site";
 import { ApiError, http, mockDelay } from "../http";
 
 /**
- * Wallet & payments.
+ * Wallet & payments (Razorpay).
  *
- * The wallet is credited ONLY by the backend after Cashfree's verified webhook.
- * The browser just: creates an order → opens Cashfree checkout → polls order status.
+ * Real flow (backend contract):
+ *   1. POST /user/wallet/quote    { packId | amount, couponCode } → { amount, gstAmount, gstPercent,
+ *                                 totalAmount, packBonus, couponBonus, bonusAmount, creditAmount, coupon }
+ *      Coupons are applied here — there is no separate "validate coupon" call.
+ *   2. POST /user/payments/order  { packId | amount, couponCode } → { orderId, keyId, amount, currency, breakdown, prefill }
+ *   3. Razorpay Checkout (features/wallet/lib/razorpay.js)
+ *   4. POST /user/payments/verify { orderId, razorpayPaymentId, signature } → { status, credited, creditAmount, balance }
+ *   5. GET  /user/payments/:orderId/status — polled by the status page
+ * The wallet is credited ONLY by the backend (on verify, or from the Razorpay
+ * webhook if the browser never returns). The browser never credits anything.
  *
- * Order status values (backend contract): "created" | "pending" | "success" | "failed"
+ * Backend amounts are in paise; this layer works in rupees.
+ * TODO(api): convert at the boundary when wiring the real endpoints.
+ *
+ * Recharge limits (backend settings): ₹50 – ₹1,00,000 per recharge, 18% GST on top.
+ *
+ * Order status values: "created" | "pending" | "success" | "failed"
  * Transaction types: "recharge" | "consultation" | "refund" | "bonus" | "report"
  * Transaction status: "success" | "pending" | "failed"
  */
 
-export const WALLET_CONFIG = { minAmount: 50, maxAmount: 50000, gstRate: 0.18 };
+export const WALLET_CONFIG = { minAmount: 50, maxAmount: 100000, gstRate: 0.18 };
 
 export const TXN_FILTERS = ["all", "recharge", "consultation", "refund", "bonus"];
 
@@ -22,7 +35,7 @@ export const TXN_FILTERS = ["all", "recharge", "consultation", "refund", "bonus"
 // header balance is correct after a refresh.
 // ---------------------------------------------------------------------------
 
-const MOCK_PACKS = [
+export const MOCK_PACKS = [
   { id: "p50", amount: 50, credit: 50 },
   { id: "p100", amount: 100, credit: 120, tag: "popular" },
   { id: "p200", amount: 200, credit: 250 },
@@ -50,6 +63,9 @@ const seedTransactions = () => {
   let n = 0;
   const push = (t) => items.push({ id: `txn_seed_${++n}`, ...t });
   push({ type: "bonus", amount: 50, status: "success", createdAt: now - 26 * 24 * HOUR, meta: { reason: "welcome" } });
+  // Consultations are billed by the second (rate × seconds / 60) — amounts have paise.
+  const RATES = [12, 25, 35];
+  const SECONDS = [181, 412, 905, 754, 300, 1262];
   for (let i = 0; i < 18; i++) {
     const at = now - (24 - i) * 24 * HOUR - i * 3 * HOUR;
     if (i % 4 === 0) {
@@ -64,13 +80,14 @@ const seedTransactions = () => {
     } else if (i % 7 === 0) {
       push({ type: "refund", amount: 45, status: "success", createdAt: at, meta: { astrologer: names[i % 4], reason: "dropped" } });
     } else {
-      const mins = 5 + ((i * 7) % 20);
+      const rate = RATES[i % 3];
+      const durationSec = SECONDS[i % SECONDS.length];
       push({
         type: "consultation",
-        amount: -mins * (15 + (i % 3) * 10),
+        amount: -Math.round((rate * durationSec * 100) / 60) / 100,
         status: "success",
         createdAt: at,
-        meta: { astrologer: names[i % 4], mode: i % 3 === 0 ? "video" : "chat", minutes: mins },
+        meta: { astrologer: names[i % 4], mode: ["video", "chat", "call"][i % 3], durationSec, ratePerMin: rate },
       });
     }
   }
@@ -112,7 +129,12 @@ function couponBonus(code, amount) {
   return c.type === "flat" ? c.value : Math.min(Math.round((amount * c.value) / 100), c.maxBonus);
 }
 
-/** Quote = what the user pays and what lands in the wallet. Mirrors backend maths for display only. */
+function assertAmount(amount) {
+  if (!Number.isInteger(amount) || amount < WALLET_CONFIG.minAmount || amount > WALLET_CONFIG.maxAmount)
+    throw new ApiError("Recharge amount must be between ₹50 and ₹1,00,000", { status: 400, code: "INVALID_AMOUNT" });
+}
+
+/** Instant preview of a quote (display only) — the backend quote is what gets charged. */
 export function quoteRecharge({ amount, packs = MOCK_PACKS, couponBonus: extra = 0, gstRate = WALLET_CONFIG.gstRate }) {
   const pack = packs.find((p) => p.amount === amount);
   const packBonus = pack ? pack.credit - pack.amount : 0;
@@ -150,8 +172,8 @@ export const __mockWallet = {
     return s.balance;
   },
   /**
-   * Simulates the Cashfree side of the payment (what the user picked in the mock checkout).
-   * The "webhook" lands a little later — status polling picks it up.
+   * Simulates the Razorpay side of the payment (what the user picked in the mock checkout,
+   * or a successful verify). The "webhook" lands a little later — status polling picks it up.
    */
   setOutcome(orderId, outcome) {
     const s = readStore();
@@ -174,7 +196,7 @@ function resolveMockOrder(orderId) {
   if (o.status === "pending" && o.resolveAt && Date.now() >= o.resolveAt) {
     o.status = o.resolveTo;
     if (o.status === "success") {
-      // ← this is what the backend does on the verified PAYMENT_SUCCESS webhook.
+      // ← this is what the backend does after /payments/verify or the Razorpay payment.captured webhook.
       s.balance = Math.round((s.balance + o.credit) * 100) / 100;
       s.txns.push({
         id: `txn_${orderId}`,
@@ -240,36 +262,43 @@ export const walletService = {
   },
 
   /**
-   * Validate a coupon for an amount. Throws ApiError code INVALID_COUPON | COUPON_MIN_AMOUNT.
-   * @returns {{ code: string, bonus: number }}
+   * POST /user/wallet/quote — GST breakdown + pack / coupon bonus for a recharge.
+   * Coupons are applied here. Throws ApiError code INVALID_COUPON | COUPON_MIN_AMOUNT | INVALID_AMOUNT.
+   * @param {{ packId?: string, amount: number, couponCode?: string }} p
+   * @returns {Promise<{ amount: number, gst: number, gstPercent: number, total: number, packBonus: number, couponBonus: number, bonus: number, credit: number, coupon: { code: string } | null }>}
    */
-  async validateCoupon({ code, amount }) {
+  async quote({ packId, amount, couponCode }) {
     if (env.useMocks) {
       await mockDelay(null, 350);
-      return { code, bonus: couponBonus(code, amount) };
+      assertAmount(amount);
+      const extra = couponCode ? couponBonus(couponCode, amount) : 0;
+      const q = quoteRecharge({ amount, couponBonus: extra });
+      return { ...q, gstPercent: Math.round(WALLET_CONFIG.gstRate * 100), coupon: couponCode ? { code: couponCode } : null, packId };
     }
-    return http("/wallet/coupons/validate", { method: "POST", body: { code, amount } });
+    return http("/wallet/quote", { method: "POST", body: { packId, amount, couponCode } });
   },
 
   /**
-   * Create a Cashfree order on the backend. `idempotencyKey` is generated once per
-   * attempt so double-clicks / retries never create two orders.
-   * @returns {{ orderId: string, paymentSessionId: string, amount: number, credit: number, total: number }}
+   * POST /user/payments/order — creates the Razorpay order for the quoted recharge.
+   * `idempotencyKey` is generated once per attempt so double-clicks / retries never create two orders.
+   * @returns {Promise<{ orderId: string, keyId: string, currency: "INR", amount: number, credit: number, total: number }>}
    */
-  async createOrder({ packId, amount, coupon, idempotencyKey }) {
+  async createOrder({ packId, amount, couponCode, idempotencyKey }) {
     if (env.useMocks) {
       await mockDelay(null, 500);
       const s = readStore();
       const existing = s.idem[idempotencyKey];
       if (existing && s.orders[existing]) return { ...s.orders[existing] };
-      const extra = coupon ? couponBonus(coupon, amount) : 0;
+      assertAmount(amount);
+      const extra = couponCode ? couponBonus(couponCode, amount) : 0;
       const q = quoteRecharge({ amount, couponBonus: extra });
-      const orderId = `ord_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+      const orderId = `order_mock_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
       const order = {
         orderId,
-        paymentSessionId: `session_mock_${orderId}`,
+        keyId: "rzp_mock",
+        currency: "INR",
         packId,
-        coupon: coupon || null,
+        coupon: couponCode || null,
         ...q,
         status: "created",
         createdAt: Date.now(),
@@ -279,20 +308,34 @@ export const walletService = {
       writeStore(s);
       return { ...order };
     }
-    return http("/wallet/orders", {
+    return http("/payments/order", {
       method: "POST",
-      body: { packId, amount, coupon },
+      body: { packId, amount, couponCode },
       headers: { "Idempotency-Key": idempotencyKey },
     });
   },
 
-  /** Poll this after checkout — the backend flips it to success only after the verified webhook. */
+  /**
+   * POST /user/payments/verify — hands Razorpay's signed response to the backend, which
+   * checks the signature and credits the wallet. Safe to fail: the webhook still credits it.
+   * @param {{ orderId: string, razorpayPaymentId: string, signature: string }} p
+   */
+  async verifyPayment({ orderId, razorpayPaymentId, signature }) {
+    if (env.useMocks) {
+      await mockDelay(null, 300);
+      __mockWallet.setOutcome(orderId, "success");
+      return { status: "pending", credited: false };
+    }
+    return http("/payments/verify", { method: "POST", body: { orderId, razorpayPaymentId, signature } });
+  },
+
+  /** GET /user/payments/:orderId/status — poll after checkout; only the backend marks it success. */
   async getOrderStatus(orderId) {
     if (env.useMocks) {
       await mockDelay(null, 250);
       return toOrderStatus(resolveMockOrder(orderId));
     }
-    return http(`/wallet/orders/${orderId}`, { cache: "no-store" });
+    return http(`/payments/${orderId}/status`, { cache: "no-store" });
   },
 
   /** @returns {{ items: object[], total: number, page: number, pageSize: number, hasMore: boolean }} */

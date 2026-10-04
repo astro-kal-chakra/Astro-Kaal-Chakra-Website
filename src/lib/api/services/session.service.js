@@ -1,7 +1,6 @@
 import { env } from "@/config/site";
 import { http, mockDelay, ApiError } from "../http";
 import {
-  MOCK_FREE_CHAT_SECONDS,
   getMockBalance,
   getMockMessages,
   getMockSession,
@@ -10,6 +9,7 @@ import {
   updateMockSession,
 } from "../mock/session";
 import { mockSessionEngine } from "@/features/session/lib/mockSessionEngine";
+import { FREE_CHAT_MINUTES, REQUEST_TIMEOUT_SECONDS, minBalanceFor } from "@/features/session/lib/sessionEvents";
 
 const pick = (a) => ({
   id: a.id,
@@ -22,9 +22,16 @@ const pick = (a) => ({
   experienceYears: a.experienceYears,
 });
 
-/** Voice calls use the video rate unless the backend sends a separate voice price. */
+/** ₹/min for a mode ("chat" | "call" | "video") — the astrologer's own price per mode. */
 export const priceFor = (astrologer, mode) =>
-  mode === "chat" ? astrologer.chatPrice : mode === "voice" ? (astrologer.voicePrice ?? astrologer.videoPrice) : astrologer.videoPrice;
+  mode === "chat" ? astrologer.chatPrice : mode === "call" ? astrologer.callPrice : astrologer.videoPrice;
+
+/** Modes this astrologer offers (chat always; call / video when enabled). */
+export const modesFor = (astrologer) => [
+  "chat",
+  ...(astrologer.supportsCall !== false ? ["call"] : []),
+  ...(astrologer.supportsVideo ? ["video"] : []),
+];
 
 const readMockUser = () => {
   try {
@@ -37,19 +44,25 @@ const readMockUser = () => {
 const notFound = () => new ApiError("Session not found", { status: 404, code: "SESSION_NOT_FOUND" });
 
 /**
- * Consultation sessions. Actions go over HTTP; live updates (accept, billing,
- * messages, queue position) arrive as socket events — see useSessionTransport().
- * Charging is server-side only: nothing here computes what the user pays.
+ * Consultation sessions. Actions go over HTTP; live updates (session:start,
+ * session:tick, wallet:low, messages, queue:offer) arrive as socket events —
+ * see useSessionTransport(). Charging is server-side only: each started minute
+ * is held from the wallet, the user pays the exact time by the second and the
+ * unused part is returned when the session ends.
+ *
+ * Start rules (backend settings): a paid session needs max(₹50, 5 minutes of the
+ * rate); the astrologer has 30 seconds to accept; the free first chat is 3 minutes,
+ * chat only, once per account / device.
  */
 export const sessionService = {
-  /** Wallet balance + free-chat eligibility for the pre-session screen. */
+  /** Wallet balance + free-chat eligibility for the pre-session screen (GET /user/sessions/precheck). */
   async getPreSession() {
     if (env.useMocks) {
       const user = readMockUser();
       return mockDelay({
         balance: getMockBalance(),
         freeChatAvailable: user?.freeChatAvailable !== false,
-        freeChatSeconds: MOCK_FREE_CHAT_SECONDS,
+        freeMinutes: FREE_CHAT_MINUTES,
       }, 200);
     }
     return http("/sessions/pre-check", { cache: "no-store" });
@@ -57,15 +70,18 @@ export const sessionService = {
 
   /**
    * Send a consultation request to an astrologer.
-   * @param {{ astrologer: object, mode: "chat"|"video"|"voice", useFreeChat: boolean, idempotencyKey: string, simulate?: string }} p
+   * @param {{ astrologer: object, mode: "chat"|"call"|"video", useFreeChat: boolean, idempotencyKey: string, simulate?: string }} p
    * @returns {Promise<{ sessionId: string, status: "pending", expiresInSec: number }>}
    */
   async request({ astrologer, mode, useFreeChat, idempotencyKey, simulate }) {
     if (env.useMocks) {
       await mockDelay(null, 500);
       const record = buildMockRecord({ astrologer, mode, useFreeChat });
+      if (!record.isFree && getMockBalance() < minBalanceFor(record.ratePerMin)) {
+        throw new ApiError("Insufficient balance", { status: 402, code: "INSUFFICIENT_BALANCE" });
+      }
       saveMockSession(record);
-      const expiresInSec = 20;
+      const expiresInSec = REQUEST_TIMEOUT_SECONDS;
       mockSessionEngine.simulateRequest(record.id, { outcome: simulate, expiresInSec });
       return { sessionId: record.id, status: "pending", expiresInSec };
     }
@@ -84,7 +100,7 @@ export const sessionService = {
     return http(`/sessions/${sessionId}/cancel`, { method: "POST" });
   },
 
-  /** @returns {Promise<object>} session incl. astrologer, mode, status, startedAt, ratePerMin, isFree, freeSeconds */
+  /** @returns {Promise<object>} session incl. astrologer, mode, status, startedAt, ratePerMin, isFree, freeMinutes, billedMinutes */
   async get(sessionId) {
     if (env.useMocks) {
       await mockDelay(null, 150);
@@ -116,36 +132,50 @@ export const sessionService = {
 
   /* --------------------------------- Waitlist -------------------------------- */
 
-  /** @returns {Promise<{ queueId: string, position: number, estimatedWaitSec: number }>} */
+  /**
+   * Join a busy astrologer's waitlist. When it's the user's turn the server sends
+   * queue:offer, and they have 60 seconds to accept or decline.
+   * @returns {Promise<{ entryId: string, position: number, estimatedWaitSec: number }>}
+   */
   async joinQueue({ astrologer, mode, useFreeChat }) {
     if (env.useMocks) {
       await mockDelay(null, 400);
-      const queueId = mockId("q");
+      const entryId = mockId("q");
       const position = Math.max(2, (astrologer.queueCount || 2) + 1);
-      mockSessionEngine.startQueue(queueId, { astrologer, mode, useFreeChat, position });
-      return { queueId, position, estimatedWaitSec: position * 4 * 60 };
+      mockSessionEngine.startQueue(entryId, { astrologer, mode, useFreeChat, position });
+      return { entryId, position, estimatedWaitSec: position * 4 * 60 };
     }
     return http("/queue", { method: "POST", body: { astrologerId: astrologer.id, mode, useFreeChat } });
   },
 
-  async leaveQueue(queueId) {
+  async leaveQueue(entryId) {
     if (env.useMocks) {
-      mockSessionEngine.leaveQueue(queueId);
+      mockSessionEngine.leaveQueue(entryId);
       return mockDelay({ ok: true }, 200);
     }
-    return http(`/queue/${queueId}`, { method: "DELETE" });
+    return http(`/queue/${entryId}`, { method: "DELETE" });
   },
 
-  /** Accept "your turn" — returns the started session. */
-  async acceptTurn(queueId, { astrologer, mode, useFreeChat }) {
+  /** Accept the turn offer — returns the started session. */
+  async acceptTurn(entryId, { astrologer, mode, useFreeChat }) {
     if (env.useMocks) {
       await mockDelay(null, 400);
       const record = buildMockRecord({ astrologer, mode, useFreeChat });
-      const started = mockSessionEngine.acceptTurn(queueId, record);
+      const started = mockSessionEngine.acceptTurn(entryId, record);
       if (!started) throw new ApiError("Turn expired", { status: 410, code: "QUEUE_EXPIRED" });
+      if (started.status !== "active") throw new ApiError("Insufficient balance", { status: 402, code: "INSUFFICIENT_BALANCE" });
       return { sessionId: started.id, mode: started.mode };
     }
-    return http(`/queue/${queueId}/accept`, { method: "POST" });
+    return http(`/queue/${entryId}/accept`, { method: "POST" });
+  },
+
+  /** Decline the turn offer — the next person in line gets it. */
+  async declineTurn(entryId) {
+    if (env.useMocks) {
+      mockSessionEngine.declineTurn(entryId);
+      return mockDelay({ ok: true }, 200);
+    }
+    return http(`/queue/${entryId}/decline`, { method: "POST" });
   },
 
   /* --------------------------------- Summary --------------------------------- */
@@ -157,7 +187,7 @@ export const sessionService = {
       const record = getMockSession(sessionId);
       if (!record) throw notFound();
       // The server closes sessions whose tab was abandoned; mimic that here.
-      if (record.status !== "ended") mockSessionEngine.end(sessionId, "user");
+      if (record.status === "active") mockSessionEngine.end(sessionId, "user");
       const session = getMockSession(sessionId);
       return { session, review: session.review || null };
     }
@@ -176,16 +206,18 @@ export const sessionService = {
 };
 
 function buildMockRecord({ astrologer, mode, useFreeChat }) {
-  const isFree = Boolean(useFreeChat && mode === "chat");
+  const isFree = Boolean(useFreeChat && mode === "chat"); // the free first chat is chat only
   return {
     id: mockId("s"),
     mode,
     status: "pending",
     astrologer: pick(astrologer),
-    ratePerMin: priceFor(astrologer, mode),
+    ratePerMin: isFree ? 0 : priceFor(astrologer, mode),
     isFree,
-    freeSeconds: isFree ? MOCK_FREE_CHAT_SECONDS : 0,
+    freeMinutes: isFree ? FREE_CHAT_MINUTES : 0,
     createdAt: Date.now(),
     startedAt: null,
+    billedMinutes: 0,
+    totalHeld: 0,
   };
 }

@@ -129,7 +129,7 @@ export function EndSessionModal({ open, onClose, onConfirm, loading, mode }) {
   const isChat = mode === "chat";
   return (
     <Modal open={open} onClose={onClose} title={(isChat ? "End this chat?" : "End this call?")}>
-      <p className="text-sm text-muted">{"You'll only be charged for the time used so far. You can rebook this astrologer any time."}</p>
+      <p className="text-sm text-muted">{"Any unused prepaid time goes back to your wallet automatically."}</p>
       <div className="mt-6 grid grid-cols-2 gap-3">
         <Button variant="outline" size="lg" onClick={onClose} disabled={loading}>
           Keep talking
@@ -147,6 +147,7 @@ const REASON_ICON = {
   [END_REASONS.ASTROLOGER]: UserX,
   [END_REASONS.ADMIN]: ShieldAlert,
   [END_REASONS.BALANCE]: Wallet,
+  [END_REASONS.FREE_OVER]: Gift,
 };
 
 /** Shown when the session finishes for any reason other than the user ending it here. */
@@ -178,18 +179,21 @@ export function SessionEndedPanel({ sessionId, ended, astrologer, isFree, tone =
         <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
           <div className="rounded-xl bg-surface-muted p-3">
             <dt className="text-xs text-muted">Duration</dt>
-            <dd className="font-semibold tabular-nums">{formatDuration(ended.duration || 0)}</dd>
+            <dd className="font-semibold tabular-nums">{formatDuration(ended.durationSec || 0)}</dd>
           </div>
           <div className="rounded-xl bg-surface-muted p-3">
             <dt className="text-xs text-muted">Charged</dt>
-            <dd className="font-semibold">{isFree && !ended.charged ? "FREE" : formatCurrency(ended.charged || 0, locale)}</dd>
+            <dd className="font-semibold">{isFree && !ended.totalCharged ? "FREE" : formatCurrency(ended.totalCharged || 0, locale)}</dd>
           </div>
         </dl>
+        {ended.unusedReturned > 0 && (
+          <p className="mt-3 text-xs text-muted">{`${formatCurrency(ended.unusedReturned, locale)} unused time returned to your wallet`}</p>
+        )}
         <div className="mt-5 grid gap-2">
           <Button size="lg" onClick={() => router.push(`${routes.sessionSummary(sessionId)}`)}>
             View summary
           </Button>
-          {ended.reason === END_REASONS.BALANCE && (
+          {(ended.reason === END_REASONS.BALANCE || ended.reason === END_REASONS.FREE_OVER) && (
             <ButtonLink href={routes.wallet} variant="gold" size="lg">
               Recharge wallet
             </ButtonLink>

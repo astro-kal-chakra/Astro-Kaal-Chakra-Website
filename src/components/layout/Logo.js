@@ -46,7 +46,7 @@ export function Logo({ className, onDark = false }) {
       href="/"
       translate="no"
       aria-label={siteConfig.name}
-      className={cn("notranslate flex shrink-0 items-center gap-2 font-display text-lg font-bold tracking-tight sm:text-xl", className)}
+      className={cn("notranslate flex shrink-0 items-center gap-2 font-display text-xl tracking-tight sm:text-[1.4rem]", className)}
     >
       <LogoMark />
       <span

@@ -19,6 +19,7 @@ function applyFilters(list, f = {}) {
   if (f.maxPrice != null) out = out.filter((a) => a.chatPrice <= Number(f.maxPrice));
   if (f.online) out = out.filter((a) => a.status === "online");
   if (f.mode === "video") out = out.filter((a) => a.supportsVideo);
+  if (f.mode === "call") out = out.filter((a) => a.supportsCall);
 
   const sorters = {
     [SORT_OPTIONS.RATING]: (a, b) => b.rating - a.rating,

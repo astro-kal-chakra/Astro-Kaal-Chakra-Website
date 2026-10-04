@@ -35,7 +35,7 @@ function AuthArea() {
   if (status === "loading") return <Skeleton className="h-9 w-24 rounded-full" />;
   if (status !== "authenticated") {
     return (
-      <ButtonLink href={routes.login} size="sm" variant="gold">
+      <ButtonLink href={routes.login} size="sm">
         Login
       </ButtonLink>
     );
@@ -45,7 +45,7 @@ function AuthArea() {
       <NotificationBell />
       <LocaleLink
         href={routes.wallet}
-        className="flex h-9 items-center gap-1.5 rounded-full bg-gold-100 px-3 text-sm font-semibold text-gold-700 dark:bg-gold-700/25 dark:text-gold-300"
+        className="flex h-9 items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 text-sm font-semibold text-brand-700 hover:bg-brand-100 dark:border-brand-800 dark:bg-brand-950/40 dark:text-brand-200"
       >
         <Wallet className="size-4" aria-hidden />
         <span translate="no" className="notranslate">{formatCurrency(user?.walletBalance ?? 0, locale)}</span>
@@ -71,7 +71,7 @@ export function Header() {
   const isActive = (href) => pathname.startsWith(`${href}`);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-surface/85 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-line bg-surface/90 backdrop-blur-md">
       <div className="container-page flex h-16 items-center gap-4">
         <button className="-ml-2 p-2 xl:hidden" onClick={() => setOpen((o) => !o)} aria-label="Menu" aria-expanded={open}>
           {open ? <X className="size-6" /> : <Menu className="size-6" />}
@@ -82,10 +82,13 @@ export function Header() {
             <LocaleLink
               key={item.href}
               href={item.href}
+              aria-current={isActive(item.href) ? "page" : undefined}
               className={cn(
-                "whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium text-muted hover:text-fg",
+                // Active: saffron text + a short saffron bar under it
+                "relative whitespace-nowrap px-3 py-2 text-sm font-medium text-muted transition-colors hover:text-fg",
+                "after:absolute after:inset-x-3 after:-bottom-[13px] after:h-0.5 after:rounded-full after:bg-brand-500 after:opacity-0 after:transition-opacity",
                 item.wideOnly && "hidden 2xl:block",
-                isActive(item.href) && "bg-surface-muted text-fg"
+                isActive(item.href) && "text-accent after:opacity-100"
               )}
             >
               {t(item.key)}

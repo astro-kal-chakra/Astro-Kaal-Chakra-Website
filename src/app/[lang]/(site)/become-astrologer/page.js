@@ -20,7 +20,7 @@ export async function generateMetadata({ params }) {
     locale: lang,
     path: routes.becomeAstrologer,
     title: "Become an Astrologer – Join Our Verified Network",
-    description: "Consult from home, set your own hours and earn per minute. Apply to join our network of verified astrologers.",
+    description: "Consult from home by chat, call or video, set your own hours and keep the full session amount until payout. Apply to join our network of verified astrologers.",
   });
 }
 
@@ -38,15 +38,15 @@ export default async function BecomeAstrologerPage({ params }) {
           <a href="#apply" className={buttonClasses({ variant: "gold", size: "lg" })}>
             Apply now
           </a>
-          <a href="#process" className={buttonClasses({ size: "lg", className: "border border-white/30 bg-white/10 text-white hover:bg-white/20" })}>
+          <a href="#process" className={buttonClasses({ size: "lg", variant: "soft" })}>
             See how it works
           </a>
         </div>
         <dl className="mt-10 grid max-w-2xl grid-cols-3 gap-4">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="flex flex-col-reverse rounded-2xl border border-white/15 bg-white/5 p-3 sm:p-4">
-              <dt className="mt-1 text-xs text-brand-200 sm:text-sm">{t(`content.become.heroStat${n}`)}</dt>
-              <dd className="font-display text-lg font-bold text-gold-300 sm:text-2xl">{t(`content.become.heroStat${n}Value`)}</dd>
+            <div key={n} className="flex flex-col-reverse rounded-2xl border border-line bg-surface p-3 sm:p-4">
+              <dt className="mt-1 text-xs text-muted sm:text-sm">{t(`content.become.heroStat${n}`)}</dt>
+              <dd className="font-display text-lg text-accent sm:text-2xl">{t(`content.become.heroStat${n}Value`)}</dd>
             </div>
           ))}
         </dl>
@@ -73,13 +73,14 @@ export default async function BecomeAstrologerPage({ params }) {
         <div className="container-page grid grid-cols-1 gap-8 lg:grid-cols-2">
           <div>
             <h2 className="font-display text-2xl font-semibold sm:text-3xl">What you can earn</h2>
-            <p className="mt-1 text-muted">Estimated monthly earnings at a ₹30/min rate (illustrative only).</p>
+            <p className="mt-1 text-muted">Illustrative month at ₹30/min, 26 days, consulting for about half of your online time.</p>
             <Card className="mt-5 overflow-hidden">
               <table className="w-full text-left text-sm">
                 <thead className="bg-brand-600 text-white dark:bg-brand-800">
                   <tr>
                     <th scope="col" className="px-4 py-3 font-semibold">Hours online / day</th>
-                    <th scope="col" className="px-4 py-3 font-semibold">Estimated monthly earnings</th>
+                    <th scope="col" className="px-4 py-3 font-semibold">Session earnings</th>
+                    <th scope="col" className="px-4 py-3 font-semibold">Paid to your bank*</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-line">
@@ -87,12 +88,15 @@ export default async function BecomeAstrologerPage({ params }) {
                     <tr key={n}>
                       <th scope="row" className="px-4 py-3 font-medium">{t(`content.become.earningsRow${n}`)}</th>
                       <td className="px-4 py-3 font-semibold text-brand-700 dark:text-gold-300">{t(`content.become.earningsRow${n}Value`)}</td>
+                      <td className="px-4 py-3 font-semibold">{t(`content.become.earningsRow${n}Net`)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </Card>
-            <p className="mt-3 text-xs text-muted">Actual earnings depend on your rate, ratings, availability and demand. You set your per-minute rate within platform guidelines.</p>
+            <p className="mt-3 text-xs text-muted">
+              *The full amount of every session is credited to your earnings. When you request a payout, a platform charge (30% by default) and 1% TDS are deducted, and the rest is sent to your bank. Actual earnings depend on your rates, ratings, availability and demand. You set your per-minute rates for chat, call and video within platform guidelines.
+            </p>
           </div>
 
           <div>

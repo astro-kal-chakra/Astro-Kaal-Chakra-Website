@@ -11,7 +11,7 @@ export async function generateMetadata({ params }) {
   return buildMetadata({
     locale: lang,
     path: "/astrologers",
-    title: "Talk to Astrologers Online – Live Chat & Video",
+    title: "Talk to Astrologers Online – Chat, Call & Video",
     description: "Browse verified astrologers by language, specialty, price and rating. See who is online right now and start a private consultation.",
   });
 }
@@ -29,11 +29,21 @@ export default async function AstrologersPage({ params, searchParams }) {
   );
 
   return (
-    <div className="container-page py-8">
-      <h1 className="mb-6 font-display text-3xl font-semibold">Talk to Astrologers</h1>
-      <Suspense>
-        <AstrologerListing initial={initial} initialFilters={filters} />
-      </Suspense>
-    </div>
+    <>
+      <header className="bg-aura border-b border-line">
+        <div className="container-page py-8 sm:py-10">
+          <p className="eyebrow">Consult</p>
+          <h1 className="mt-2 font-display text-3xl text-fg sm:text-4xl">Talk to an astrologer</h1>
+          <p className="mt-2 max-w-2xl text-muted">
+            Chat, call or video with verified astrologers. Each astrologer sets their own per-minute rate; your first 3-minute chat is free.
+          </p>
+        </div>
+      </header>
+      <div className="container-page py-6">
+        <Suspense>
+          <AstrologerListing initial={initial} initialFilters={filters} />
+        </Suspense>
+      </div>
+    </>
   );
 }

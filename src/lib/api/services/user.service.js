@@ -17,7 +17,7 @@ const profilesStore = mockStore("birthProfiles", MOCK_BIRTH_PROFILES);
 const followingStore = mockStore("following", MOCK_FOLLOWING_IDS);
 const kundlisStore = mockStore("savedKundlis", MOCK_SAVED_KUNDLIS);
 const privacyStore = mockStore("privacy", MOCK_PRIVACY);
-const sessionsStore = mockStore("sessions", MOCK_SESSIONS);
+const sessionsStore = mockStore("sessions_v2", MOCK_SESSIONS);
 
 /** Everything about the logged-in user: profile, family profiles, saved items, privacy. */
 export const userService = {

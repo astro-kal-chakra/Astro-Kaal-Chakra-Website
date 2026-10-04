@@ -59,32 +59,42 @@ const astroRef = (i) => {
 
 /* ---------------------------- Session history ---------------------------- */
 
+// Billed by the second at the rate of the time: 03:01 at ₹12/min = ₹36.20. Each started
+// minute was held in advance; the unused part (₹48 held − ₹36.20 = ₹11.80) went back to the wallet.
 const SESSION_SEED = [
-  // [astroIdx, type, callMode, daysAgo, durationSec, amount, status]
-  [0, "chat", null, 0.2, 754, 300, "completed"],
-  [3, "call", "video", 1, 1260, 1512, "completed"],
-  [2, "chat", null, 3, 0, 0, "missed"],
-  [6, "chat", null, 5, 412, 245, "refunded"],
-  [1, "call", "voice", 8, 905, 377, "completed"],
-  [4, "chat", null, 12, 1830, 610, "completed"],
-  [8, "call", "video", 20, 0, 0, "missed"],
-  [10, "chat", null, 34, 300, 0, "completed"],
+  // [astroIdx, mode, daysAgo, durationSec, ratePerMin, status]
+  [0, "chat", 0.2, 181, 12, "completed"],
+  [3, "video", 1, 1262, 72, "completed"],
+  [2, "chat", 3, 0, 30, "missed"],
+  [6, "chat", 5, 412, 35, "refunded"],
+  [1, "call", 8, 905, 25, "completed"],
+  [4, "chat", 12, 1830, 20, "completed"],
+  [8, "video", 20, 0, 80, "missed"],
+  [10, "chat", 34, 180, 0, "completed"], // free first chat (3 minutes)
 ];
 
+const round2 = (n) => Math.round(n * 100) / 100;
+
 export const MOCK_SESSIONS = () =>
-  SESSION_SEED.map(([ai, type, callMode, d, durationSec, amount, status], i) => ({
-    id: `ses_${1001 + i}`,
-    type,
-    callMode,
-    astrologer: astroRef(ai),
-    startedAt: daysAgo(d, i),
-    durationSec,
-    amount,
-    status,
-    isFree: type === "chat" && amount === 0 && status === "completed",
-    hasTranscript: type === "chat" && durationSec > 0,
-    hasSummary: status === "completed",
-  }));
+  SESSION_SEED.map(([ai, mode, d, durationSec, ratePerMin, status], i) => {
+    const isFree = ratePerMin === 0 && status === "completed";
+    const totalCharged = round2((ratePerMin * durationSec) / 60);
+    const held = Math.ceil(durationSec / 60) * ratePerMin;
+    return {
+      id: `ses_${1001 + i}`,
+      mode, // "chat" | "call" | "video"
+      astrologer: astroRef(ai),
+      startedAt: daysAgo(d, i),
+      durationSec,
+      ratePerMin,
+      totalCharged,
+      unusedReturned: round2(held - totalCharged),
+      status,
+      isFree,
+      hasTranscript: mode === "chat" && durationSec > 0,
+      hasSummary: status === "completed",
+    };
+  });
 
 export const mockTranscript = (session) => {
   const t0 = new Date(session.startedAt).getTime();
@@ -181,12 +191,12 @@ export const MOCK_SAVED_KUNDLIS = () => [
 
 export const MOCK_REFERRAL = () => ({
   code: "NAKSH7K2Q",
-  rewardPerReferral: 100,
-  friendReward: 50,
+  rewardPerReferral: 50, // backend referral.referrerReward / refereeReward
+  friendReward: 30,
   rewards: [
-    { id: "rw_1", friendName: "Ankit S.", joinedAt: daysAgo(3), amount: 100, status: "credited" },
-    { id: "rw_2", friendName: "Neha P.", joinedAt: daysAgo(6), amount: 100, status: "pending" },
-    { id: "rw_3", friendName: "Vivek R.", joinedAt: daysAgo(18), amount: 100, status: "credited" },
+    { id: "rw_1", friendName: "Ankit S.", joinedAt: daysAgo(3), amount: 50, status: "credited" },
+    { id: "rw_2", friendName: "Neha P.", joinedAt: daysAgo(6), amount: 50, status: "pending" },
+    { id: "rw_3", friendName: "Vivek R.", joinedAt: daysAgo(18), amount: 50, status: "credited" },
   ],
 });
 

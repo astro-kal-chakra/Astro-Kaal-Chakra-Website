@@ -35,10 +35,10 @@ export default async function AboutPage({ params }) {
     <>
       <ContentHero eyebrow="About us" title="Honest astrology, made accessible" subtitle="We connect people with verified astrologers for private, practical guidance — anytime, in their own language.">
         <div className="flex flex-wrap gap-3">
-          <ButtonLink href={routes.astrologers} variant="gold" size="lg">
+          <ButtonLink href={routes.astrologers} size="lg">
             Talk to an astrologer
           </ButtonLink>
-          <ButtonLink href={routes.howItWorks} size="lg" className="border border-white/30 bg-white/10 text-white hover:bg-white/20">
+          <ButtonLink href={routes.howItWorks} size="lg" variant="soft">
             How it works
           </ButtonLink>
         </div>
@@ -63,7 +63,7 @@ export default async function AboutPage({ params }) {
         <div>
           <h2 className="font-display text-2xl font-semibold sm:text-3xl">Our story</h2>
           <p className="mt-3 leading-relaxed text-muted">We started with a simple frustration: finding a genuine astrologer was hard, and many consultations relied on fear rather than insight.</p>
-          <p className="mt-3 leading-relaxed text-muted">So we built a platform where every astrologer is interviewed and verified, every review comes from a real session, and every rupee is billed transparently by the minute.</p>
+          <p className="mt-3 leading-relaxed text-muted">So we built a platform where every astrologer is interviewed and verified, every review comes from a real session, and every astrologer&apos;s per-minute rate is shown upfront — no hidden charges.</p>
         </div>
       </section>
 
@@ -106,7 +106,7 @@ export default async function AboutPage({ params }) {
       <Reviews locale={lang} reviews={MOCK_REVIEWS} />
 
       <div className="container-page pb-14">
-        <ContentCta title="Ready for clarity?" text="Talk to a verified astrologer now — your first chat is free." cta="Talk to an astrologer" />
+        <ContentCta title="Ready for clarity?" text="Talk to a verified astrologer now — your first 3-minute chat is free." cta="Talk to an astrologer" />
       </div>
 
       <JsonLd

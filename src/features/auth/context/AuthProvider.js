@@ -1,11 +1,18 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { routes } from "@/config/routes";
 import { AUTH_HINT_COOKIE } from "@/config/site";
 import { authService } from "@/lib/api/services/auth.service";
-import { disconnectSocket } from "@/lib/socket/client";
+import { disconnectSocket, getSocket } from "@/lib/socket/client";
+import { SIGNED_IN_ELSEWHERE, SOCKET_EVENTS } from "@/lib/socket/events";
+import { useToast } from "@/providers/ToastProvider";
 
 const AuthContext = createContext(null);
+
+/** Shown as a toast and on the login page after a sign-in on another device. */
+export const SIGNED_IN_ELSEWHERE_MESSAGE = "You signed in on another device, so you were signed out here.";
 
 const setHintCookie = (on) => {
   document.cookie = on
@@ -17,6 +24,9 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [status, setStatus] = useState("loading"); // loading | authenticated | guest
   const [loginPrompt, setLoginPrompt] = useState(null); // { reason, onSuccess }
+  const router = useRouter();
+  const { toast } = useToast();
+  const signedOutHandled = useRef(false); // socket + HTTP can both report the same sign-out
 
   const applyUser = useCallback((me) => {
     setUser(me);
@@ -48,7 +58,39 @@ export function AuthProvider({ children }) {
     return () => window.removeEventListener("auth:expired", onExpired);
   }, [applyUser]);
 
+  /**
+   * One signed-in device per account: when the account signs in elsewhere the
+   * backend answers 401 SIGNED_IN_ELSEWHERE (see lib/api/http.js) and sends
+   * `auth:signed_out { reason: "signed_in_elsewhere" }` over the socket.
+   * Sign out locally and explain why on the login page.
+   */
+  const onSignedOut = useEffectEvent((reason) => {
+    if (reason !== SIGNED_IN_ELSEWHERE || signedOutHandled.current) return;
+    signedOutHandled.current = true;
+    authService.clearLocal();
+    disconnectSocket();
+    setUser(null);
+    setStatus("guest");
+    setHintCookie(false);
+    setLoginPrompt(null);
+    toast({ type: "warning", title: SIGNED_IN_ELSEWHERE_MESSAGE, duration: 8000 });
+    router.replace(`${routes.login}?reason=${SIGNED_IN_ELSEWHERE}`);
+  });
+
+  useEffect(() => {
+    const onWindow = (e) => onSignedOut(e.detail?.reason);
+    const onSocket = (p) => onSignedOut(p?.reason);
+    window.addEventListener("auth:signed_out", onWindow);
+    const socket = getSocket(); // null on mocks — the mock simulator dispatches the window event instead
+    socket?.on(SOCKET_EVENTS.AUTH_SIGNED_OUT, onSocket);
+    return () => {
+      window.removeEventListener("auth:signed_out", onWindow);
+      socket?.off(SOCKET_EVENTS.AUTH_SIGNED_OUT, onSocket);
+    };
+  }, []);
+
   const onLoggedIn = useCallback((u) => {
+    signedOutHandled.current = false;
     setUser(u);
     setStatus("authenticated");
     setHintCookie(true);

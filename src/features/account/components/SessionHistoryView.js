@@ -21,11 +21,10 @@ import { AccountEmptyCard, AccountErrorState, AccountListSkeleton } from "./Acco
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
 
-const TABS = ["all", "chat", "call"];
+const TABS = ["all", "chat", "call", "video"];
 const STATUS_TONE = { completed: "success", missed: "warning", refunded: "brand" };
 
-const typeKey = (s) => (s.type === "chat" ? "chat" : s.callMode === "voice" ? "voice" : "video");
-const TYPE_ICON = { chat: MessageCircle, video: Video, voice: Phone };
+const TYPE_ICON = { chat: MessageCircle, call: Phone, video: Video };
 
 function TranscriptModal({ session, onClose }) {
   const locale = SITE_LOCALE;
@@ -91,9 +90,8 @@ function TranscriptModal({ session, onClose }) {
 
 function SessionRow({ session: s, onTranscript }) {
   const locale = SITE_LOCALE;
-  const kind = typeKey(s);
+  const kind = TYPE_ICON[s.mode] ? s.mode : "chat";
   const Icon = TYPE_ICON[kind];
-  const rebookMode = s.type === "chat" ? "chat" : "video";
 
   return (
     <Card as="li" className="p-4">
@@ -123,14 +121,23 @@ function SessionRow({ session: s, onTranscript }) {
             <div>
               <dt className="text-xs text-muted">Amount</dt>
               <dd className={cn("font-medium tabular-nums", s.status === "refunded" && "line-through opacity-70")}>
-                {s.isFree ? "Free" : formatCurrency(s.amount, locale)}
+                {s.isFree ? "Free" : formatCurrency(s.totalCharged, locale)}
               </dd>
             </div>
+            {!s.isFree && s.ratePerMin > 0 && (
+              <div>
+                <dt className="text-xs text-muted">Rate</dt>
+                <dd className="font-medium tabular-nums">{`${formatCurrency(s.ratePerMin, locale)}/min`}</dd>
+              </div>
+            )}
           </dl>
+          {s.unusedReturned > 0 && s.status !== "refunded" && (
+            <p className="mt-1 text-xs text-muted">{`${formatCurrency(s.unusedReturned, locale)} unused time returned`}</p>
+          )}
         </div>
       </div>
       <div className="mt-3 flex flex-wrap gap-2 border-t border-line pt-3">
-        <ButtonLink href={`${routes.consult}?astrologer=${s.astrologer.slug}&mode=${rebookMode}`} size="sm" variant="primary">
+        <ButtonLink href={`${routes.consult}?astrologer=${s.astrologer.slug}&mode=${kind}`} size="sm" variant="primary">
           <RotateCcw className="size-3.5" aria-hidden /> Rebook
         </ButtonLink>
         {s.hasTranscript && (

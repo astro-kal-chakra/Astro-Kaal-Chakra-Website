@@ -4,13 +4,14 @@ import { Search, X } from "lucide-react";
 import { LANGUAGES, PRICE_RANGES, SORT_OPTIONS, SPECIALTIES } from "@/constants/astrologer";
 import { cn } from "@/lib/utils/cn";
 import { Input, Select } from "@/components/ui/Input";
+import { MODE_FILTERS } from "../lib/modes";
 
 const chip = (active) =>
   cn(
     "h-9 shrink-0 rounded-full border px-3 text-sm font-medium transition-colors",
     active
-      ? "border-brand-600 bg-brand-600 text-white dark:border-gold-500 dark:bg-gold-500 dark:text-brand-950"
-      : "border-line bg-surface hover:bg-surface-muted"
+      ? "border-brand-600 bg-brand-600 text-white dark:border-brand-400 dark:bg-brand-400 dark:text-brand-950"
+      : "border-line bg-surface text-fg hover:border-brand-300 hover:bg-surface-muted"
   );
 
 export function AstrologerFilters({ filters, onChange, onReset }) {
@@ -45,9 +46,11 @@ export function AstrologerFilters({ filters, onChange, onReset }) {
           <span className="mr-1.5 inline-block size-2 rounded-full bg-online" aria-hidden />
           Online now
         </button>
-        <button className={chip(filters.mode === "video")} onClick={() => set({ mode: filters.mode === "video" ? "" : "video" })}>
-          Video Call
-        </button>
+        {MODE_FILTERS.map((m) => (
+          <button key={m.key} className={cn(chip(filters.mode === m.key), "inline-flex items-center gap-1.5")} aria-pressed={filters.mode === m.key} onClick={() => set({ mode: filters.mode === m.key ? "" : m.key })}>
+            <m.icon className="size-3.5" aria-hidden /> {m.label}
+          </button>
+        ))}
         <button className={chip(filters.minRating === "4.5")} onClick={() => set({ minRating: filters.minRating === "4.5" ? "" : "4.5" })}>
           ★ 4.5+
         </button>
@@ -74,7 +77,7 @@ export function AstrologerFilters({ filters, onChange, onReset }) {
         </Select>
 
         {hasFilters && (
-          <button onClick={onReset} className="flex h-9 shrink-0 items-center gap-1 px-2 text-sm font-medium text-brand-600 dark:text-gold-400">
+          <button onClick={onReset} className="flex h-9 shrink-0 items-center gap-1 px-2 text-sm font-medium text-accent">
             <X className="size-4" aria-hidden /> Clear filters
           </button>
         )}

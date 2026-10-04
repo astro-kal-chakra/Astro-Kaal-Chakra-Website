@@ -8,7 +8,7 @@ import { useAuth } from "@/features/auth/context/AuthProvider";
 import { StatusBadge } from "@/features/astrologers/components/StatusBadge";
 import { SOCKET_EVENTS } from "@/lib/socket/events";
 import { astrologerService } from "@/lib/api/services/astrologer.service";
-import { priceFor, sessionService } from "@/lib/api/services/session.service";
+import { modesFor, priceFor, sessionService } from "@/lib/api/services/session.service";
 import { cn } from "@/lib/utils/cn";
 import { formatCurrency } from "@/lib/utils/format";
 import { useToast } from "@/providers/ToastProvider";
@@ -19,7 +19,7 @@ import { Card } from "@/components/ui/Card";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { RatingStars } from "@/components/ui/RatingStars";
 import { useSessionTransport, useTransportEvent } from "../../hooks/useSessionTransport";
-import { MIN_BALANCE_MINUTES, SESSION_MODES } from "../../lib/sessionEvents";
+import { FREE_CHAT_MINUTES, MIN_BALANCE_MINUTES, MIN_WALLET_BALANCE, REQUEST_TIMEOUT_SECONDS, SESSION_MODES, minBalanceFor } from "../../lib/sessionEvents";
 import { SessionScreenState } from "../SessionParts";
 import { SimilarAstrologers } from "./SimilarAstrologers";
 import { RequestStatusPanel, WaitingPanel } from "./WaitingPanel";
@@ -27,18 +27,18 @@ import { QueuePanel, YourTurnModal } from "./QueuePanel";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
 
-const MODE_ICONS = { chat: MessageCircle, video: Video, voice: Phone };
+const MODE_ICONS = { chat: MessageCircle, call: Phone, video: Video };
 
-/** Path of the live screen for a session in a given mode. */
+/** Path of the live screen for a session in a given mode (voice calls use ?mode=call). */
 export const liveSessionPath = (sessionId, mode) =>
   mode === SESSION_MODES.CHAT
     ? routes.chat(sessionId)
-    : `${routes.call(sessionId)}${mode === SESSION_MODES.VOICE ? "?mode=voice" : ""}`;
+    : `${routes.call(sessionId)}${mode === SESSION_MODES.CALL ? "?mode=call" : ""}`;
 
 /**
  * Pre-session screen + request / waitlist state machine.
- * phase: select → waiting → (accepted → redirect) | rejected | timeout
- *        select → queue → your turn modal → (accepted → redirect) | queueExpired
+ * phase: select → waiting (30s) → (session:start → redirect) | rejected | timeout (session:missed)
+ *        select → queue → queue:offer (60s, accept / decline) → (accepted → redirect) | queueExpired
  */
 export function ConsultView({ slug, initialMode, waitlist, simulate }) {
   const { user, setUser } = useAuth();
@@ -52,12 +52,12 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
   const [mode, setMode] = useState(initialMode);
   const [phase, setPhase] = useState("select");
   const [request, setRequest] = useState(null); // { sessionId, expiresAt }
-  const [queue, setQueue] = useState(null); // { queueId, position, estimatedWaitSec }
+  const [queue, setQueue] = useState(null); // { entryId, position, estimatedWaitSec, endReason? }
   const [turn, setTurn] = useState(null); // { expiresAt }
-  const [busy, setBusy] = useState(null); // "start" | "cancel" | "queue" | "leave" | "accept"
+  const [busy, setBusy] = useState(null); // "start" | "cancel" | "queue" | "leave" | "accept" | "decline"
 
   // Pending server-side state to clean up if the user leaves this page.
-  const pending = useRef({ sessionId: null, queueId: null });
+  const pending = useRef({ sessionId: null, entryId: null });
   const inFlight = useRef(false);
 
   useEffect(() => {
@@ -76,22 +76,22 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
 
   useEffect(
     () => () => {
-      const { sessionId, queueId } = pending.current;
+      const { sessionId, entryId } = pending.current;
       if (sessionId) sessionService.cancelRequest(sessionId).catch(() => {});
-      if (queueId) sessionService.leaveQueue(queueId).catch(() => {});
+      if (entryId) sessionService.leaveQueue(entryId).catch(() => {});
     },
     []
   );
 
   const goLive = (sessionId, liveMode, usedFreeChat) => {
-    pending.current = { sessionId: null, queueId: null };
+    pending.current = { sessionId: null, entryId: null };
     if (usedFreeChat) setUser((u) => (u ? { ...u, freeChatAvailable: false } : u));
     router.replace(`${liveSessionPath(sessionId, liveMode)}`);
   };
 
   /* --------------------------- live server events --------------------------- */
 
-  useTransportEvent(transport, SOCKET_EVENTS.SESSION_ACCEPTED, (p) => {
+  useTransportEvent(transport, SOCKET_EVENTS.SESSION_START, (p) => {
     if (p.sessionId === request?.sessionId) goLive(p.sessionId, request.mode, request.useFreeChat);
   });
   useTransportEvent(transport, SOCKET_EVENTS.SESSION_REJECTED, (p) => {
@@ -99,25 +99,29 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
     pending.current.sessionId = null;
     setPhase("rejected");
   });
-  useTransportEvent(transport, SOCKET_EVENTS.SESSION_TIMEOUT, (p) => {
+  useTransportEvent(transport, SOCKET_EVENTS.SESSION_MISSED, (p) => {
     if (p.sessionId !== request?.sessionId) return;
     pending.current.sessionId = null;
     setPhase("timeout");
   });
   useTransportEvent(transport, SOCKET_EVENTS.QUEUE_POSITION, (p) => {
-    if (p.queueId === queue?.queueId) setQueue((q) => ({ ...q, position: p.position, estimatedWaitSec: p.estimatedWaitSec }));
+    if (p.entryId === queue?.entryId) setQueue((q) => ({ ...q, position: p.position, estimatedWaitSec: p.estimatedWaitSec }));
   });
-  useTransportEvent(transport, SOCKET_EVENTS.QUEUE_YOUR_TURN, (p) => {
-    if (p.queueId !== queue?.queueId) return;
+  useTransportEvent(transport, SOCKET_EVENTS.QUEUE_OFFER, (p) => {
+    if (p.entryId !== queue?.entryId) return;
     setQueue((q) => ({ ...q, position: 0 }));
-    setTurn({ expiresAt: p.expiresAt || Date.now() + p.acceptWindowSec * 1000 });
+    setTurn({ expiresAt: new Date(p.expiresAt).getTime() || Date.now() + p.seconds * 1000, seconds: p.seconds });
   });
-  useTransportEvent(transport, SOCKET_EVENTS.QUEUE_EXPIRED, (p) => {
-    if (p.queueId !== queue?.queueId) return;
-    pending.current.queueId = null;
+  // Offer expired / declined / not possible any more, or the astrologer cleared the list.
+  const endQueue = (p) => {
+    if (p.entryId !== queue?.entryId || p.reason === "declined") return;
+    pending.current.entryId = null;
     setTurn(null);
+    setQueue((q) => (q ? { ...q, endReason: p.reason } : q));
     setPhase("queueExpired");
-  });
+  };
+  useTransportEvent(transport, SOCKET_EVENTS.QUEUE_SKIPPED, endQueue);
+  useTransportEvent(transport, SOCKET_EVENTS.QUEUE_CLEARED, (p) => endQueue({ ...p, reason: "cleared" }));
 
   /* ---------------------------------- render ---------------------------------- */
 
@@ -126,13 +130,13 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
   if (!astrologer) return <SessionScreenState title="Astrologer not found" text="This astrologer is no longer available. Please choose another astrologer." />;
 
   const a = astrologer;
-  const modes = [SESSION_MODES.CHAT, ...(a.supportsVideo ? [SESSION_MODES.VIDEO, SESSION_MODES.VOICE] : [])];
+  const modes = modesFor(a);
   const activeMode = modes.includes(mode) ? mode : SESSION_MODES.CHAT;
   const price = priceFor(a, activeMode);
   const freeChatAvailable = user?.freeChatAvailable !== false && pre.freeChatAvailable;
   const astrologerAllowsFree = a.freeChatEligible !== false;
   const useFreeChat = activeMode === SESSION_MODES.CHAT && freeChatAvailable && astrologerAllowsFree;
-  const required = price * MIN_BALANCE_MINUTES;
+  const required = minBalanceFor(price);
   const hasEnough = useFreeChat || pre.balance >= required;
   const isBusy = a.status === "busy";
   const isOffline = a.status === "offline";
@@ -172,7 +176,7 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
         simulate,
       });
       pending.current.sessionId = res.sessionId;
-      setRequest({ sessionId: res.sessionId, mode: activeMode, useFreeChat, expiresAt: Date.now() + (res.expiresInSec || 60) * 1000 });
+      setRequest({ sessionId: res.sessionId, mode: activeMode, useFreeChat, expiresAt: Date.now() + (res.expiresInSec || REQUEST_TIMEOUT_SECONDS) * 1000 });
       setPhase("waiting");
     });
 
@@ -187,7 +191,7 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
   const joinQueue = () =>
     run("queue", async () => {
       const res = await sessionService.joinQueue({ astrologer: a, mode: activeMode, useFreeChat });
-      pending.current.queueId = res.queueId;
+      pending.current.entryId = res.entryId;
       setQueue(res);
       setTurn(null);
       setPhase("queue");
@@ -195,8 +199,8 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
 
   const leaveQueue = () =>
     run("leave", async () => {
-      if (queue) await sessionService.leaveQueue(queue.queueId);
-      pending.current.queueId = null;
+      if (queue) await sessionService.leaveQueue(queue.entryId);
+      pending.current.entryId = null;
       setQueue(null);
       setTurn(null);
       setPhase("select");
@@ -205,21 +209,31 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
   const acceptTurn = () =>
     run("accept", async () => {
       try {
-        const res = await sessionService.acceptTurn(queue.queueId, { astrologer: a, mode: activeMode, useFreeChat });
+        const res = await sessionService.acceptTurn(queue.entryId, { astrologer: a, mode: activeMode, useFreeChat });
         goLive(res.sessionId, res.mode || activeMode, useFreeChat);
       } catch (err) {
         if (err?.code !== "QUEUE_EXPIRED") throw err;
-        pending.current.queueId = null;
+        pending.current.entryId = null;
         setTurn(null);
         setPhase("queueExpired");
       }
     });
 
+  /** Decline the turn: the next person gets it and this user leaves the waitlist. */
+  const declineTurn = () =>
+    run("decline", async () => {
+      if (queue) await sessionService.declineTurn(queue.entryId);
+      pending.current.entryId = null;
+      setQueue(null);
+      setTurn(null);
+      setPhase("select");
+    });
+
   const pickSimilar = async (other) => {
-    const { sessionId, queueId } = pending.current;
-    pending.current = { sessionId: null, queueId: null };
+    const { sessionId, entryId } = pending.current;
+    pending.current = { sessionId: null, entryId: null };
     if (sessionId) sessionService.cancelRequest(sessionId).catch(() => {});
-    if (queueId) sessionService.leaveQueue(queueId).catch(() => {});
+    if (entryId) sessionService.leaveQueue(entryId).catch(() => {});
     router.push(`${routes.consult}?astrologer=${other.slug}&mode=${activeMode}`);
   };
 
@@ -333,12 +347,13 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
         <YourTurnModal
           astrologer={a}
           expiresAt={turn.expiresAt}
+          seconds={turn.seconds}
           onAccept={acceptTurn}
           accepting={busy === "accept"}
-          onDecline={leaveQueue}
-          declining={busy === "leave"}
+          onDecline={declineTurn}
+          declining={busy === "decline"}
           onExpire={() => {
-            pending.current.queueId = null;
+            pending.current.entryId = null;
             setTurn(null);
             setPhase("queueExpired");
           }}
@@ -379,7 +394,7 @@ function SelectStep({ a, modes, activeMode, onModeChange, price, pre, required, 
 
       <fieldset>
         <legend className="mb-2 text-sm font-semibold">How would you like to talk?</legend>
-        <div className={cn("grid gap-2", modes.length === 3 ? "grid-cols-3" : "grid-cols-1")} role="radiogroup">
+        <div className={cn("grid gap-2", modes.length === 3 ? "grid-cols-3" : modes.length === 2 ? "grid-cols-2" : "grid-cols-1")} role="radiogroup">
           {modes.map((m) => {
             const Icon = MODE_ICONS[m];
             const selected = m === activeMode;
@@ -419,10 +434,10 @@ function SelectStep({ a, modes, activeMode, onModeChange, price, pre, required, 
           <Gift className="size-6 shrink-0 text-gold-300" aria-hidden />
           <div>
             <p className="font-semibold text-gold-200">
-              {`Your first chat is FREE for ${Math.round(pre.freeChatSeconds / 60)} minutes`}
+              {`Your first ${pre.freeMinutes || FREE_CHAT_MINUTES}-minute chat is free`}
             </p>
             <p className="mt-0.5 text-sm text-white/80">
-              {`One free chat per account. After that, ${formatCurrency(price, locale)}/min is charged from your wallet.`}
+              {`Chat only, once per account and device. The chat ends when the free ${pre.freeMinutes || FREE_CHAT_MINUTES} minutes are over — nothing is taken from your wallet.`}
             </p>
           </div>
         </div>
@@ -455,7 +470,7 @@ function SelectStep({ a, modes, activeMode, onModeChange, price, pre, required, 
             </dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-muted">{`Minimum balance (${MIN_BALANCE_MINUTES} min)`}</dt>
+            <dt className="text-muted">Minimum balance to start</dt>
             <dd className="font-semibold">{useFreeChat ? <Badge tone="gold">FREE</Badge> : formatCurrency(required, locale)}</dd>
           </div>
         </dl>
@@ -463,14 +478,16 @@ function SelectStep({ a, modes, activeMode, onModeChange, price, pre, required, 
           <div role="alert" className="mt-3 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-200">
             <p className="font-semibold">Not enough balance</p>
             <p className="mt-0.5">
-              {`You need at least ${MIN_BALANCE_MINUTES} minutes of balance to start. Add ${formatCurrency(Math.max(0, required - pre.balance), locale)} or more to continue.`}
+              {`To start you need ${formatCurrency(required, locale)} in your wallet (${MIN_BALANCE_MINUTES} minutes at this rate, or ${formatCurrency(MIN_WALLET_BALANCE, locale)} — whichever is more). Add ${formatCurrency(Math.max(0, required - pre.balance), locale)} or more to continue.`}
             </p>
             <ButtonLink href={routes.wallet} variant="gold" size="md" className="mt-3 w-full">
               Recharge now
             </ButtonLink>
           </div>
         )}
-        <p className="mt-3 text-xs text-muted">{"You're charged only for the time you talk. Billing stops the moment the session ends."}</p>
+        <p className="mt-3 text-xs text-muted">
+          {`${formatCurrency(price, locale)}/min from your wallet. Any unused prepaid time is returned automatically when the session ends.`}
+        </p>
       </Card>
     </div>
   );

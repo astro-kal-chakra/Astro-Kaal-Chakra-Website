@@ -1,75 +1,87 @@
 "use client";
 
-import { BadgeCheck, Languages, Star, Users } from "lucide-react";
+import { BadgeCheck, Gift, Languages, Star, Users } from "lucide-react";
 import { routes } from "@/config/routes";
 import { formatCompact, formatCurrency } from "@/lib/utils/format";
+import { cn } from "@/lib/utils/cn";
 import { Avatar } from "@/components/ui/Avatar";
-import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { LocaleLink } from "@/components/ui/LocaleLink";
+import { SITE_LOCALE } from "@/config/locale";
+import { astrologerModes } from "../lib/modes";
 import { AstrologerActions } from "./AstrologerActions";
 import { StatusBadge } from "./StatusBadge";
-import { SITE_LOCALE } from "@/config/locale";
+
+const RING = { online: "ring-online", busy: "ring-busy", offline: "ring-line" };
 
 export function AstrologerCard({ astrologer: a, priority = false }) {
   const locale = SITE_LOCALE;
+  const modes = astrologerModes(a);
 
   return (
-    <Card as="article" className="flex min-w-0 flex-col p-4 transition-shadow hover:shadow-md">
-      <div className="flex gap-3">
-        <LocaleLink href={routes.astrologer(a.slug)} className="relative">
-          <Avatar src={a.avatarUrl} name={a.name} size={68} priority={priority} />
-          {a.status === "online" && (
-            <span className="absolute bottom-0.5 right-0.5 size-3.5 rounded-full border-2 border-surface bg-online" aria-hidden />
-          )}
+    <Card as="article" interactive className="flex h-full min-w-0 flex-col p-4">
+      <div className="flex gap-3.5">
+        <LocaleLink href={routes.astrologer(a.slug)} className="shrink-0" aria-label={a.name}>
+          <Avatar src={a.avatarUrl} name={a.name} size={64} priority={priority} className={cn("ring-2 ring-offset-2 ring-offset-surface", RING[a.status])} />
         </LocaleLink>
 
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <LocaleLink href={routes.astrologer(a.slug)} className="min-w-0">
-              <h3 className="flex items-center gap-1 truncate font-semibold hover:text-brand-600 dark:hover:text-gold-400">
+              <h3 className="flex items-center gap-1 font-semibold text-fg hover:text-accent">
                 <span className="truncate">{a.name}</span>
                 {a.isVerified && <BadgeCheck className="size-4 shrink-0 text-brand-500" aria-label="Verified" />}
               </h3>
             </LocaleLink>
             <StatusBadge status={a.status} className="shrink-0" />
           </div>
-          <p className="truncate text-sm text-muted">{a.specialties.join(", ")}</p>
-          <p className="flex items-center gap-1 truncate text-sm text-muted">
+          <p className="truncate text-sm text-muted">{a.specialties.join(" · ")}</p>
+          <p className="flex items-center gap-1 truncate text-xs text-muted">
             <Languages className="size-3.5 shrink-0" aria-hidden /> {a.languages.join(", ")}
           </p>
-          <div className="mt-1 flex items-center gap-3 text-xs text-muted">
+          <p className="mt-1.5 flex items-center gap-3 text-xs text-muted">
             <span className="flex items-center gap-0.5 font-semibold text-fg">
-              <Star className="size-3.5 fill-gold-500 text-gold-500" aria-hidden /> {a.rating.toFixed(1)}
+              <Star className="size-3.5 fill-brand-400 text-brand-400" aria-hidden /> {a.rating.toFixed(1)}
             </span>
-            <span>{`${a.experienceYears} yrs`}</span>
+            <span>{`${a.experienceYears} yrs exp`}</span>
             <span className="flex items-center gap-0.5">
               <Users className="size-3.5" aria-hidden /> {formatCompact(a.totalSessions, locale)}
             </span>
-          </div>
+          </p>
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-sm">
-        <div className="flex flex-wrap items-baseline gap-x-3">
-          <span>
-            <span className="font-bold">{formatCurrency(a.chatPrice, locale)}</span>
-            <span className="text-muted">/min</span>
-          </span>
-          {a.supportsVideo && (
-            <span className="text-xs text-muted">
-              Video Call {formatCurrency(a.videoPrice, locale)}
-              /min
+      {/* Price per mode */}
+      <ul className="mt-4 grid gap-1.5" style={{ gridTemplateColumns: `repeat(${modes.length}, minmax(0, 1fr))` }}>
+        {modes.map((m) => (
+          <li key={m.key} className="rounded-xl border border-line bg-surface-muted/60 px-2 py-1.5 text-center">
+            <span className="flex items-center justify-center gap-1 text-[11px] text-muted">
+              <m.icon className="size-3" aria-hidden /> {m.label}
+            </span>
+            <span className="text-sm font-semibold text-fg">
+              {formatCurrency(m.price, locale)}
+              <span className="text-[11px] font-normal text-muted">/min</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      {((a.freeChatEligible && a.status === "online") || a.queueCount > 0) && (
+        <div className="mt-2.5 flex flex-wrap gap-1.5 text-xs font-medium">
+          {a.freeChatEligible && a.status === "online" && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 text-brand-700 dark:bg-brand-950/50 dark:text-brand-200">
+              <Gift className="size-3" aria-hidden /> First 3 min chat free
+            </span>
+          )}
+          {a.queueCount > 0 && (
+            <span key={a.queueCount} className="rounded-full bg-amber-50 px-2 py-0.5 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+              {a.queueCount} waiting
             </span>
           )}
         </div>
-        <div className="flex flex-wrap gap-1">
-          {a.freeChatEligible && <Badge tone="gold">FREE</Badge>}
-          {a.queueCount > 0 && <Badge key={a.queueCount} tone="warning">{`${a.queueCount} in queue`}</Badge>}
-        </div>
-      </div>
+      )}
 
-      <div className="mt-3">
+      <div className="mt-auto pt-4">
         <AstrologerActions astrologer={a} />
       </div>
     </Card>
@@ -79,14 +91,15 @@ export function AstrologerCard({ astrologer: a, priority = false }) {
 export function AstrologerCardSkeleton() {
   return (
     <Card className="p-4">
-      <div className="flex gap-3">
-        <div className="size-[68px] animate-pulse rounded-full bg-surface-muted" />
+      <div className="flex gap-3.5">
+        <div className="size-16 animate-pulse rounded-full bg-surface-muted" />
         <div className="flex-1 space-y-2">
           <div className="h-4 w-2/3 animate-pulse rounded bg-surface-muted" />
           <div className="h-3 w-1/2 animate-pulse rounded bg-surface-muted" />
           <div className="h-3 w-1/3 animate-pulse rounded bg-surface-muted" />
         </div>
       </div>
+      <div className="mt-4 h-12 animate-pulse rounded-xl bg-surface-muted" />
       <div className="mt-4 h-8 animate-pulse rounded-full bg-surface-muted" />
     </Card>
   );

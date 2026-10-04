@@ -43,20 +43,21 @@ export function Footer({ locale }) {
   ];
 
   return (
-    <footer className="mt-16 bg-gradient-to-b from-brand-500 to-brand-600 text-white">
-      <div className="container-page grid grid-cols-1 gap-10 py-12 md:grid-cols-[1.4fr_repeat(3,1fr)]">
+    <footer className="mt-16 border-t border-line bg-surface-muted/70">
+      <div className="hairline" aria-hidden />
+      <div className="container-page grid grid-cols-1 gap-10 py-12 sm:grid-cols-2 md:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div className="space-y-4">
-          <Logo onDark />
-          <p className="max-w-xs text-sm text-white/90">{siteConfig.tagline}</p>
-          <AppStoreButtons label="Download the app" />
+          <Logo />
+          <p className="max-w-xs text-sm text-muted">{siteConfig.tagline}. Chat, call or video.</p>
+          <AppStoreButtons label="Download the app" tone="light" />
         </div>
         {columns.map((col) => (
           <div key={col.title}>
-            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-white">{col.title}</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="eyebrow mb-4">{col.title}</h3>
+            <ul className="space-y-2.5 text-sm">
               {col.links.map(([href, label]) => (
                 <li key={href}>
-                  <LocaleLink href={href} className="text-white/90 hover:text-white">
+                  <LocaleLink href={href} className="text-muted transition-colors hover:text-accent">
                     {label}
                   </LocaleLink>
                 </li>
@@ -67,11 +68,11 @@ export function Footer({ locale }) {
       </div>
 
       {/* Internal links to every daily horoscope page — helps crawl depth. */}
-      <div className="container-page border-t border-white/25 py-6">
-        <ul className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-white/85">
+      <div className="container-page border-t border-line py-6">
+        <ul className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted">
           {ZODIAC_SIGNS.map((s) => (
             <li key={s.slug}>
-              <LocaleLink href={routes.horoscopeSign("daily", s.slug)} className="hover:text-white">
+              <LocaleLink href={routes.horoscopeSign("daily", s.slug)} className="hover:text-accent">
                 {s[locale]} Daily
               </LocaleLink>
             </li>
@@ -79,10 +80,10 @@ export function Footer({ locale }) {
         </ul>
       </div>
 
-      <div className="container-page border-t border-white/25 py-6 text-xs text-white/85">
-        <p>Astrology provides guidance, not guarantees. Consultations may be reviewed for safety and quality.</p>
-        <p className="mt-2">
-          © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
+      <div className="container-page flex flex-col gap-2 border-t border-line py-6 text-xs text-muted sm:flex-row sm:justify-between">
+        <p>Astrology offers guidance, not guarantees. Consultations may be reviewed for safety and quality.</p>
+        <p>
+          © {new Date().getFullYear()} <span translate="no" className="notranslate">{siteConfig.name}</span>. All rights reserved.
         </p>
       </div>
     </footer>

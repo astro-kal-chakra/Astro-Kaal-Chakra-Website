@@ -1,8 +1,8 @@
 "use client";
 
-import { ArrowDownLeft, FileText, Gift, MessageCircle, RotateCcw, Video } from "lucide-react";
+import { ArrowDownLeft, FileText, Gift, MessageCircle, Phone, RotateCcw, Video } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCurrency, formatDate, formatDuration } from "@/lib/utils/format";
 import { Badge } from "@/components/ui/Badge";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
@@ -11,6 +11,7 @@ const ICONS = {
   recharge: { icon: ArrowDownLeft, tone: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400" },
   consultation: { icon: MessageCircle, tone: "bg-brand-100 text-brand-700 dark:bg-brand-800 dark:text-brand-200" },
   video: { icon: Video, tone: "bg-brand-100 text-brand-700 dark:bg-brand-800 dark:text-brand-200" },
+  call: { icon: Phone, tone: "bg-brand-100 text-brand-700 dark:bg-brand-800 dark:text-brand-200" },
   refund: { icon: RotateCcw, tone: "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300" },
   bonus: { icon: Gift, tone: "bg-gold-100 text-gold-700 dark:bg-gold-700/30 dark:text-gold-300" },
   report: { icon: FileText, tone: "bg-brand-100 text-brand-700 dark:bg-brand-800 dark:text-brand-200" },
@@ -31,8 +32,9 @@ export function useTxnText() {
         return { title: "Wallet recharge", subtitle: m.method ? `via ${m.method}` : "" };
       case "consultation":
         return {
-          title: (m.mode === "video" ? `Video call with ${m.astrologer}` : `Chat with ${m.astrologer}`),
-          subtitle: m.minutes ? `${m.minutes} min` : "",
+          title: m.mode === "video" ? `Video call with ${m.astrologer}` : m.mode === "call" ? `Voice call with ${m.astrologer}` : `Chat with ${m.astrologer}`,
+          // Billed by the second: "03:01 at ₹12/min"
+          subtitle: m.durationSec != null ? `${formatDuration(m.durationSec)}${m.ratePerMin ? ` at ${formatCurrency(m.ratePerMin, SITE_LOCALE)}/min` : ""}` : "",
         };
       case "refund":
         return { title: "Refund", subtitle: m.astrologer ? `Session with ${m.astrologer}` : "" };
@@ -52,7 +54,7 @@ export function useTxnText() {
 export function TransactionRow({ txn, action, compact = false }) {
   const locale = SITE_LOCALE;
   const text = useTxnText()(txn);
-  const kind = txn.type === "consultation" && txn.meta?.mode === "video" ? "video" : txn.type;
+  const kind = txn.type === "consultation" && (txn.meta?.mode === "video" || txn.meta?.mode === "call") ? txn.meta.mode : txn.type;
   const { icon: Icon, tone } = ICONS[kind] || ICONS.report;
   const credit = txn.amount > 0;
   const failed = txn.status === "failed";

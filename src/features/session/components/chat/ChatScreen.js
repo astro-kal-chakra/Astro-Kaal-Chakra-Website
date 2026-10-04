@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Gift, ShieldCheck } from "lucide-react";
 import { routes } from "@/config/routes";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
-import { SOCKET_EVENTS } from "@/lib/socket/events";
+import { CLIENT_EVENTS, SOCKET_EVENTS } from "@/lib/socket/events";
 import { sessionService } from "@/lib/api/services/session.service";
 import { formatCurrency, formatDuration } from "@/lib/utils/format";
 import { useToast } from "@/providers/ToastProvider";
@@ -90,7 +90,7 @@ export function ChatScreen({ sessionId }) {
   const markRead = useCallback(
     (ids) => {
       if (ids.length && document.visibilityState === "visible") {
-        transport.emit(SOCKET_EVENTS.CHAT_READ, { sessionId, messageIds: ids });
+        transport.emit(CLIENT_EVENTS.CHAT_READ, { sessionId, messageIds: ids });
       }
     },
     [transport, sessionId]
@@ -127,7 +127,7 @@ export function ChatScreen({ sessionId }) {
     }
   });
   useTransportEvent(transport, SOCKET_EVENTS.CHAT_TYPING, (p) => {
-    if (p.sessionId === sessionId && p.from === "astrologer") setTyping(Boolean(p.typing));
+    if (p.sessionId === sessionId && p.role === "astrologer") setTyping(Boolean(p.isTyping));
   });
   const applyStatus = (ids, status) =>
     setMessages((cur) =>
@@ -152,12 +152,12 @@ export function ChatScreen({ sessionId }) {
         setMessages((cur) => cur.map((m) => (m.clientId === clientId && m.status === "sending" ? { ...m, status: "failed" } : m)));
       }, SEND_TIMEOUT_MS)
     );
-    transport.emit(SOCKET_EVENTS.CHAT_MESSAGE, { sessionId, clientId, text }, (ack) => {
+    transport.emit(CLIENT_EVENTS.CHAT_SEND, { sessionId, clientMsgId: clientId, text }, (ack) => {
       clearTimeout(timers.get(clientId));
       timers.delete(clientId);
       setMessages((cur) =>
         ack?.ok
-          ? mergeMessages(cur, [{ ...ack.message, clientId }])
+          ? mergeMessages(cur, [{ ...(ack.message ?? ack.data), clientId }])
           : cur.map((m) => (m.clientId === clientId ? { ...m, status: "failed" } : m))
       );
     });
@@ -174,7 +174,7 @@ export function ChatScreen({ sessionId }) {
     deliver(message.clientId, message.text);
   };
 
-  const onTyping = (isTyping) => transport.emit(SOCKET_EVENTS.CHAT_TYPING, { sessionId, typing: isTyping });
+  const onTyping = (isTyping) => transport.emit(CLIENT_EVENTS.CHAT_TYPING, { sessionId, isTyping });
 
   const endChat = async () => {
     setEnding(true);
@@ -211,7 +211,7 @@ export function ChatScreen({ sessionId }) {
               typing ? (
                 <span className="font-medium text-online">typing…</span>
               ) : isLive ? (
-                `${formatCurrency(session.ratePerMin, locale)}/min`
+                session.isFree ? "Free chat" : `${formatCurrency(session.ratePerMin, locale)}/min`
               ) : (
                 "Session ended"
               )
@@ -245,7 +245,7 @@ export function ChatScreen({ sessionId }) {
         <p className="flex shrink-0 items-center justify-center gap-1.5 bg-gold-100 px-4 py-1.5 text-center text-xs font-medium text-gold-700 dark:bg-gold-700/25 dark:text-gold-300">
           <Gift className="size-3.5" aria-hidden />
           <span key={live.freeRemaining}>
-            {`Free chat: ${formatDuration(live.freeRemaining)} left · then ${formatCurrency(session.ratePerMin, locale)}/min`}
+            {`Free chat: ${formatDuration(live.freeRemaining)} left · the chat ends when free time is over`}
           </span>
         </p>
       )}

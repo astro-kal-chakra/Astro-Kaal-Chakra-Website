@@ -74,7 +74,7 @@ function ReferralCodeCard({ referral }) {
             {`Give ${formatCurrency(referral.friendReward, locale)}, get ${formatCurrency(referral.rewardPerReferral, locale)}`}
           </h2>
           <p className="mt-1 text-sm text-white/90">
-            {`Your friend gets ${formatCurrency(referral.friendReward, locale)} wallet credit on their first recharge, and you get ${formatCurrency(referral.rewardPerReferral, locale)} once they complete their first paid session.`}
+            {`Your friend gets ${formatCurrency(referral.friendReward, locale)} wallet credit on their first recharge, and you get ${formatCurrency(referral.rewardPerReferral, locale)} once they make their first recharge of ₹100 or more.`}
           </p>
         </div>
       </div>

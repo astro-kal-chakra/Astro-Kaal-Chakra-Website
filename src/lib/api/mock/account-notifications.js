@@ -3,6 +3,14 @@
  * (from the `lang` query), so the mock keeps both languages.
  */
 import { daysAgo } from "./account";
+import { MOCK_PACKS } from "../services/wallet.service";
+
+// Promo copy comes from the mock recharge packs so it never disagrees with the wallet page.
+const packFor = (amount) => MOCK_PACKS.find((p) => p.amount === amount) || { amount, credit: amount };
+const rupees = (n) => `₹${n.toLocaleString("en-IN")}`;
+const PAID = packFor(500);
+const OFFER = packFor(1000);
+const offerPct = Math.round(((OFFER.credit - OFFER.amount) / OFFER.amount) * 100);
 
 const SEED = [
   {
@@ -11,8 +19,8 @@ const SEED = [
     hoursAgo: 0.1,
     read: false,
     href: "/consult?astrologer=dr-ananya-rao&mode=chat",
-    en: ["It's your turn!", "Dr. Ananya Rao is ready for your chat. Join within 2 minutes to keep your spot."],
-    hi: ["आपकी बारी आ गई!", "डॉ. अनन्या राव आपकी चैट के लिए तैयार हैं। अपनी जगह बनाए रखने के लिए 2 मिनट में जुड़ें।"],
+    en: ["It's your turn!", "Dr. Ananya Rao is ready for your chat. Accept within 60 seconds to keep your spot."],
+    hi: ["आपकी बारी आ गई!", "डॉ. अनन्या राव आपकी चैट के लिए तैयार हैं। अपनी जगह बनाए रखने के लिए 60 सेकंड में स्वीकार करें।"],
   },
   {
     id: "nt_2",
@@ -29,8 +37,8 @@ const SEED = [
     hoursAgo: 5,
     read: false,
     href: "/wallet/transactions",
-    en: ["Payment successful", "₹500 added to your wallet. You received ₹150 extra as bonus."],
-    hi: ["भुगतान सफल", "आपके वॉलेट में ₹500 जोड़े गए। आपको ₹150 का अतिरिक्त बोनस मिला।"],
+    en: ["Payment successful", `${rupees(PAID.amount)} added to your wallet. You received ${rupees(PAID.credit - PAID.amount)} extra as bonus.`],
+    hi: ["भुगतान सफल", `आपके वॉलेट में ${rupees(PAID.amount)} जोड़े गए। आपको ${rupees(PAID.credit - PAID.amount)} का अतिरिक्त बोनस मिला।`],
   },
   {
     id: "nt_4",
@@ -47,8 +55,8 @@ const SEED = [
     hoursAgo: 26,
     read: true,
     href: "/wallet",
-    en: ["Festive offer: 30% extra", "Recharge ₹1000 or more and get 30% extra talktime. Valid till Sunday."],
-    hi: ["त्योहारी ऑफ़र: 30% अतिरिक्त", "₹1000 या अधिक का रिचार्ज करें और 30% अतिरिक्त टॉकटाइम पाएं। रविवार तक मान्य।"],
+    en: [`Recharge offer: ${offerPct}% extra`, `Recharge ${rupees(OFFER.amount)} and get ${rupees(OFFER.credit)} in your wallet (+${offerPct}% bonus credit).`],
+    hi: [`रिचार्ज ऑफ़र: ${offerPct}% अतिरिक्त`, `${rupees(OFFER.amount)} का रिचार्ज करें और वॉलेट में ${rupees(OFFER.credit)} पाएं (+${offerPct}% बोनस)।`],
   },
   {
     id: "nt_6",

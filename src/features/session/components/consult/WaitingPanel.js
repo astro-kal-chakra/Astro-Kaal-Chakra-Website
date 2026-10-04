@@ -19,7 +19,7 @@ export function WaitingPanel({ astrologer, expiresAt, onCancel, cancelling }) {
         <Avatar src={astrologer.avatarUrl} name={astrologer.name} size={96} />
       </div>
       <h2 className="mt-6 font-display text-xl font-semibold">{`Waiting for ${astrologer.name} to accept`}</h2>
-      <p className="mt-1 max-w-xs text-sm text-muted">Astrologers usually respond within a minute. Please stay on this screen.</p>
+      <p className="mt-1 max-w-xs text-sm text-muted">The astrologer has 30 seconds to accept. Please stay on this screen.</p>
       {remaining != null && (
         <p className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-surface-muted px-3 py-1 text-sm font-semibold tabular-nums">
           <Clock3 className="size-4" aria-hidden />

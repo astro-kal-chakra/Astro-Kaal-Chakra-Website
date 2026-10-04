@@ -153,7 +153,7 @@ export const LABELS = {
       "how1Title": "Share your code",
       "how2Text": "They log in with their phone and recharge for the first time.",
       "how2Title": "Friend signs up",
-      "how3Text": "Credit lands in your wallet after their first paid session.",
+      "how3Text": "Bonus credit lands in both wallets after their first recharge of ₹100 or more.",
       "how3Title": "You both earn",
       "howTitle": "How it works",
       "rewardStatus": {
@@ -161,9 +161,9 @@ export const LABELS = {
         "pending": "Pending"
       },
       "terms": {
-        "t1": "Rewards are credited as wallet balance and can only be used for consultations. They can't be withdrawn or transferred.",
+        "t1": "Rewards are credited as bonus wallet balance and can only be used for consultations. They can't be withdrawn or transferred, and expire 30 days after they are credited.",
         "t2": "The referred friend must be a new user signing up with a phone number that has never been registered.",
-        "t3": "Referral reward is credited after the friend's first paid session of at least 5 minutes.",
+        "t3": "Referral reward is credited after the friend's first recharge of at least ₹100.",
         "t4": "Self-referrals, duplicate accounts or misuse will lead to rewards being cancelled.",
         "t5": "We may change or end the programme at any time. Rewards already earned will be honoured."
       }
@@ -176,13 +176,14 @@ export const LABELS = {
       },
       "tabs": {
         "all": "All",
-        "call": "Call",
-        "chat": "Chat"
+        "call": "Voice call",
+        "chat": "Chat",
+        "video": "Video call"
       },
       "type": {
+        "call": "Voice call",
         "chat": "Chat",
-        "video": "Video call",
-        "voice": "Voice call"
+        "video": "Video call"
       }
     },
     "settings": {
@@ -279,7 +280,7 @@ export const LABELS = {
         "v1Title": "Guidance, not fear",
         "v2Text": "Your contact details are never shared. Birth data is stored securely as per India's DPDP Act.",
         "v2Title": "Privacy first",
-        "v3Text": "Per-minute rates are shown upfront and billing is calculated on our servers — no surprises.",
+        "v3Text": "Every astrologer's per-minute rate is shown upfront, billing runs on our servers and unused prepaid time comes back to your wallet automatically.",
         "v3Title": "Transparent pricing",
         "v4Text": "Only users who completed a session can leave a rating, so reviews stay honest.",
         "v4Title": "Real reviews"
@@ -297,25 +298,28 @@ export const LABELS = {
     },
     "become": {
       "benefits": {
-        "b1Text": "Consult via chat or video from your phone or laptop.",
+        "b1Text": "Consult via chat, voice call or video from your phone or laptop.",
         "b1Title": "Work from anywhere",
         "b2Text": "Go online when it suits you. No minimum hours.",
         "b2Title": "Set your own hours",
-        "b3Text": "Earnings are transferred to your bank every week.",
-        "b3Title": "Reliable weekly payouts",
+        "b3Text": "The full amount of every session counts as your earnings. A platform charge (30% by default) and 1% TDS are deducted only when you request a payout to your bank.",
+        "b3Title": "Keep the full session amount",
         "b4Text": "We bring the users; you focus on guidance.",
         "b4Title": "Steady flow of clients",
         "b5Text": "Only real clients can rate you — your reputation is protected.",
         "b5Title": "Fair, honest reviews",
-        "b6Text": "Your phone number stays private, and our team supports you 7 days a week.",
+        "b6Text": "Your phone number stays private, and our support team trains you for 6 days before you go live.",
         "b6Title": "Privacy & support"
       },
       "earningsRow1": "2 hours",
-      "earningsRow1Value": "₹25,000 – ₹40,000",
+      "earningsRow1Value": "₹46,800",
+      "earningsRow1Net": "₹32,400",
       "earningsRow2": "4 hours",
-      "earningsRow2Value": "₹50,000 – ₹80,000",
-      "earningsRow3": "6+ hours",
-      "earningsRow3Value": "₹80,000 – ₹1,50,000",
+      "earningsRow2Value": "₹93,600",
+      "earningsRow2Net": "₹64,900",
+      "earningsRow3": "6 hours",
+      "earningsRow3Value": "₹1,40,400",
+      "earningsRow3Net": "₹97,300",
       "form": {
         "applicationId": "Application ID",
         "backHome": "Back to home",
@@ -366,7 +370,9 @@ export const LABELS = {
         "genderOther": "Other",
         "hoursPerDay": "Hours per day",
         "idProof": "Government ID (Aadhaar, PAN, Passport…)",
+        "kycNote": "After approval you log in to the astrologer app with your mobile number (OTP) and complete KYC (ID and PAN) and your bank details — both are required before you can go live and receive payouts.",
         "languages": "Languages you can consult in",
+        "modeCall": "Voice call",
         "modeChat": "Chat",
         "modeVideo": "Video call",
         "modes": "Consultation modes",
@@ -402,25 +408,25 @@ export const LABELS = {
       },
       "heroStat1": "Active users",
       "heroStat1Value": "10 lakh+",
-      "heroStat2": "Weekly payouts",
-      "heroStat2Value": "Every Monday",
+      "heroStat2": "Of every session is yours",
+      "heroStat2Value": "100%",
       "heroStat3": "Joining fee",
       "heroStat3Value": "₹0",
       "process": {
         "p1Text": "Fill in the form below in about 5 minutes.",
         "p1Title": "Apply online",
-        "p2Text": "We verify your ID and certificates within 2–3 working days.",
-        "p2Title": "Document check",
+        "p2Text": "We verify your ID and certificates, then you complete KYC and bank details after logging in with your mobile number (OTP).",
+        "p2Title": "Documents & KYC",
         "p3Text": "A short knowledge test and a mock consultation with our panel.",
         "p3Title": "Test & interview",
-        "p4Text": "Set up your profile and rate, and start consulting.",
-        "p4Title": "Go live"
+        "p4Text": "After approval, 6 days of training with our support team, then set your rates and go live. Our team may waive training for experienced astrologers.",
+        "p4Title": "Training & go live"
       },
       "requirements": {
         "r1": "At least 2 years of practical astrology experience",
         "r2": "Expertise in at least one discipline (Vedic, KP, Tarot, Numerology, Vastu…)",
-        "r3": "Valid government ID and bank account in your name",
-        "r4": "Smartphone or laptop with a stable internet connection",
+        "r3": "KYC documents (government ID, PAN) and a bank account in your name",
+        "r4": "A smartphone with your own mobile number (login is by OTP) and a stable internet connection",
         "r5": "Commitment to ethical, non-fear-based guidance"
       }
     },
@@ -483,13 +489,13 @@ export const LABELS = {
       "freeChat": {
         "nav": "Free first chat",
         "title": "Your free first chat",
-        "intro": "New here? Your first consultation is on us.",
+        "intro": "New here? Your first 3-minute chat is free.",
         "s1Title": "Log in with your phone",
         "s1Text": "Verify with a one-time OTP — no password needed.",
         "s2Title": "Look for the FREE tag",
-        "s2Text": "Astrologers marked FREE accept first-time free chats.",
+        "s2Text": "Your first 3-minute chat is free with astrologers marked FREE — chat only, once per account and device.",
         "s3Title": "Enjoy your free minutes",
-        "s3Text": "A countdown shows how much free time is left. No wallet needed."
+        "s3Text": "A countdown shows how much free time is left, and the chat ends when it's over. No wallet balance needed."
       },
       "jumpTo": "Jump to",
       "metaDescription": "Step-by-step guide to consulting an astrologer: choose an expert, recharge your wallet, start a chat or video call, use your free first chat or join the waitlist.",
@@ -504,11 +510,11 @@ export const LABELS = {
         "s1Title": "Check your device",
         "s1Text": "We test your camera, microphone and connection before the call starts.",
         "s2Title": "Request the call",
-        "s2Text": "Tap Video Call on an astrologer's profile. You'll see the per-minute rate first.",
+        "s2Text": "Tap Video Call on an astrologer's profile. You'll see the per-minute rate first. The astrologer has 30 seconds to accept.",
         "s3Title": "Talk face to face",
         "s3Text": "Switch camera or mute anytime. Your number is never shared.",
         "s4Title": "Wrap up",
-        "s4Text": "Billing stops the moment the call ends."
+        "s4Text": "Billing stops the moment the session ends, and unused prepaid time goes back to your wallet."
       },
       "waitlist": {
         "nav": "Waitlist",
@@ -519,18 +525,18 @@ export const LABELS = {
         "s2Title": "Get notified",
         "s2Text": "We'll alert you the moment it's your turn.",
         "s3Title": "Start your session",
-        "s3Text": "Accept within the time window. You only pay once the session starts."
+        "s3Text": "Accept or decline within 60 seconds. You only pay once the session starts."
       },
       "wallet": {
         "nav": "Wallet",
         "title": "Wallet & payments",
         "intro": "One secure wallet for every consultation.",
         "s1Title": "Recharge",
-        "s1Text": "Choose a pack or custom amount. Pay via UPI, cards or net banking.",
+        "s1Text": "Choose a pack or any amount from ₹50 to ₹1,00,000. Pay securely via Razorpay with UPI, cards or net banking (18% GST added).",
         "s2Title": "Get bonus credit",
         "s2Text": "Many packs include extra credit, shown before you pay.",
-        "s3Title": "Pay per minute",
-        "s3Text": "Your balance is debited by the minute, calculated on our servers.",
+        "s3Title": "Pay the astrologer's rate",
+        "s3Text": "Each astrologer sets their own per-minute rate. Each minute is held as it starts and any unused part is returned automatically.",
         "s4Title": "Track everything",
         "s4Text": "Download invoices and see every transaction in your wallet history."
       }
@@ -550,13 +556,13 @@ export const LABELS = {
       "i1Title": "Verified experts",
       "i2Text": "No phone numbers or contact details shared — ever.",
       "i2Title": "100% private",
-      "i3Text": "Only pay for the time you use. End anytime.",
-      "i3Title": "Pay per minute",
-      "i4Text": "Try a consultation before you recharge.",
+      "i3Text": "Pay the astrologer's per-minute rate. End anytime — unused time is returned.",
+      "i3Title": "Pay only for time used",
+      "i4Text": "Your first 3-minute chat is free — try it before you recharge.",
       "i4Title": "First chat free",
       "i5Text": "Consult in Hindi, English and 6+ regional languages.",
       "i5Title": "Your language",
-      "i6Text": "Support tickets answered quickly, with fair refunds.",
+      "i6Text": "Support tickets answered quickly; refund requests are reviewed by our support team.",
       "i6Title": "Help when you need it"
     }
   },
@@ -567,7 +573,7 @@ export const LABELS = {
     "career": "Career",
     "chooseSign": "Choose your sign",
     "ctaButton": "Talk to an astrologer about this",
-    "ctaText": "Talk to an astrologer about this horoscope — first chat is free.",
+    "ctaText": "Talk to an astrologer about this horoscope — your first 3-minute chat is free.",
     "ctaTitle": "Want a personal reading?",
     "daily": "Daily",
     "health": "Health",
@@ -655,7 +661,7 @@ export const LABELS = {
         "sent": "Sent"
       },
       "system": {
-        "free_ended": "Free minutes are over · now {rate}/min from your wallet",
+        "free_ended": "Your free minutes are over · the chat has ended",
         "free_started": "Your free chat has started · {minutes} minutes free",
         "reconnected": "Reconnected",
         "session_started": "Session started · {rate}/min"
@@ -664,8 +670,8 @@ export const LABELS = {
     "consult": {
       "start": {
         "chat": "Start chat",
-        "video": "Start video call",
-        "voice": "Start voice call"
+        "call": "Start voice call",
+        "video": "Start video call"
       }
     },
     "dev": {
@@ -674,16 +680,19 @@ export const LABELS = {
       "drop": "Drop connection (5s)",
       "expireLogin": "Expire login",
       "lowBalance": "Low balance",
-      "skipFree": "Skip free time",
+      "signInElsewhere": "Sign in on another device",
+      "skipFree": "End free time",
       "title": "Mock simulator"
     },
     "ended": {
       "adminText": "This session was ended by our support team. If you think this was a mistake, please contact support.",
       "adminTitle": "Session ended by support",
-      "astrologerText": "You're charged only for the time used. We hope it helped!",
+      "astrologerText": "You pay only for the exact time used — any unused prepaid time is back in your wallet. We hope it helped!",
       "astrologerTitle": "{name} ended the session",
-      "balanceText": "The session ended because your wallet balance reached zero. Recharge to continue with this astrologer.",
+      "balanceText": "The session ended because your wallet couldn't cover the next minute. Recharge to continue with this astrologer.",
       "balanceTitle": "Your balance ran out",
+      "free_overText": "Your free 3-minute chat is over. Recharge to start a paid chat with this astrologer.",
+      "free_overTitle": "Your free chat has ended",
       "otherText": "This session has finished.",
       "otherTitle": "Session ended",
       "rechargeCta": "Recharge wallet",
@@ -698,9 +707,9 @@ export const LABELS = {
       "insufficientBalance": "Your balance is too low to start this session."
     },
     "modes": {
+      "call": "Voice call",
       "chat": "Chat",
-      "video": "Video call",
-      "voice": "Voice call"
+      "video": "Video call"
     },
     "summary": {
       "ratingLabels": {
@@ -713,7 +722,8 @@ export const LABELS = {
       "reason": {
         "admin": "This session was ended by our support team.",
         "astrologer": "{name} ended the session.",
-        "balance": "The session ended because your wallet balance ran out."
+        "balance": "The session ended because your wallet balance ran out.",
+        "free_over": "Your free 3-minute chat ended when the free time was over."
       }
     },
     "waiting": {
@@ -724,8 +734,8 @@ export const LABELS = {
       "rejectedText": "They may be with another client right now. Try again, or pick a similar astrologer below.",
       "rejectedTitle": "{name} couldn't take your request",
       "retry": "Try again",
-      "text": "Astrologers usually respond within a minute. Please stay on this screen.",
-      "timeoutText": "Your request timed out and you have not been charged. Try again or choose someone available now.",
+      "text": "The astrologer has 30 seconds to accept. Please stay on this screen.",
+      "timeoutText": "The astrologer didn't accept within 30 seconds, so you have not been charged. Try again or choose someone available now.",
       "timeoutTitle": "No response from {name}",
       "title": "Waiting for {name} to accept"
     }
@@ -741,7 +751,7 @@ export const LABELS = {
       "faqTitle": "Frequently asked questions",
       "otherTools": "More free astrology tools",
       "ctaTitle": "Want an expert to read this for you?",
-      "ctaText": "Our verified astrologers can explain your chart, timing and remedies in a private chat. Your first chat is free.",
+      "ctaText": "Our verified astrologers can explain your chart, timing and remedies in a private chat. Your first 3-minute chat is free.",
       "ctaButton": "Talk to an astrologer",
       "name": "Name",
       "namePlaceholder": "Full name",

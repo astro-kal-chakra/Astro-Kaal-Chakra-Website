@@ -5,18 +5,21 @@
 
 /* ------------------------------------------------------------------
  * Design tokens
- * Brand (Astro-Kaal-Chakra logo): bhagwa (saffron) + white only — no black.
- *   brand-* = logo saffron (#F26B1D), gold-* = light saffron accent tints.
+ * Brand: bhagwa (saffron) + white — no black. White is the canvas;
+ * saffron is the accent (actions, highlights, the Kaal Chakra motif).
+ *   brand-* = bhagwa (#F26B1D), gold-* = light saffron tints.
+ * Text is a warm deep brown, never pure black.
  * Semantic tokens (bg, surface, text...) switch with the theme.
  * ------------------------------------------------------------------ */
 :root {
-  --bg: #fffaf5;
+  --bg: #ffffff;
   --surface: #ffffff;
-  --surface-muted: #fff1e5;
-  --text: #2b1608;
-  --text-muted: #6b4e3d;
-  --border: #f6dcc6;
+  --surface-muted: #fff7f0;
+  --text: #2a1709;
+  --text-muted: #6e5444;
+  --border: #f3e1d0;
   --ring: #c2410c;
+  --accent-text: #c2410c; /* saffron text on white (AA) */
 }
 
 .dark {
@@ -27,11 +30,13 @@
   --text-muted: #c9a991;
   --border: #3a2414;
   --ring: #fb8a3c;
+  --accent-text: #fdae74;
 }
 
 @theme inline {
   --font-sans: var(--font-poppins), var(--font-inter), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-poppins), var(--font-devanagari), ui-sans-serif, system-ui, sans-serif;
+  /* Headings: Marcellus (inscription-like serif) — Devanagari falls back to Noto Sans Devanagari */
+  --font-display: var(--font-marcellus), var(--font-devanagari), ui-serif, Georgia, serif;
 
   --color-bg: var(--bg);
   --color-surface: var(--surface);
@@ -40,6 +45,7 @@
   --color-muted: var(--text-muted);
   --color-line: var(--border);
   --color-ring: var(--ring);
+  --color-accent: var(--accent-text);
 }
 
 @theme {
@@ -121,6 +127,11 @@
     background: var(--bg);
     color: var(--text);
   }
+  /* Marcellus has one weight: never fake-bold it (headings keep their font-bold classes for Devanagari) */
+  .font-display {
+    font-synthesis-weight: none;
+    letter-spacing: 0.005em;
+  }
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
@@ -137,11 +148,37 @@
   }
 }
 
+/* Saffron band (CTAs, highlights): bhagwa gradient + faint chakra rings. Use sparingly — the site is white-first. */
 @utility bg-cosmic {
   background-image:
-    radial-gradient(ellipse at 85% 20%, rgb(255 255 255 / 0.22), transparent 50%),
-    radial-gradient(ellipse at 10% 90%, rgb(253 186 116 / 0.35), transparent 55%),
-    linear-gradient(135deg, #fb8a3c, #f26b1d 45%, #d9520f);
+    radial-gradient(circle at 88% 18%, transparent 0 56px, rgb(255 255 255 / 0.16) 57px 58px, transparent 59px 96px, rgb(255 255 255 / 0.12) 97px 98px, transparent 99px 140px, rgb(255 255 255 / 0.08) 141px 142px, transparent 143px),
+    radial-gradient(ellipse at 10% 100%, rgb(253 186 116 / 0.35), transparent 55%),
+    linear-gradient(135deg, #f58233, #f26b1d 45%, #d4500e);
+}
+
+/* Soft saffron glow on white (hero, feature sections) */
+@utility bg-aura {
+  background-image:
+    radial-gradient(ellipse 60% 55% at 78% 40%, rgb(251 138 60 / 0.14), transparent 70%),
+    radial-gradient(ellipse 45% 40% at 8% 0%, rgb(253 186 116 / 0.18), transparent 70%);
+}
+
+/* Small uppercase label above section titles */
+@utility eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+/* Saffron hairline that fades at both ends (section dividers) */
+@utility hairline {
+  height: 1px;
+  background-image: linear-gradient(90deg, transparent, var(--color-brand-300), transparent);
 }
 
 @utility text-gradient-gold {

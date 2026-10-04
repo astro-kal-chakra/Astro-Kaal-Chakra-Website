@@ -6,24 +6,28 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { label as t } from "@/lib/labels";
 
 const ICONS = { Heart, Briefcase, Gem, IndianRupee, HeartPulse };
+const HINTS = { love: "Relationships, compatibility", career: "Job change, growth, business", marriage: "Timing, matching, delays", finance: "Money, investments, debt", health: "Wellbeing, remedies" };
 
 export function Categories() {
   return (
-    <section className="container-page py-12">
-      <SectionHeading title="What's on your mind?" />
-      <ul className="grid grid-cols-3 gap-3 sm:grid-cols-5">
+    <section className="container-page py-14">
+      <SectionHeading eyebrow="Find the right expert" title="What's on your mind?" />
+      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {CATEGORIES.map((c) => {
           const Icon = ICONS[c.icon];
           return (
             <li key={c.slug}>
               <LocaleLink
                 href={`${routes.astrologers}?category=${c.slug}`}
-                className="flex flex-col items-center gap-2 rounded-2xl border border-line bg-surface p-4 text-center font-medium transition hover:-translate-y-0.5 hover:border-gold-400 hover:shadow-md"
+                className="group flex h-full items-center gap-3 rounded-2xl border border-line bg-surface p-4 transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-[0_10px_30px_-14px_rgb(194_65_12/0.3)]"
               >
-                <span className="flex size-12 items-center justify-center rounded-full bg-brand-100 text-brand-600 dark:bg-brand-800 dark:text-gold-400">
-                  <Icon className="size-6" aria-hidden />
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-600 transition group-hover:bg-brand-600 group-hover:text-white dark:bg-brand-950/50 dark:text-brand-300">
+                  <Icon className="size-5" aria-hidden />
                 </span>
-                {t(`categories.${c.slug}`)}
+                <span className="min-w-0">
+                  <span className="block font-semibold text-fg">{t(`categories.${c.slug}`)}</span>
+                  <span className="block truncate text-xs text-muted">{HINTS[c.slug]}</span>
+                </span>
               </LocaleLink>
             </li>
           );

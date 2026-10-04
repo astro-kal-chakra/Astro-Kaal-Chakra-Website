@@ -2,16 +2,16 @@ import { env } from "@/config/site";
 import { http, mockDelay } from "../http";
 import { MOCK_SESSIONS, mockStore, mockTranscript } from "../mock/account";
 
-const sessionsStore = mockStore("sessions", MOCK_SESSIONS);
+const sessionsStore = mockStore("sessions_v2", MOCK_SESSIONS);
 
 /** Past consultations of the logged-in user. Billing amounts always come from the backend. */
 export const sessionHistoryService = {
-  /** @param {{ type?: "all" | "chat" | "call", page?: number, pageSize?: number }} opts */
+  /** @param {{ type?: "all" | "chat" | "call" | "video", page?: number, pageSize?: number }} opts — `type` filters by session mode */
   async list({ type = "all", page = 1, pageSize = 20 } = {}) {
     if (env.useMocks) {
       const all = sessionsStore
         .get()
-        .filter((s) => type === "all" || s.type === type)
+        .filter((s) => type === "all" || s.mode === type)
         .sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt));
       return mockDelay({ items: all.slice((page - 1) * pageSize, page * pageSize), total: all.length, page, pageSize });
     }

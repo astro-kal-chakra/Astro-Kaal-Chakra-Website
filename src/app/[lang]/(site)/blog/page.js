@@ -112,7 +112,7 @@ export default async function BlogPage({ params, searchParams }) {
       <ContentCta
         className="mt-14"
         title="Still have questions about your chart?"
-        text="Get a personal reading from a verified astrologer. Your first chat is free."
+        text="Get a personal reading from a verified astrologer. Your first 3-minute chat is free."
         cta="Talk to an astrologer"
       />
 

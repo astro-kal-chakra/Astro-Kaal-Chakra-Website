@@ -1,31 +1,38 @@
-import { BadgeCheck, Lock, MessageCircle, Search, Sparkles, Star } from "lucide-react";
+import { BadgeCheck, CalendarDays, Hash, Heart, Lock, MessageCircle, ScrollText, Search, Sparkles, Star, Sun, UserCheck } from "lucide-react";
 import { routes } from "@/config/routes";
 import { formatDate } from "@/lib/utils/format";
 import { Accordion } from "@/components/ui/Accordion";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { ChakraGlyph } from "@/components/ui/ChakraDial";
+import { LocaleLink } from "@/components/ui/LocaleLink";
 import { RatingStars } from "@/components/ui/RatingStars";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { AppStoreButtons } from "@/components/layout/AppStoreButtons";
 
 export function HowItWorks() {
   const steps = [
-    { icon: Search, title: "Choose an astrologer", text: "Filter by language, specialty, price and rating." },
-    { icon: MessageCircle, title: "Start a chat or call", text: "Pay per minute from your wallet. First chat is free." },
-    { icon: Sparkles, title: "Get guidance", text: "Rate your session and rebook anytime." },
+    { icon: Search, title: "Choose an astrologer", text: "Filter by language, specialty, rating and price. See who is online right now." },
+    { icon: MessageCircle, title: "Chat, call or video", text: "Your first chat is free for 3 minutes. After that you pay the astrologer's per-minute rate from your wallet." },
+    { icon: Sparkles, title: "Get guidance", text: "Share birth details once, save the chat, rate the session and come back anytime." },
   ];
   return (
-    <section className="container-page py-12">
-      <SectionHeading title="How it works" />
-      <ol className="grid grid-cols-1 gap-4 md:grid-cols-3">
+    <section className="container-page py-14">
+      <SectionHeading eyebrow="Simple" title="How it works" align="center" />
+      <ol className="relative grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-5">
+        {/* Thread joining the three steps */}
+        <span className="hairline absolute inset-x-[16%] top-8 hidden md:block" aria-hidden />
         {steps.map((s, i) => (
-          <Card as="li" key={s.title} className="relative p-6">
-            <span className="absolute right-5 top-4 font-display text-5xl font-bold text-brand-100 dark:text-brand-800" aria-hidden>
-              {i + 1}
+          <li key={s.title} className="relative flex flex-col items-center text-center">
+            <span className="relative flex size-16 items-center justify-center rounded-full border border-brand-200 bg-surface text-brand-600 dark:border-brand-800 dark:text-brand-300">
+              <s.icon className="size-6" aria-hidden />
+              <span className="absolute -right-1 -top-1 flex size-6 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white">
+                {i + 1}
+              </span>
             </span>
-            <s.icon className="size-8 text-gold-500" aria-hidden />
-            <h3 className="mt-4 text-lg font-semibold">{s.title}</h3>
-            <p className="mt-1 text-sm text-muted">{s.text}</p>
-          </Card>
+            <h3 className="mt-4 text-lg font-semibold text-fg">{s.title}</h3>
+            <p className="mt-1 max-w-xs text-sm text-muted">{s.text}</p>
+          </li>
         ))}
       </ol>
     </section>
@@ -34,25 +41,86 @@ export function HowItWorks() {
 
 export function TrustSection() {
   const items = [
-    { icon: BadgeCheck, title: "Verified astrologers", text: "Every astrologer is interviewed and background checked." },
-    { icon: Lock, title: "100% private", text: "Contact details are never shared on either side." },
-    { icon: Star, title: "Honest ratings", text: "Only users who completed a session can review." },
+    { icon: UserCheck, title: "Verified and trained", text: "Every astrologer passes KYC, an interview and our training before going live." },
+    { icon: Lock, title: "Private by design", text: "Phone numbers and contact details are never shared on either side." },
+    { icon: Star, title: "Honest ratings", text: "Only users who completed a paid session can leave a review." },
+    { icon: BadgeCheck, title: "Clear pricing", text: "Per-minute rates shown upfront, with a receipt for every recharge and session." },
   ];
   return (
-    <section className="bg-surface-muted py-12">
+    <section className="container-page py-14">
+      <SectionHeading eyebrow="Trust" title="Why people choose us" />
+      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {items.map((it) => (
+          <Card as="li" key={it.title} className="p-5">
+            <it.icon className="size-6 text-brand-600 dark:text-brand-300" aria-hidden />
+            <h3 className="mt-3 font-semibold text-fg">{it.title}</h3>
+            <p className="mt-1 text-sm text-muted">{it.text}</p>
+          </Card>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** Saffron band: the free first chat. Amounts come from the backend config once wired. */
+export function OffersBanner() {
+  return (
+    <section className="container-page py-6">
+      <div className="bg-cosmic flex flex-col items-start justify-between gap-5 overflow-hidden rounded-3xl p-7 text-white sm:flex-row sm:items-center sm:p-10">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/85">New here?</p>
+          <h2 className="mt-2 font-display text-3xl sm:text-4xl">Your first 3-minute chat is free</h2>
+          <p className="mt-2 max-w-xl text-white/90">One free chat per account. After that, recharge from ₹50 and pay the astrologer&apos;s per-minute rate.</p>
+        </div>
+        <ButtonLink href={routes.astrologers} size="lg" variant="light">
+          Start free chat
+        </ButtonLink>
+      </div>
+    </section>
+  );
+}
+
+export function FreeTools() {
+  const tools = [
+    { icon: ScrollText, title: "Free Kundli", text: "Birth chart, dasha and planets", href: routes.kundli },
+    { icon: Heart, title: "Kundli Matching", text: "36-guna milan for marriage", href: routes.kundliMatching },
+    { icon: CalendarDays, title: "Panchang", text: "Tithi, nakshatra, Rahu Kaal", href: routes.panchang },
+    { icon: Sun, title: "Horoscope", text: "Daily, weekly, monthly", href: routes.horoscope },
+    { icon: Hash, title: "Numerology", text: "Your life path number", href: routes.numerology },
+    { icon: Sparkles, title: "Zodiac Finder", text: "Find your sun and moon sign", href: routes.zodiacFinder },
+  ];
+  return (
+    <section className="container-page py-14">
+      <SectionHeading eyebrow="Free tools" title="Start with your own chart" subtitle="Free, no login needed. Save them to your account any time." />
+      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        {tools.map((tool) => (
+          <li key={tool.title}>
+            <LocaleLink href={tool.href} className="group block h-full">
+              <Card interactive className="flex h-full flex-col gap-3 p-4">
+                <span className="flex size-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600 transition group-hover:bg-brand-600 group-hover:text-white dark:bg-brand-950/50 dark:text-brand-300">
+                  <tool.icon className="size-5" aria-hidden />
+                </span>
+                <span>
+                  <span className="block font-semibold text-fg">{tool.title}</span>
+                  <span className="block text-xs text-muted">{tool.text}</span>
+                </span>
+              </Card>
+            </LocaleLink>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+export function Reviews({ locale, reviews }) {
+  return (
+    <section className="border-y border-line bg-surface-muted/60 py-14">
       <div className="container-page">
-        <SectionHeading title="Why people trust us" />
-        <ul className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          {items.map((it) => (
-            <li key={it.title} className="flex gap-4">
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-brand-600 text-gold-300">
-                <it.icon className="size-6" aria-hidden />
-              </span>
-              <div>
-                <h3 className="font-semibold">{it.title}</h3>
-                <p className="text-sm text-muted">{it.text}</p>
-              </div>
-            </li>
+        <SectionHeading eyebrow="Reviews" title="What our users say" subtitle="From users who completed a session." />
+        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {reviews.map((r) => (
+            <ReviewCard key={r.id} review={r} locale={locale} />
           ))}
         </ul>
       </div>
@@ -60,41 +128,12 @@ export function TrustSection() {
   );
 }
 
-export function OffersBanner() {
-  return (
-    <section className="container-page py-6">
-      <div className="flex flex-col items-start justify-between gap-4 rounded-3xl bg-gradient-to-r from-brand-500 to-brand-600 p-6 text-white sm:flex-row sm:items-center sm:p-8">
-        <div>
-          <h2 className="font-display text-2xl font-bold">First chat FREE</h2>
-          <p className="mt-1 font-medium">New users get a free first consultation. Recharge ₹100, get ₹120.</p>
-        </div>
-        <ButtonLink href={routes.astrologers} size="lg" variant="light">
-          Talk to an Astrologer
-        </ButtonLink>
-      </div>
-    </section>
-  );
-}
-
-export function Reviews({ locale, reviews }) {
-  return (
-    <section className="container-page py-12">
-      <SectionHeading title="What our users say" />
-      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {reviews.map((r) => (
-          <ReviewCard key={r.id} review={r} locale={locale} />
-        ))}
-      </ul>
-    </section>
-  );
-}
-
 export function ReviewCard({ review: r, locale, as = "li" }) {
   return (
-    <Card as={as} className="p-5">
+    <Card as={as} className="flex flex-col p-5">
       <RatingStars value={r.rating} />
-      <p className="mt-3 text-sm leading-relaxed">“{r.text}”</p>
-      <p className="mt-4 text-sm font-semibold">{r.user}</p>
+      <p className="mt-3 flex-1 font-display text-[1.05rem] leading-relaxed text-fg">“{r.text}”</p>
+      <p className="mt-4 text-sm font-semibold text-fg">{r.user}</p>
       <p className="text-xs text-muted">{formatDate(r.date, locale)}</p>
     </Card>
   );
@@ -102,9 +141,33 @@ export function ReviewCard({ review: r, locale, as = "li" }) {
 
 export function FaqSection({ faqs }) {
   return (
-    <section className="container-page py-12">
-      <SectionHeading title="Frequently asked questions" />
-      <Accordion items={faqs} className="max-w-3xl" />
+    <section className="container-page grid grid-cols-1 gap-6 py-14 lg:grid-cols-[1fr_2fr] lg:gap-10">
+      <SectionHeading
+        eyebrow="FAQ"
+        title="Questions, answered"
+        subtitle="Billing, privacy, refunds and more."
+        action={{ href: routes.faqs, label: "All FAQs" }}
+        className="flex-col items-start"
+      />
+      <Accordion items={faqs} />
+    </section>
+  );
+}
+
+/** Closing band: the app. */
+export function AppBand() {
+  return (
+    <section className="container-page pb-4 pt-8">
+      <div className="relative overflow-hidden rounded-3xl border border-line bg-surface-muted/70 p-7 sm:p-10">
+        <ChakraGlyph className="pointer-events-none absolute -right-10 -top-10 size-56 text-brand-200 dark:text-brand-900" />
+        <div className="relative flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
+          <div>
+            <h2 className="font-display text-3xl text-fg">Your astrologer, in your pocket</h2>
+            <p className="mt-2 max-w-lg text-muted">Same account and wallet on the app and the website. Get a notification the moment your astrologer accepts.</p>
+          </div>
+          <AppStoreButtons tone="light" />
+        </div>
+      </div>
     </section>
   );
 }

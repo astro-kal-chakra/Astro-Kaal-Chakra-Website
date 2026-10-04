@@ -149,7 +149,7 @@ export default async function BlogPostPage({ params }) {
         </div>
       </article>
 
-      <ContentCta className="mx-auto mt-14 max-w-6xl" title="Want to know how this applies to your chart?" text="Chat privately with a verified astrologer. Your first chat is free." cta="Talk to an astrologer" />
+      <ContentCta className="mx-auto mt-14 max-w-6xl" title="Want to know how this applies to your chart?" text="Chat privately with a verified astrologer. Your first 3-minute chat is free." cta="Talk to an astrologer" />
 
       {helpers.items.length > 0 && (
         <section className="mt-14">

@@ -2,6 +2,12 @@
  * Local mock data used until NEXT_PUBLIC_API_URL is configured.
  * Shape mirrors what the backend /astrologers endpoint should return.
  * Note: no phone numbers or contact details — ever.
+ *
+ * Prices are rupees per minute for each mode: chatPrice, callPrice (voice call)
+ * and videoPrice. supportsCall / supportsVideo say whether the astrologer offers
+ * that mode (chat is always on). Status is online | busy | offline.
+ * Only approved astrologers who have finished their training are ever listed —
+ * astrologers still in training never appear here.
  */
 const NAMES = [
   "Acharya Vikram Shastri", "Pandit Rajesh Mishra", "Tarot Meera", "Dr. Ananya Rao",
@@ -51,7 +57,9 @@ export const MOCK_ASTROLOGERS = NAMES.map((name, i) => {
     reviewCount: 120 + ((i * 397) % 4800),
     totalSessions: 1500 + ((i * 2731) % 52000),
     chatPrice,
+    callPrice: Math.round(chatPrice * 1.3),
     videoPrice: Math.round(chatPrice * 1.6),
+    supportsCall: i % 8 !== 7, // most astrologers take voice calls
     supportsVideo: i % 3 !== 2,
     status,
     queueCount: status === "busy" ? 1 + (i % 4) : 0,

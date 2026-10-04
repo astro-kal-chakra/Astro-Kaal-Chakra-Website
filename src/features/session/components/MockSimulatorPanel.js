@@ -20,6 +20,7 @@ export function MockSimulatorPanel({ sessionId, isFree, className }) {
     { key: "astrologerEnds", run: () => dev.endByAstrologer(sessionId) },
     { key: "adminEnds", run: () => dev.endByAdmin(sessionId) },
     { key: "expireLogin", run: () => dev.expireLogin() },
+    { key: "signInElsewhere", run: () => dev.signInElsewhere() },
   ].filter(Boolean);
 
   return (

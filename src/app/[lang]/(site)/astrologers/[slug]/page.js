@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
-import { BadgeCheck, Briefcase, Languages, Star, Users } from "lucide-react";
+import { BadgeCheck, Briefcase, Gift, Languages, Lock, Star, Timer, Users } from "lucide-react";
+import { LocaleLink } from "@/components/ui/LocaleLink";
 import { routes } from "@/config/routes";
 import { astrologerService } from "@/lib/api/services/astrologer.service";
 import { astrologerJsonLd, breadcrumbJsonLd } from "@/lib/seo/jsonld";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { formatCompact, formatCurrency } from "@/lib/utils/format";
+import { formatCompact } from "@/lib/utils/format";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
@@ -41,7 +42,7 @@ export default async function AstrologerProfilePage({ params }) {
 
   const [reviews, similar] = await Promise.all([
     astrologerService.getReviews(astrologer.id),
-    astrologerService.getSimilar(astrologer),
+    astrologerService.getSimilar(astrologer, 3),
   ]);
   const a = astrologer;
 
@@ -55,8 +56,12 @@ export default async function AstrologerProfilePage({ params }) {
     <div className="container-page py-8">
       <nav aria-label="Breadcrumb" className="mb-4 text-sm text-muted">
         <ol className="flex flex-wrap gap-1">
-          <li>Home /</li>
-          <li>Talk to Astrologer /</li>
+          <li>
+            <LocaleLink href="/" className="hover:text-accent">Home</LocaleLink> /
+          </li>
+          <li>
+            <LocaleLink href={routes.astrologers} className="hover:text-accent">Talk to Astrologer</LocaleLink> /
+          </li>
           <li aria-current="page" className="text-fg">
             {a.name}
           </li>
@@ -69,7 +74,7 @@ export default async function AstrologerProfilePage({ params }) {
             <div className="flex flex-col gap-5 sm:flex-row">
               <Avatar src={a.avatarUrl} name={a.name} size={112} priority />
               <div className="min-w-0 flex-1">
-                <h1 className="flex items-center gap-2 font-display text-2xl font-semibold sm:text-3xl">
+                <h1 className="flex flex-wrap items-center gap-2 font-display text-3xl text-fg sm:text-4xl">
                   {a.name}
                   {a.isVerified && (
                     <Badge tone="brand">
@@ -99,7 +104,7 @@ export default async function AstrologerProfilePage({ params }) {
           </Card>
 
           <Card className="p-5 sm:p-6">
-            <h2 className="mb-2 text-lg font-semibold">About</h2>
+            <h2 className="mb-2 font-display text-2xl text-fg">About</h2>
             <p className="leading-relaxed text-muted">{a.about}</p>
             <h3 className="mb-2 mt-5 text-sm font-semibold">Specialties</h3>
             <div className="flex flex-wrap gap-2">
@@ -117,7 +122,7 @@ export default async function AstrologerProfilePage({ params }) {
           </Card>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold">
+            <h2 className="mb-3 font-display text-2xl text-fg">
               Reviews ({formatCompact(a.reviewCount, lang)})
             </h2>
             <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -131,30 +136,27 @@ export default async function AstrologerProfilePage({ params }) {
         {/* Sticky action panel — on mobile it sits right after the header card. */}
         <aside className="order-first lg:order-none">
           <Card className="space-y-4 p-5 lg:sticky lg:top-20">
-            <div className="grid grid-cols-2 gap-3 text-center">
-              <div className="rounded-xl bg-surface-muted p-3">
-                <p className="text-xs text-muted">Chat</p>
-                <p className="font-bold">
-                  {formatCurrency(a.chatPrice, lang)}
-                  <span className="text-xs font-normal text-muted">/min</span>
-                </p>
-              </div>
-              <div className="rounded-xl bg-surface-muted p-3">
-                <p className="text-xs text-muted">Video Call</p>
-                <p className="font-bold">
-                  {a.supportsVideo ? formatCurrency(a.videoPrice, lang) : "—"}
-                  {a.supportsVideo && <span className="text-xs font-normal text-muted">/min</span>}
-                </p>
-              </div>
-            </div>
             <AstrologerProfileLive astrologer={a} />
+            <ul className="space-y-1.5 border-t border-line pt-4 text-xs text-muted">
+              <li className="flex gap-2">
+                <Timer className="size-3.5 shrink-0 text-brand-500" aria-hidden /> Charged per minute at the rate shown · end anytime
+              </li>
+              {a.freeChatEligible && (
+                <li className="flex gap-2">
+                  <Gift className="size-3.5 shrink-0 text-brand-500" aria-hidden /> Your first 3-minute chat is free
+                </li>
+              )}
+              <li className="flex gap-2">
+                <Lock className="size-3.5 shrink-0 text-brand-500" aria-hidden /> Your phone number is never shared
+              </li>
+            </ul>
           </Card>
         </aside>
       </div>
 
       {similar.length > 0 && (
         <section className="mt-12">
-          <SectionHeading title="Similar astrologers" />
+          <SectionHeading eyebrow="You may also like" title="Similar astrologers" />
           <AstrologerLiveRow astrologers={similar} />
         </section>
       )}

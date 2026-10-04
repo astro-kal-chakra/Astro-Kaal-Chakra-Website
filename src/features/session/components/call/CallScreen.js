@@ -22,7 +22,7 @@ export function CallScreen({ sessionId, voiceOnly: voiceParam }) {
   const online = useNetworkStatus();
 
   const [session, setSession] = useState(undefined);
-  const voiceOnly = voiceParam || session?.mode === SESSION_MODES.VOICE;
+  const voiceOnly = voiceParam || session?.mode === SESSION_MODES.CALL; // "call" = voice only
   const media = useLocalMedia({ video: !voiceOnly });
   const live = useLiveSession(session);
   const { ended, connected } = live;
@@ -162,7 +162,7 @@ export function CallScreen({ sessionId, voiceOnly: voiceParam }) {
         onClose={() => setConfirmEnd(false)}
         onConfirm={endCall}
         loading={ending}
-        mode={voiceOnly ? SESSION_MODES.VOICE : SESSION_MODES.VIDEO}
+        mode={voiceOnly ? SESSION_MODES.CALL : SESSION_MODES.VIDEO}
       />
       {showEndedPanel && <SessionEndedPanel sessionId={sessionId} ended={ended} astrologer={a} isFree={session.isFree} />}
     </div>

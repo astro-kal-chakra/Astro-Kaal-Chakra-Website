@@ -16,7 +16,7 @@ export default async function ConsultPage({ searchParams }) {
       slug={slug}
       initialMode={normalizeMode(sp.mode)}
       waitlist={sp.waitlist === "1"}
-      // Mock-only QA hook: ?simulate=accept|reject|timeout
+      // Mock-only QA hook: ?simulate=accept|reject|missed
       simulate={env.useMocks && typeof sp.simulate === "string" ? sp.simulate : undefined}
     />
   );

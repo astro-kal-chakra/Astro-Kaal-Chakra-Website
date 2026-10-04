@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import { astrologerService } from "@/lib/api/services/astrologer.service";
 import { formatCurrency } from "@/lib/utils/format";
-import { priceFor } from "@/lib/api/services/session.service";
+import { modesFor, priceFor } from "@/lib/api/services/session.service";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -26,7 +26,7 @@ export function SimilarAstrologers({ astrologer, mode, onPick, title }) {
       .getSimilar(astrologer, 6)
       .then((list) => {
         if (!alive) return;
-        const usable = list.filter((a) => a.status === "online" && (mode === "chat" || a.supportsVideo));
+        const usable = list.filter((a) => a.status === "online" && modesFor(a).includes(mode));
         setItems(usable.slice(0, 4));
       })
       .catch(() => alive && setItems([]));

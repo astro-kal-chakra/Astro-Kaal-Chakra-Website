@@ -39,7 +39,7 @@ export default async function HowItWorksPage({ params }) {
               <li key={g.id}>
                 <a
                   href={`#${g.id}`}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-4 text-sm font-medium text-white transition-colors hover:bg-white/20"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-line bg-surface px-4 text-sm font-medium text-fg transition-colors hover:border-brand-300 hover:text-accent"
                 >
                   <g.icon className="size-4 text-gold-300" aria-hidden /> {t(`content.how.${g.key}.nav`)}
                 </a>

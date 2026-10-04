@@ -1,4 +1,4 @@
-import { Inter, Noto_Sans_Devanagari, Poppins } from "next/font/google";
+import { Inter, Marcellus, Noto_Sans_Devanagari, Poppins } from "next/font/google";
 import { notFound } from "next/navigation";
 import Script from "next/script";
 import { siteConfig } from "@/config/site";
@@ -14,6 +14,7 @@ import "../globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-poppins", display: "swap" });
 const devanagari = Noto_Sans_Devanagari({ subsets: ["devanagari"], variable: "--font-devanagari", display: "swap" });
+const marcellus = Marcellus({ subsets: ["latin"], weight: "400", variable: "--font-marcellus", display: "swap" });
 
 export const dynamicParams = false;
 
@@ -29,7 +30,7 @@ export const viewport = {
   // Android Chrome: shrink the layout when the keyboard opens so bottom sheets stay visible.
   interactiveWidget: "resizes-content",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f26b1d" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
     { media: "(prefers-color-scheme: dark)", color: "#0f0804" },
   ],
 };
@@ -50,7 +51,7 @@ export default async function RootLayout({ children, params }) {
   if (!hasLocale(lang)) notFound();
 
   return (
-    <html lang={lang} suppressHydrationWarning className={`${inter.variable} ${poppins.variable} ${devanagari.variable}`}>
+    <html lang={lang} suppressHydrationWarning className={`${inter.variable} ${poppins.variable} ${devanagari.variable} ${marcellus.variable}`}>
       <body className="flex min-h-dvh flex-col font-sans antialiased">
         {/* Applies saved/system theme before first paint (no light→dark flash). */}
         <Script id="theme-init" strategy="beforeInteractive">

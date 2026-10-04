@@ -3,11 +3,13 @@ import { cn } from "@/lib/utils/cn";
 import { LocaleLink } from "./LocaleLink";
 
 const VARIANTS = {
-  primary: "bg-brand-600 text-white hover:bg-brand-700 dark:bg-brand-400 dark:text-brand-950 dark:hover:bg-brand-300",
+  primary: "bg-brand-600 text-white shadow-sm shadow-brand-700/20 hover:bg-brand-700 dark:bg-brand-400 dark:text-brand-950 dark:hover:bg-brand-300",
   gold: "bg-gradient-to-r from-brand-500 to-brand-600 text-white hover:from-brand-600 hover:to-brand-700 shadow-sm shadow-brand-500/30",
   /** White button for use on saffron (bg-cosmic) bands. */
   light: "bg-white text-brand-700 hover:bg-brand-50 shadow-sm shadow-brand-900/20",
-  outline: "border border-line bg-surface text-fg hover:bg-surface-muted",
+  outline: "border border-line bg-surface text-fg hover:border-brand-300 hover:bg-surface-muted",
+  /** Saffron outline: secondary action next to a primary one */
+  soft: "border border-brand-200 bg-brand-50 text-brand-700 hover:bg-brand-100 dark:border-brand-800 dark:bg-brand-950/40 dark:text-brand-200 dark:hover:bg-brand-900/50",
   ghost: "text-fg hover:bg-surface-muted",
   danger: "bg-red-600 text-white hover:bg-red-700",
   success: "bg-brand-600 text-white hover:bg-brand-700 dark:bg-brand-400 dark:text-brand-950 dark:hover:bg-brand-300",

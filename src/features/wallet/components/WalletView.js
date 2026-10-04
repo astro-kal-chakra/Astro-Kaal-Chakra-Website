@@ -6,7 +6,7 @@ import { env } from "@/config/site";
 import { useAuth } from "@/features/auth/context/AuthProvider";
 import { formatCurrency } from "@/lib/utils/format";
 import { ButtonLink } from "@/components/ui/Button";
-import { MockCashfreeCheckout } from "./MockCashfreeCheckout";
+import { MockRazorpayCheckout } from "./MockRazorpayCheckout";
 import { PaymentRecoveryBanner } from "./PaymentRecoveryBanner";
 import { RechargePanel } from "./RechargePanel";
 import { RecentTransactions } from "./RecentTransactions";
@@ -14,8 +14,8 @@ import { SITE_LOCALE } from "@/config/locale";
 
 /**
  * Wallet screen: balance, recharge (packs / custom / coupon / GST summary),
- * Cashfree checkout and recent transactions. The wallet is only ever credited by
- * the backend from the verified Cashfree webhook — the UI polls order status.
+ * Razorpay checkout and recent transactions. The wallet is only ever credited by
+ * the backend (after payment verify or the Razorpay webhook) — the UI polls order status.
  */
 export function WalletView() {
   const locale = SITE_LOCALE;
@@ -53,7 +53,7 @@ export function WalletView() {
             </ButtonLink>
           </div>
         </div>
-        <p className="relative mt-4 text-sm text-brand-200">Balance is used for chat &amp; call consultations and reports. It never expires.</p>
+        <p className="relative mt-4 text-sm text-brand-200">Balance is used for chat, call and video consultations and reports. Unused prepaid session time comes back automatically.</p>
       </section>
 
       <PaymentRecoveryBanner />
@@ -62,7 +62,7 @@ export function WalletView() {
 
       <RecentTransactions refreshKey={balance} />
 
-      {env.useMocks && <MockCashfreeCheckout />}
+      {env.useMocks && <MockRazorpayCheckout />}
     </div>
   );
 }

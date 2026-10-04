@@ -50,6 +50,14 @@ export const authService = {
     return http("/me", { method: "PATCH", body: profile });
   },
 
+  /**
+   * Forget the session in this browser only — used when the account signed in on
+   * another device (the server has already revoked this device's tokens).
+   */
+  clearLocal() {
+    if (env.useMocks) localStorage.removeItem(MOCK_USER_KEY);
+  },
+
   async logout({ allDevices = false } = {}) {
     if (env.useMocks) {
       localStorage.removeItem(MOCK_USER_KEY);

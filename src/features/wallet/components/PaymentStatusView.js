@@ -14,7 +14,7 @@ import { SITE_LOCALE } from "@/config/locale";
 
 /**
  * /wallet/payment/[orderId] — the single source of truth for a payment's outcome.
- * Polls the backend (which only credits after the verified Cashfree webhook).
+ * Polls the backend (which only credits after verifying the Razorpay payment).
  */
 export function PaymentStatusView({ orderId }) {
   const locale = SITE_LOCALE;

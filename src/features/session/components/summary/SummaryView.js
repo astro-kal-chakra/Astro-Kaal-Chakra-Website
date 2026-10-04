@@ -14,12 +14,12 @@ import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { RatingStars } from "@/components/ui/RatingStars";
-import { REVIEW_MAX_LENGTH } from "../../lib/sessionEvents";
+import { END_REASONS, REVIEW_MAX_LENGTH, normalizeEndReason } from "../../lib/sessionEvents";
 import { SessionScreenState } from "../SessionParts";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
 
-const MODE_ICONS = { chat: MessageCircle, video: Video, voice: Phone };
+const MODE_ICONS = { chat: MessageCircle, call: Phone, video: Video };
 
 function StarRatingInput({ value, onChange }) {
   const [hover, setHover] = useState(0);
@@ -185,8 +185,9 @@ export function SummaryView({ sessionId }) {
   const s = data.session;
   const a = s.astrologer;
   const ModeIcon = MODE_ICONS[s.mode] || MessageCircle;
-  const started = Boolean(s.startedAt) && (s.duration || 0) > 0;
-  const free = s.isFree && !s.charged;
+  const started = Boolean(s.startedAt) && (s.durationSec || 0) > 0;
+  const free = s.isFree && !s.totalCharged;
+  const endReason = normalizeEndReason(s.endReason);
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto">
@@ -197,8 +198,8 @@ export function SummaryView({ sessionId }) {
             Session completed
           </Badge>
           <h1 className="mt-3 font-display text-2xl font-semibold">Session summary</h1>
-          {s.endReason && s.endReason !== "user" && (
-            <p className="mt-1 text-sm text-muted">{t(`session.summary.reason.${s.endReason}`, { name: a.name })}</p>
+          {endReason && endReason !== END_REASONS.USER && (
+            <p className="mt-1 text-sm text-muted">{t(`session.summary.reason.${endReason}`, { name: a.name })}</p>
           )}
         </div>
 
@@ -224,14 +225,14 @@ export function SummaryView({ sessionId }) {
               <dt className="flex items-center justify-center gap-1 text-xs text-muted">
                 <Clock className="size-3.5" aria-hidden /> Duration
               </dt>
-              <dd className="mt-0.5 font-bold tabular-nums">{formatDuration(s.duration || 0)}</dd>
+              <dd className="mt-0.5 font-bold tabular-nums">{formatDuration(s.durationSec || 0)}</dd>
             </div>
             <div className="rounded-xl bg-surface-muted p-3">
               <dt className="flex items-center justify-center gap-1 text-xs text-muted">
                 <Wallet className="size-3.5" aria-hidden /> Charged
               </dt>
               <dd className="mt-0.5 font-bold">
-                {free ? <span className="text-online">FREE</span> : formatCurrency(s.charged || 0, locale)}
+                {free ? <span className="text-online">FREE</span> : formatCurrency(s.totalCharged || 0, locale)}
               </dd>
             </div>
             <div className="rounded-xl bg-surface-muted p-3">
@@ -239,13 +240,26 @@ export function SummaryView({ sessionId }) {
                 <CalendarClock className="size-3.5" aria-hidden /> Rate
               </dt>
               <dd className="mt-0.5 font-bold">
-                {formatCurrency(s.ratePerMin, locale)}
-                <span className="text-xs font-normal text-muted">/min</span>
+                {s.isFree ? (
+                  <span className="text-online">FREE</span>
+                ) : (
+                  <>
+                    {formatCurrency(s.ratePerMin, locale)}
+                    <span className="text-xs font-normal text-muted">/min</span>
+                  </>
+                )}
               </dd>
             </div>
           </dl>
-          {s.isFree && s.charged > 0 && (
-            <p className="mt-3 text-xs text-muted">{`Includes your ${Math.round((s.freeSeconds || 0) / 60)} free minutes. Only the time after that was charged.`}</p>
+          {s.isFree ? (
+            started && <p className="mt-3 text-xs text-muted">{`This was your free ${s.freeMinutes}-minute first chat — nothing was taken from your wallet.`}</p>
+          ) : (
+            started && (
+              <p className="mt-3 text-xs text-muted">
+                {`${formatDuration(s.durationSec)} at ${formatCurrency(s.ratePerMin, locale)}/min = ${formatCurrency(s.totalCharged || 0, locale)}.`}
+                {s.unusedReturned > 0 && ` ${formatCurrency(s.unusedReturned, locale)} unused time returned to your wallet.`}
+              </p>
+            )
           )}
           {s.endBalance != null && (
             <p className="mt-3 text-sm text-muted">

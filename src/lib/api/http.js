@@ -12,15 +12,36 @@ export class ApiError extends Error {
 
 let refreshPromise = null;
 
+/** 401 code when this account signed in on another device (one signed-in device per account). */
+export const SIGNED_IN_ELSEWHERE_CODE = "SIGNED_IN_ELSEWHERE";
+
+/** Error code from a response body ({ error: { code } } on the backend, or a flat { code }). */
+const errorCode = (body) => body?.error?.code ?? body?.code;
+
+/**
+ * Sign this tab out because the account is now used on another device.
+ * AuthProvider listens for this (the socket sends the same as `auth:signed_out`).
+ */
+export function signalSignedInElsewhere() {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("auth:signed_out", { detail: { reason: "signed_in_elsewhere" } }));
+  }
+}
+
 /**
  * Tokens live in httpOnly cookies set by the backend (never in localStorage),
  * so every request is sent with `credentials: "include"`. On a 401 we try one
  * silent refresh, de-duplicated across concurrent requests.
+ * Resolves "ok" | "expired" | "elsewhere".
  */
 async function refreshSession() {
   refreshPromise ??= fetch(`${env.apiUrl}/auth/refresh`, { method: "POST", credentials: "include" })
-    .then((res) => res.ok)
-    .catch(() => false)
+    .then(async (res) => {
+      if (res.ok) return "ok";
+      const body = await res.json().catch(() => null);
+      return errorCode(body) === SIGNED_IN_ELSEWHERE_CODE ? "elsewhere" : "expired";
+    })
+    .catch(() => "expired")
     .finally(() => {
       refreshPromise = null;
     });
@@ -51,15 +72,21 @@ export async function http(path, { method = "GET", body, query, headers, retry =
     ...rest,
   });
 
-  if (res.status === 401 && retry && typeof window !== "undefined" && path !== "/auth/refresh") {
-    if (await refreshSession()) return http(path, { method, body, query, headers, retry: false, ...rest });
-    window.dispatchEvent(new CustomEvent("auth:expired"));
-  }
-
   const data = res.status === 204 ? null : await res.json().catch(() => null);
 
+  if (res.status === 401 && typeof window !== "undefined") {
+    // Signed in on another device: no refresh will help — sign this tab out.
+    if (errorCode(data) === SIGNED_IN_ELSEWHERE_CODE) signalSignedInElsewhere();
+    else if (retry && path !== "/auth/refresh") {
+      const refreshed = await refreshSession();
+      if (refreshed === "ok") return http(path, { method, body, query, headers, retry: false, ...rest });
+      if (refreshed === "elsewhere") signalSignedInElsewhere();
+      else window.dispatchEvent(new CustomEvent("auth:expired"));
+    }
+  }
+
   if (!res.ok) {
-    throw new ApiError(data?.message || res.statusText, { status: res.status, code: data?.code, data });
+    throw new ApiError(data?.error?.message || data?.message || res.statusText, { status: res.status, code: errorCode(data), data });
   }
   return data;
 }
