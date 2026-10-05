@@ -26,7 +26,8 @@ export default async function HomePage({ params }) {
     <>
       <Hero />
 
-      <section className="container-page py-14">
+      {/* Short bottom padding: the next section's own top padding provides the gap */}
+      <section className="container-page pb-2 pt-14">
         <SectionHeading
           eyebrow="Live now"
           title="Astrologers online now"
