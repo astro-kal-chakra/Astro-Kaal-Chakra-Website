@@ -25,7 +25,8 @@ function toQuery(filters) {
  * Client-side listing. First page is server-rendered (SEO + fast LCP) and
  * passed in as `initial`; filters sync to the URL so results are shareable.
  */
-export function AstrologerListing({ initial, initialFilters }) {
+/** `options` = { languages, specialties } from the backend (/meta) for the filter menus. */
+export function AstrologerListing({ initial, initialFilters, options }) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -101,7 +102,7 @@ export function AstrologerListing({ initial, initialFilters }) {
 
   return (
     <div className="space-y-6">
-      <AstrologerFilters filters={filters} onChange={setFilters} onReset={reset} />
+      <AstrologerFilters filters={filters} onChange={setFilters} onReset={reset} languages={options?.languages} specialties={options?.specialties} />
       <p className="text-sm text-muted">{`${total} astrologers available`}</p>
 
       {error && !items.length ? (

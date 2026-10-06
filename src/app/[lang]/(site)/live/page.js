@@ -80,7 +80,7 @@ export default async function LivePage({ params }) {
         )}
       </section>
 
-      <ContentCta className="mt-14" title="Still have questions about your chart?" text="Get a personal reading from a verified astrologer. Your first 3-minute chat is free." cta="Talk to an astrologer" />
+      <ContentCta className="mt-14" title="Still have questions about your chart?" text="Get a personal reading from a verified astrologer. Your first chat is free." cta="Talk to an astrologer" />
 
       <JsonLd
         data={breadcrumbJsonLd([

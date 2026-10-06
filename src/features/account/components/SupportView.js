@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ChevronRight, CircleHelp, Inbox, Mail, Plus, X } from "lucide-react";
 import { routes } from "@/config/routes";
-import { siteConfig } from "@/config/site";
+import { contentService } from "@/lib/api/services/content.service";
 import { sessionHistoryService } from "@/lib/api/services/session-history.service";
 import { SUPPORT_CATEGORIES, supportService } from "@/lib/api/services/support.service";
 import { useToast } from "@/providers/ToastProvider";
@@ -165,6 +165,7 @@ function TicketList({ tickets }) {
 export function SupportView() {
   const [formOpen, setFormOpen] = useState(false);
   const { data, status, reload, mutate } = useAccountResource(() => supportService.listTickets());
+  const site = useAccountResource(() => contentService.getSiteConfig(), "site-config"); // support email from the dashboard
 
   const onCreated = (ticket) => {
     const { messages, ...summary } = ticket;
@@ -192,10 +193,12 @@ export function SupportView() {
           <div className="flex-1">
             <p className="font-semibold">Quick answers</p>
             <p className="text-sm text-muted">Most questions about recharges, refunds and sessions are answered in our FAQs.</p>
-            <p className="mt-1 flex items-center gap-1 text-xs text-muted">
-              <Mail className="size-3.5" aria-hidden />
-              {`Or email us at ${siteConfig.supportEmail}`}
-            </p>
+            {site.data?.support?.email && (
+              <p className="mt-1 flex items-center gap-1 text-xs text-muted">
+                <Mail className="size-3.5" aria-hidden />
+                {`Or email us at ${site.data.support.email}`}
+              </p>
+            )}
           </div>
           <ButtonLink href={routes.faqs} variant="outline" size="sm">
             Browse FAQs

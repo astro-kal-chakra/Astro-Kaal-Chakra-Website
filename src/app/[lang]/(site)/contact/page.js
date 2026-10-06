@@ -1,6 +1,6 @@
 import { Clock, HelpCircle, Mail, ShieldAlert, Ticket } from "lucide-react";
 import { routes } from "@/config/routes";
-import { siteConfig } from "@/config/site";
+import { contentService } from "@/lib/api/services/content.service";
 import { breadcrumbJsonLd } from "@/lib/seo/jsonld";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -17,6 +17,7 @@ export async function generateMetadata({ params }) {
 export default async function ContactPage({ params, searchParams }) {
   const { lang } = await params;
   const { topic } = await searchParams;
+  const { support } = await contentService.getSiteConfig(); // contacts set in the dashboard
 
   return (
     <div className="container-page py-8">
@@ -46,9 +47,10 @@ export default async function ContactPage({ params, searchParams }) {
                 </span>
                 <div>
                   <p className="font-medium">Email</p>
-                  <a href={`mailto:${siteConfig.supportEmail}`} className="text-brand-600 hover:underline dark:text-gold-400">
-                    {siteConfig.supportEmail}
+                  <a href={`mailto:${support.email}`} className="text-brand-600 hover:underline dark:text-gold-400">
+                    {support.email}
                   </a>
+                  {support.phone && <p className="text-muted">{`Phone / WhatsApp: ${support.whatsapp || support.phone}`}</p>}
                   <p className="text-muted">Write to us anytime</p>
                 </div>
               </li>

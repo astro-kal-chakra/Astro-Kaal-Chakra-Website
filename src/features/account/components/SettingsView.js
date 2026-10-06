@@ -87,6 +87,8 @@ function PrivacySetting() {
   const { data, status, reload, mutate } = useAccountResource(() => userService.getPrivacy());
   const [savingConsent, setSavingConsent] = useState(false);
   const [requesting, setRequesting] = useState(false);
+  // A new export can be requested 24 h after the last one (time captured once per visit)
+  const [openedAt] = useState(() => Date.now());
 
   const setConsent = async (value) => {
     setSavingConsent(true);
@@ -159,7 +161,7 @@ function PrivacySetting() {
               variant="outline"
               onClick={requestExport}
               loading={requesting}
-              disabled={status !== "success" || Boolean(data?.dataExportRequestedAt)}
+              disabled={status !== "success" || (data?.dataExportRequestedAt && openedAt - new Date(data.dataExportRequestedAt).getTime() < 86400000)}
               className="shrink-0"
             >
               <Download className="size-4" aria-hidden /> Request download

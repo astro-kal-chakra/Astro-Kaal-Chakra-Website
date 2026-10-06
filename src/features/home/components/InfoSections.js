@@ -10,10 +10,11 @@ import { RatingStars } from "@/components/ui/RatingStars";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { AppStoreButtons } from "@/components/layout/AppStoreButtons";
 
-export function HowItWorks() {
+export function HowItWorks({ freeChat }) {
+  const free = freeChat?.enabled ? `Your first chat is free for ${freeChat.minutes} minutes. After that you` : "You";
   const steps = [
     { icon: Search, title: "Choose an astrologer", text: "Filter by language, specialty, rating and price. See who is online right now." },
-    { icon: MessageCircle, title: "Chat, call or video", text: "Your first chat is free for 3 minutes. After that you pay the astrologer's per-minute rate from your wallet." },
+    { icon: MessageCircle, title: "Chat, call or video", text: `${free} pay the astrologer's per-minute rate from your wallet.` },
     { icon: Sparkles, title: "Get guidance", text: "Share birth details once, save the chat, rate the session and come back anytime." },
   ];
   return (
@@ -62,15 +63,16 @@ export function TrustSection() {
   );
 }
 
-/** Saffron band: the free first chat. Amounts come from the backend config once wired. */
-export function OffersBanner() {
+/** Saffron band: the free first chat (backend settings; hidden when free chats are off). */
+export function OffersBanner({ freeChat, minRecharge = 50 }) {
+  if (!freeChat?.enabled) return null;
   return (
     <section className="container-page py-6">
       <div className="bg-cosmic flex flex-col items-start justify-between gap-5 overflow-hidden rounded-3xl p-7 text-white sm:flex-row sm:items-center sm:p-10">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/85">New here?</p>
-          <h2 className="mt-2 font-display text-3xl sm:text-4xl">Your first 3-minute chat is free</h2>
-          <p className="mt-2 max-w-xl text-white/90">One free chat per account. After that, recharge from ₹50 and pay the astrologer&apos;s per-minute rate.</p>
+          <h2 className="mt-2 font-display text-3xl sm:text-4xl">{`Your first ${freeChat.minutes}-minute chat is free`}</h2>
+          <p className="mt-2 max-w-xl text-white/90">{`One free chat per account. After that, recharge from ₹${minRecharge} and pay the astrologer's per-minute rate.`}</p>
         </div>
         <ButtonLink href={routes.astrologers} size="lg" variant="light">
           Start free chat
@@ -155,7 +157,7 @@ export function FaqSection({ faqs }) {
 }
 
 /** Closing band: the app. */
-export function AppBand() {
+export function AppBand({ appLinks }) {
   return (
     <section className="container-page pb-4 pt-8">
       <div className="relative overflow-hidden rounded-3xl border border-line bg-surface-muted/70 p-7 sm:p-10">
@@ -165,7 +167,7 @@ export function AppBand() {
             <h2 className="font-display text-3xl text-fg">Your astrologer, in your pocket</h2>
             <p className="mt-2 max-w-lg text-muted">Same account and wallet on the app and the website. Get a notification the moment your astrologer accepts.</p>
           </div>
-          <AppStoreButtons tone="light" />
+          <AppStoreButtons tone="light" links={appLinks} />
         </div>
       </div>
     </section>

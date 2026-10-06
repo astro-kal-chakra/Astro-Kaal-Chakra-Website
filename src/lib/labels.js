@@ -489,11 +489,11 @@ export const LABELS = {
       "freeChat": {
         "nav": "Free first chat",
         "title": "Your free first chat",
-        "intro": "New here? Your first 3-minute chat is free.",
+        "intro": "New here? Your first chat is free.",
         "s1Title": "Log in with your phone",
         "s1Text": "Verify with a one-time OTP — no password needed.",
         "s2Title": "Look for the FREE tag",
-        "s2Text": "Your first 3-minute chat is free with astrologers marked FREE — chat only, once per account and device.",
+        "s2Text": "Your first chat is free with astrologers marked FREE — chat only, once per account and device.",
         "s3Title": "Enjoy your free minutes",
         "s3Text": "A countdown shows how much free time is left, and the chat ends when it's over. No wallet balance needed."
       },
@@ -558,7 +558,7 @@ export const LABELS = {
       "i2Title": "100% private",
       "i3Text": "Pay the astrologer's per-minute rate. End anytime — unused time is returned.",
       "i3Title": "Pay only for time used",
-      "i4Text": "Your first 3-minute chat is free — try it before you recharge.",
+      "i4Text": "Your first chat is free — try it before you recharge.",
       "i4Title": "First chat free",
       "i5Text": "Consult in Hindi, English and 6+ regional languages.",
       "i5Title": "Your language",
@@ -573,7 +573,7 @@ export const LABELS = {
     "career": "Career",
     "chooseSign": "Choose your sign",
     "ctaButton": "Talk to an astrologer about this",
-    "ctaText": "Talk to an astrologer about this horoscope — your first 3-minute chat is free.",
+    "ctaText": "Talk to an astrologer about this horoscope — your first chat is free.",
     "ctaTitle": "Want a personal reading?",
     "daily": "Daily",
     "health": "Health",
@@ -691,7 +691,7 @@ export const LABELS = {
       "astrologerTitle": "{name} ended the session",
       "balanceText": "The session ended because your wallet couldn't cover the next minute. Recharge to continue with this astrologer.",
       "balanceTitle": "Your balance ran out",
-      "free_overText": "Your free 3-minute chat is over. Recharge to start a paid chat with this astrologer.",
+      "free_overText": "Your free chat is over. Recharge to start a paid chat with this astrologer.",
       "free_overTitle": "Your free chat has ended",
       "otherText": "This session has finished.",
       "otherTitle": "Session ended",
@@ -723,7 +723,7 @@ export const LABELS = {
         "admin": "This session was ended by our support team.",
         "astrologer": "{name} ended the session.",
         "balance": "The session ended because your wallet balance ran out.",
-        "free_over": "Your free 3-minute chat ended when the free time was over."
+        "free_over": "Your free chat ended when the free time was over."
       }
     },
     "waiting": {
@@ -751,7 +751,7 @@ export const LABELS = {
       "faqTitle": "Frequently asked questions",
       "otherTools": "More free astrology tools",
       "ctaTitle": "Want an expert to read this for you?",
-      "ctaText": "Our verified astrologers can explain your chart, timing and remedies in a private chat. Your first 3-minute chat is free.",
+      "ctaText": "Our verified astrologers can explain your chart, timing and remedies in a private chat. Your first chat is free.",
       "ctaButton": "Talk to an astrologer",
       "name": "Name",
       "namePlaceholder": "Full name",
@@ -1447,7 +1447,10 @@ export const LABELS = {
     "txn": {
       "bonus_coupon": "Coupon bonus",
       "bonus_pack": "Recharge bonus",
-      "bonus_welcome": "Welcome bonus"
+      "bonus_welcome": "Welcome bonus",
+      "bonus_referral": "Referral reward",
+      "bonus_adjustment": "Wallet adjustment",
+      "bonus_expired": "Bonus expired"
     },
     "txnStatus": {
       "failed": "Failed",

@@ -9,14 +9,17 @@ const TONES = {
   light: { btn: "border-line bg-surface text-fg hover:border-brand-300 hover:bg-surface-muted", label: "text-muted" },
 };
 
-export function AppStoreButtons({ label, className, tone = "onBrand" }) {
+/** `links` = { playStore, appStore } from the backend settings (falls back to the env defaults). */
+export function AppStoreButtons({ label, className, tone = "onBrand", links }) {
   const t = TONES[tone];
+  const playStore = links?.playStore || siteConfig.appLinks.playStore;
+  const appStore = links?.appStore || siteConfig.appLinks.appStore;
   const btn = cn("inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-left transition", t.btn);
   return (
     <div className={cn("space-y-2", className)}>
       {label && <p className={cn("text-xs uppercase tracking-wider", t.label)}>{label}</p>}
       <div className="flex flex-wrap gap-2">
-        <a href={siteConfig.appLinks.playStore} className={btn} rel="noopener" target="_blank">
+        <a href={playStore} className={btn} rel="noopener" target="_blank">
           <Play className="size-5 fill-current" aria-hidden />
           <span className="text-xs leading-tight">
             GET IT ON
@@ -24,7 +27,7 @@ export function AppStoreButtons({ label, className, tone = "onBrand" }) {
             <strong className="text-sm">Google Play</strong>
           </span>
         </a>
-        <a href={siteConfig.appLinks.appStore} className={btn} rel="noopener" target="_blank">
+        <a href={appStore} className={btn} rel="noopener" target="_blank">
           <Apple className="size-5" aria-hidden />
           <span className="text-xs leading-tight">
             Download on the

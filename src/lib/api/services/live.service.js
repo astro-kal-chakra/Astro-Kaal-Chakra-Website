@@ -119,12 +119,16 @@ export const liveService = {
       const onMessage = (m) => onEvent({ type: "message", message: m });
       const onViewers = ({ count }) => onEvent({ type: "viewers", count });
       const onEnded = () => onEvent({ type: "ended" });
-      socket.emit(LIVE_EVENTS.JOIN, { sessionId });
+      // Join now and again after every reconnect (the server forgets room membership on disconnect)
+      const join = () => socket.emit(LIVE_EVENTS.JOIN, { sessionId });
+      if (socket.connected) join();
+      socket.on("connect", join);
       socket.on(LIVE_EVENTS.MESSAGE, onMessage);
       socket.on(LIVE_EVENTS.VIEWERS, onViewers);
       socket.on(LIVE_EVENTS.ENDED, onEnded);
       return () => {
         socket.emit(LIVE_EVENTS.LEAVE, { sessionId });
+        socket.off("connect", join);
         socket.off(LIVE_EVENTS.MESSAGE, onMessage);
         socket.off(LIVE_EVENTS.VIEWERS, onViewers);
         socket.off(LIVE_EVENTS.ENDED, onEnded);

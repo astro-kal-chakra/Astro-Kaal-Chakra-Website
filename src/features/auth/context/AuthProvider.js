@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { routes } from "@/config/routes";
 import { AUTH_HINT_COOKIE } from "@/config/site";
 import { authService } from "@/lib/api/services/auth.service";
-import { disconnectSocket, getSocket } from "@/lib/socket/client";
+import { getSocket, reconnectSocket } from "@/lib/socket/client";
 import { SIGNED_IN_ELSEWHERE, SOCKET_EVENTS } from "@/lib/socket/events";
 import { useToast } from "@/providers/ToastProvider";
 
@@ -68,7 +68,8 @@ export function AuthProvider({ children }) {
     if (reason !== SIGNED_IN_ELSEWHERE || signedOutHandled.current) return;
     signedOutHandled.current = true;
     authService.clearLocal();
-    disconnectSocket();
+    // Clear this browser's (already revoked) cookies, then continue as a guest
+    authService.logout().catch(() => {}).finally(reconnectSocket);
     setUser(null);
     setStatus("guest");
     setHintCookie(false);
@@ -94,11 +95,12 @@ export function AuthProvider({ children }) {
     setUser(u);
     setStatus("authenticated");
     setHintCookie(true);
+    reconnectSocket(); // pick up the new login cookie
   }, []);
 
   const logout = useCallback(async (opts) => {
     await authService.logout(opts).catch(() => {});
-    disconnectSocket();
+    reconnectSocket(); // continue as a guest
     setUser(null);
     setStatus("guest");
     setHintCookie(false);

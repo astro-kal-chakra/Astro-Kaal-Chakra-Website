@@ -62,7 +62,8 @@ export function WalletView() {
 
       <RecentTransactions refreshKey={balance} />
 
-      {env.useMocks && <MockRazorpayCheckout />}
+      {/* Mock mode, or the backend's mock gateway in local development (renders nothing otherwise) */}
+      <MockRazorpayCheckout />
     </div>
   );
 }

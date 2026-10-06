@@ -40,7 +40,7 @@ export const astroToolsService = {
   async getPanchang({ date, place }) {
     if (env.useMocks) return mockDelay(mockPanchang({ date, place }), delay);
     return http("/tools/panchang", {
-      query: { date, lat: place.lat, lng: place.lng, tz: place.timezone },
+      query: { date, lat: place.lat, lng: place.lng, tz: place.timezone, name: place.name, region: place.region },
       next: { revalidate: 3600 },
     });
   },

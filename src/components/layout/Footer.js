@@ -5,7 +5,8 @@ import { LocaleLink } from "@/components/ui/LocaleLink";
 import { AppStoreButtons } from "./AppStoreButtons";
 import { Logo } from "./Logo";
 
-export function Footer({ locale }) {
+/** `config` = backend site settings (app links, support contacts). */
+export function Footer({ locale, config }) {
   const columns = [
     {
       title: "Company",
@@ -49,7 +50,15 @@ export function Footer({ locale }) {
         <div className="space-y-4">
           <Logo />
           <p className="max-w-xs text-sm text-muted">{siteConfig.tagline}. Chat, call or video.</p>
-          <AppStoreButtons label="Download the app" tone="light" />
+          <AppStoreButtons label="Download the app" tone="light" links={config?.appLinks} />
+          {config?.support?.email && (
+            <p className="text-sm text-muted">
+              Support:{" "}
+              <a href={`mailto:${config.support.email}`} className="text-accent hover:underline">
+                {config.support.email}
+              </a>
+            </p>
+          )}
         </div>
         {columns.map((col) => (
           <div key={col.title}>

@@ -1,11 +1,10 @@
 import { Inter, Marcellus, Noto_Sans_Devanagari, Poppins } from "next/font/google";
 import { notFound } from "next/navigation";
-import Script from "next/script";
 import { siteConfig } from "@/config/site";
 import { hasLocale, locales } from "@/config/locale";
 import { organizationJsonLd } from "@/lib/seo/jsonld";
 import { AppProviders } from "@/providers/AppProviders";
-import { themeInitScript } from "@/providers/ThemeProvider";
+import { ThemeInitScript } from "@/providers/ThemeInitScript";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { OfflineBanner } from "@/components/layout/OfflineBanner";
 import { GoogleTranslate } from "@/features/translate/components/GoogleTranslate";
@@ -16,7 +15,8 @@ const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700
 const devanagari = Noto_Sans_Devanagari({ subsets: ["devanagari"], variable: "--font-devanagari", display: "swap" });
 const marcellus = Marcellus({ subsets: ["latin"], weight: "400", variable: "--font-marcellus", display: "swap" });
 
-export const dynamicParams = false;
+// No `dynamicParams = false` here: it would 404 astrologers / posts / reports created after a build.
+// Unknown languages are rejected below with hasLocale().
 
 export function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
@@ -52,11 +52,10 @@ export default async function RootLayout({ children, params }) {
 
   return (
     <html lang={lang} suppressHydrationWarning className={`${inter.variable} ${poppins.variable} ${devanagari.variable} ${marcellus.variable}`}>
+      <head>
+        <ThemeInitScript />
+      </head>
       <body className="flex min-h-dvh flex-col font-sans antialiased">
-        {/* Applies saved/system theme before first paint (no light→dark flash). */}
-        <Script id="theme-init" strategy="beforeInteractive">
-          {themeInitScript}
-        </Script>
         <AppProviders>
           <OfflineBanner />
           {children}

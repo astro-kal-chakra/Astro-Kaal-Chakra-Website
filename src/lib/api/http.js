@@ -66,13 +66,17 @@ export async function http(path, { method = "GET", body, query, headers, retry =
     headers: {
       Accept: "application/json",
       ...(body ? { "Content-Type": "application/json" } : {}),
+      // Server-side rendering: proves this is the website's own server (exempt from per-IP limits). Never in the browser.
+      ...(typeof window === "undefined" && process.env.WEB_SSR_KEY ? { "X-SSR-Key": process.env.WEB_SSR_KEY } : {}),
       ...headers,
     },
     body: body ? JSON.stringify(body) : undefined,
     ...rest,
   });
 
-  const data = res.status === 204 ? null : await res.json().catch(() => null);
+  const json = res.status === 204 ? null : await res.json().catch(() => null);
+  // The backend wraps responses as { success, message, data }; callers get `data`.
+  const data = json && typeof json === "object" && "success" in json && res.ok ? json.data : json;
 
   if (res.status === 401 && typeof window !== "undefined") {
     // Signed in on another device: no refresh will help — sign this tab out.
@@ -86,7 +90,8 @@ export async function http(path, { method = "GET", body, query, headers, retry =
   }
 
   if (!res.ok) {
-    throw new ApiError(data?.error?.message || data?.message || res.statusText, { status: res.status, code: errorCode(data), data });
+    // Error details (balance, minAmount, shortfall…) are exposed on `data` like the mock errors.
+    throw new ApiError(data?.error?.message || data?.message || res.statusText, { status: res.status, code: errorCode(data), data: { ...data, ...data?.error?.details } });
   }
   return data;
 }

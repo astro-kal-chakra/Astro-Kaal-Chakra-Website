@@ -86,7 +86,8 @@ export function PanchangTool({ initialData, initialDate, defaultCity }) {
   };
 
   const tz = data.place?.timezone || IST;
-  const time = (iso) => formatTime(iso, locale, tz);
+  // moonrise / moonset can be null on days the Moon doesn't rise or set
+  const time = (iso) => (iso ? formatTime(iso, locale, tz) : "—");
   const range = (r) => `${time(r.start)} – ${time(r.end)}`;
   const until = (iso) => {
     const nextDay = isoDateIn(new Date(iso), tz) > data.date;

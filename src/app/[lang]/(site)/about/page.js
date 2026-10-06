@@ -1,6 +1,6 @@
 import { BadgeCheck, ClipboardCheck, FileCheck2, Heart, IndianRupee, Lock, ShieldCheck, Star, Video } from "lucide-react";
 import { routes } from "@/config/routes";
-import { MOCK_REVIEWS } from "@/lib/api/mock/astrologers";
+import { contentService } from "@/lib/api/services/content.service";
 import { breadcrumbJsonLd } from "@/lib/seo/jsonld";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -30,6 +30,7 @@ const VERIFY_ICONS = [FileCheck2, ClipboardCheck, Video, ShieldCheck];
 
 export default async function AboutPage({ params }) {
   const { lang } = await params;
+  const [reviews, config] = await Promise.all([contentService.getRecentReviews(4).catch(() => []), contentService.getSiteConfig()]);
 
   return (
     <>
@@ -103,10 +104,10 @@ export default async function AboutPage({ params }) {
 
       <WhyChooseUs />
       <TrustSection />
-      <Reviews locale={lang} reviews={MOCK_REVIEWS} />
+      {reviews.length > 0 && <Reviews locale={lang} reviews={reviews} />}
 
       <div className="container-page pb-14">
-        <ContentCta title="Ready for clarity?" text="Talk to a verified astrologer now — your first 3-minute chat is free." cta="Talk to an astrologer" />
+        <ContentCta title="Ready for clarity?" text={config.freeChat?.enabled ? `Talk to a verified astrologer now — your first ${config.freeChat.minutes}-minute chat is free.` : "Talk to a verified astrologer now."} cta="Talk to an astrologer" />
       </div>
 
       <JsonLd

@@ -70,7 +70,7 @@ export function AstrologerCard({ astrologer: a, priority = false }) {
         <div className="mt-2.5 flex flex-wrap gap-1.5 text-xs font-medium">
           {a.freeChatEligible && a.status === "online" && (
             <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 text-brand-700 dark:bg-brand-950/50 dark:text-brand-200">
-              <Gift className="size-3" aria-hidden /> First 3 min chat free
+              <Gift className="size-3" aria-hidden /> Free first chat
             </span>
           )}
           {a.queueCount > 0 && (

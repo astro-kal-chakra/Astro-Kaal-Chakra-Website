@@ -8,18 +8,31 @@ import { authService, MOCK_OTP } from "@/lib/api/services/auth.service";
 import { Button } from "@/components/ui/Button";
 import { Field, Input } from "@/components/ui/Input";
 import { LocaleLink } from "@/components/ui/LocaleLink";
+import { useToast } from "@/providers/ToastProvider";
+import { ReferralCodeField } from "@/features/referral/components/ReferralCodeField";
+import { useReferralCode } from "@/features/referral/hooks/useReferralCode";
+import { clearPendingReferral } from "@/features/referral/lib/pending";
 import { useAuth } from "../context/AuthProvider";
 import { OtpInput } from "./OtpInput";
 
 const PHONE_RE = /^[6-9]\d{9}$/;
 
+/** Message after login when a referral code was sent (the backend never blocks login over a code). */
+const REFERRAL_TOASTS = {
+  applied: { type: "success", title: "Referral code applied", message: "Your bonus is credited automatically once you qualify. See Refer & Earn for details." },
+  not_eligible: { type: "info", title: "Referral code not applied", message: "Referral codes work only for new accounts." },
+  invalid: { type: "info", title: "Referral code not applied", message: "That code isn't valid." },
+};
+
 /**
- * Two-step phone + OTP login. Server enforces rate limits / attempts;
+ * Two-step phone + OTP login (with an optional friend's referral code). Server enforces rate limits / attempts;
  * we mirror them in the UI with a resend timer and attempts counter.
  * @param {{ onSuccess?: (result: { user, isNewUser }) => void }} props
  */
 export function LoginForm({ onSuccess }) {
   const { onLoggedIn } = useAuth();
+  const { toast } = useToast();
+  const referral = useReferralCode();
   const [step, setStep] = useState("phone");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
@@ -39,6 +52,7 @@ export function LoginForm({ onSuccess }) {
   const sendOtp = async (e) => {
     e?.preventDefault();
     if (!PHONE_RE.test(phone)) return setError("Enter a valid 10-digit mobile number");
+    if (referral.blocking) return;
     setError("");
     setLoading(true);
     try {
@@ -61,7 +75,9 @@ export function LoginForm({ onSuccess }) {
     setError("");
     setLoading(true);
     try {
-      const res = await authService.verifyOtp({ phone, otp, requestId });
+      const res = await authService.verifyOtp({ phone, otp, requestId, referralCode: referral.codeToSend });
+      clearPendingReferral();
+      if (REFERRAL_TOASTS[res.referral]) toast(REFERRAL_TOASTS[res.referral]);
       onLoggedIn(res.user);
       onSuccess?.(res);
     } catch (err) {
@@ -96,7 +112,8 @@ export function LoginForm({ onSuccess }) {
             />
           </div>
         </Field>
-        <Button type="submit" size="lg" className="w-full" loading={loading} disabled={phone.length !== 10}>
+        <ReferralCodeField referral={referral} />
+        <Button type="submit" size="lg" className="w-full" loading={loading} disabled={phone.length !== 10 || referral.blocking}>
           Send OTP
         </Button>
         <p className="text-center text-xs text-muted">
@@ -118,6 +135,7 @@ export function LoginForm({ onSuccess }) {
           Change
         </button>
       </p>
+      {referral.codeToSend && <p className="text-xs text-muted">{`Referral code ${referral.codeToSend} will be applied to your new account.`}</p>}
       <OtpInput value={otp} onChange={setOtp} disabled={loading || locked} invalid={Boolean(error)} />
       {error && (
         <p className="text-sm text-red-600" role="alert">

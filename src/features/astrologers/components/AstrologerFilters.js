@@ -14,7 +14,7 @@ const chip = (active) =>
       : "border-line bg-surface text-fg hover:border-brand-300 hover:bg-surface-muted"
   );
 
-export function AstrologerFilters({ filters, onChange, onReset }) {
+export function AstrologerFilters({ filters, onChange, onReset, languages = LANGUAGES, specialties = SPECIALTIES }) {
   const set = (patch) => onChange({ ...filters, ...patch });
   const hasFilters = Object.entries(filters).some(([k, v]) => k !== "sort" && v);
 
@@ -59,13 +59,13 @@ export function AstrologerFilters({ filters, onChange, onReset }) {
 
         <Select value={filters.language || ""} onChange={(e) => set({ language: e.target.value })} className="h-9 w-auto shrink-0 rounded-full text-sm" aria-label="Language">
           <option value="">Language</option>
-          {LANGUAGES.map((l) => (
+          {languages.map((l) => (
             <option key={l}>{l}</option>
           ))}
         </Select>
         <Select value={filters.specialty || ""} onChange={(e) => set({ specialty: e.target.value })} className="h-9 w-auto shrink-0 rounded-full text-sm" aria-label="Specialty">
           <option value="">Specialty</option>
-          {SPECIALTIES.map((s) => (
+          {specialties.map((s) => (
             <option key={s}>{s}</option>
           ))}
         </Select>

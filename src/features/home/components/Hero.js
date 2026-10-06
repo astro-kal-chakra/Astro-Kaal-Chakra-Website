@@ -1,16 +1,16 @@
-import { BadgeCheck, Gift, IndianRupee, MessageCircle, Phone, Video } from "lucide-react";
+import { BadgeCheck, Gift, IndianRupee, Lock, MessageCircle, Phone, Video } from "lucide-react";
 import { routes } from "@/config/routes";
 import { label as t } from "@/lib/labels";
-import { mockPanchang } from "@/lib/api/mock/astro-tools";
-import { formatTime, isoDateIn } from "@/features/tools/lib/format";
+import { formatTime } from "@/features/tools/lib/format";
 import { ButtonLink } from "@/components/ui/Button";
 import { ChakraDial } from "@/components/ui/ChakraDial";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { HeroBackdrop } from "./HeroBackdrop";
 
-const PROMISES = [
+/** Free-chat line follows the admin setting (hidden when free chats are off). */
+const promises = (freeChat) => [
   { icon: BadgeCheck, text: "KYC-verified astrologers" },
-  { icon: Gift, text: "First 3-minute chat free" },
+  freeChat?.enabled ? { icon: Gift, text: `First ${freeChat.minutes}-minute chat free` } : { icon: Lock, text: "Private & secure" },
   { icon: IndianRupee, text: "Per-minute rates shown upfront" },
 ];
 
@@ -20,10 +20,8 @@ const MODES = [
   { icon: Video, label: "Video", href: `${routes.astrologers}?mode=video` },
 ];
 
-/** Today's panchang for New Delhi, shown inside the Kaal Chakra. Static (mock) until the panchang API is wired. */
-function TodayInChakra() {
-  const date = isoDateIn(new Date());
-  const p = mockPanchang({ date, place: { lat: 28.61, lng: 77.21, name: "New Delhi" } });
+/** Today's panchang for New Delhi (from the backend), shown inside the Kaal Chakra. */
+function TodayInChakra({ p }) {
   const tithi = p.tithi.index === 29 ? "Amavasya" : t(`tools.names.tithis.${p.tithi.index % 15}`);
   return (
     <LocaleLink href={routes.panchang} className="group flex flex-col items-center gap-0.5 px-2" aria-label="Today's panchang">
@@ -42,7 +40,7 @@ function TodayInChakra() {
   );
 }
 
-export function Hero() {
+export function Hero({ panchang, freeChat }) {
   return (
     <section className="bg-aura relative overflow-hidden border-b border-line">
       <HeroBackdrop />
@@ -69,7 +67,7 @@ export function Hero() {
           </div>
 
           <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm font-medium text-fg">
-            {PROMISES.map((p) => (
+            {promises(freeChat).map((p) => (
               <li key={p.text} className="flex items-center gap-2">
                 <span className="flex size-7 items-center justify-center rounded-full bg-brand-50 text-brand-600 dark:bg-brand-950/50 dark:text-brand-300">
                   <p.icon className="size-4" aria-hidden />
@@ -93,7 +91,7 @@ export function Hero() {
         </div>
 
         <ChakraDial className="mx-auto max-w-[420px]">
-          <TodayInChakra />
+          {panchang && <TodayInChakra p={panchang} />}
         </ChakraDial>
       </div>
     </section>

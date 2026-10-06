@@ -8,12 +8,14 @@ import { label as t } from "@/lib/labels";
 const ICONS = { Heart, Briefcase, Gem, IndianRupee, HeartPulse };
 const HINTS = { love: "Relationships, compatibility", career: "Job change, growth, business", marriage: "Timing, matching, delays", finance: "Money, investments, debt", health: "Wellbeing, remedies" };
 
-export function Categories() {
+/** `categories` = slugs from the backend (/meta); only ones with an icon here are shown. */
+export function Categories({ categories }) {
+  const list = categories?.length ? CATEGORIES.filter((c) => categories.includes(c.slug)) : CATEGORIES;
   return (
     <section className="container-page py-14">
       <SectionHeading eyebrow="Find the right expert" title="What's on your mind?" />
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        {CATEGORIES.map((c) => {
+        {list.map((c) => {
           const Icon = ICONS[c.icon];
           return (
             <li key={c.slug}>
