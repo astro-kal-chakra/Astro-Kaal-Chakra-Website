@@ -10,7 +10,7 @@ export function ZodiacGrid({ locale, period = "daily", activeSign, variant = "gr
     <ul
       className={cn(
         strip
-          ? "-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] md:mx-0 md:grid md:grid-cols-4 md:gap-4 md:px-0 lg:grid-cols-6"
+          ? "-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] md:mx-0 md:grid md:pb-0 md:grid-cols-4 md:gap-4 md:px-0 lg:grid-cols-6"
           : "grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6",
         className
       )}

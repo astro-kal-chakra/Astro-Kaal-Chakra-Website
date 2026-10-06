@@ -12,7 +12,7 @@ const HINTS = { love: "Relationships, compatibility", career: "Job change, growt
 export function Categories({ categories }) {
   const list = categories?.length ? CATEGORIES.filter((c) => categories.includes(c.slug)) : CATEGORIES;
   return (
-    <section className="container-page py-14">
+    <section className="container-page py-4 sm:py-6">
       <SectionHeading eyebrow="Find the right expert" title="What's on your mind?" />
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {list.map((c) => {

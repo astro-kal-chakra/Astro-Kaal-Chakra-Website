@@ -532,7 +532,7 @@ export const LABELS = {
         "title": "Wallet & payments",
         "intro": "One secure wallet for every consultation.",
         "s1Title": "Recharge",
-        "s1Text": "Choose a pack or any amount from ₹50 to ₹1,00,000. Pay securely via Razorpay with UPI, cards or net banking (18% GST added).",
+        "s1Text": "Choose a pack or any amount from ₹50 to ₹1,00,000. Pay securely via Razorpay with UPI, cards or net banking.",
         "s2Title": "Get bonus credit",
         "s2Text": "Many packs include extra credit, shown before you pay.",
         "s3Title": "Pay the astrologer's rate",

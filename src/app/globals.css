@@ -136,6 +136,22 @@
     outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
+  /* Tailwind v4 resets buttons to the default arrow; restore the hand cursor on everything clickable */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"],
+  [role="radio"],
+  select,
+  summary,
+  label[for],
+  input[type="checkbox"],
+  input[type="radio"] {
+    cursor: pointer;
+  }
+  button:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
 }
 
 @utility container-page {
