@@ -9,7 +9,7 @@ import { ContentHero } from "@/features/content/components/ContentHero";
 import { StepCards } from "@/features/content/components/StepCards";
 import { WhyChooseUs } from "@/features/content/components/WhyChooseUs";
 import { FaqSection } from "@/features/home/components/InfoSections";
-import { FAQS } from "@/features/home/faqs";
+import { contentService } from "@/lib/api/services/content.service";
 import { label as t } from "@/lib/labels";
 
 export async function generateMetadata({ params }) {
@@ -28,7 +28,9 @@ const GUIDES = [
 
 export default async function HowItWorksPage({ params }) {
   const { lang } = await params;
-  const faqs = FAQS[lang];
+  // Questions managed in the dashboard (consultations + payments + refunds groups)
+  const groups = await contentService.getFaqs(lang).catch(() => ({}));
+  const faqs = [...(groups.consultations || []), ...(groups.payments || []), ...(groups.refunds || [])].slice(0, 8);
 
   return (
     <>

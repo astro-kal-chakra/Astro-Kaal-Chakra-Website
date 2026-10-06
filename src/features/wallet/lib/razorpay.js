@@ -1,6 +1,6 @@
 "use client";
 
-import { env } from "@/config/site";
+import { env, siteConfig } from "@/config/site";
 import { __mockWallet } from "@/lib/api/services/wallet.service";
 
 /**
@@ -19,35 +19,8 @@ import { __mockWallet } from "@/lib/api/services/wallet.service";
  * so callers must ALWAYS poll order status (walletService.getOrderStatus) before
  * showing a final result.
  *
- * TODO(razorpay): real integration once the backend is live:
- *
- *   const loadScript = () =>
- *     (scriptPromise ??= new Promise((resolve, reject) => {
- *       const s = document.createElement("script");
- *       s.src = "https://checkout.razorpay.com/v1/checkout.js";
- *       s.onload = resolve;
- *       s.onerror = reject;
- *       document.body.appendChild(s);
- *     }));
- *
- *   async function openRealCheckout(order) {
- *     await loadScript();
- *     return new Promise((resolve) => {
- *       const rzp = new window.Razorpay({
- *         key: order.keyId,
- *         order_id: order.orderId,
- *         amount: order.amount, // paise, from the backend
- *         currency: order.currency,
- *         name: siteConfig.name,
- *         description: "Wallet recharge",
- *         prefill: order.prefill,
- *         handler: (payment) => resolve({ outcome: "success", payment }),
- *         modal: { ondismiss: () => resolve({ outcome: "closed" }) },
- *       });
- *       rzp.on("payment.failed", () => resolve({ outcome: "failure" }));
- *       rzp.open();
- *     });
- *   }
+ * Local development: the backend's mock gateway marks orders `mock: true` (keyId "rzp_mock"); those
+ * open the same simulated checkout as mock mode, and verify succeeds with signature "mock_signature".
  */
 
 // --- Mock checkout: a tiny external store rendered by <MockRazorpayCheckout /> ---
@@ -67,7 +40,8 @@ export const mockCheckoutStore = {
     if (!current) return;
     const { orderId, resolve } = current;
     // Failure / slow bank are decided on the "gateway" side; success is confirmed via verify.
-    if (outcome === "failure" || outcome === "pending") __mockWallet.setOutcome(orderId, outcome);
+    // (Website mock mode only — the backend's mock gateway decides its own outcomes.)
+    if (env.useMocks && (outcome === "failure" || outcome === "pending")) __mockWallet.setOutcome(orderId, outcome);
     current = null;
     emit();
     const payment =
@@ -83,12 +57,43 @@ export const mockCheckoutStore = {
  * @returns {Promise<{ outcome: "success" | "failure" | "pending" | "closed", payment?: { razorpay_payment_id: string, razorpay_order_id: string, razorpay_signature: string } }>}
  */
 export function openCheckout(order) {
-  if (!env.useMocks) {
-    // TODO(razorpay): return openRealCheckout(order);
-    return Promise.reject(new Error("Razorpay checkout not wired yet — see features/wallet/lib/razorpay.js"));
-  }
+  if (!env.useMocks && !order.mock) return openRealCheckout(order);
   return new Promise((resolve) => {
     current = { orderId: order.orderId, total: order.total, resolve };
     emit();
+  });
+}
+
+// --- Real Razorpay Checkout ---
+let scriptPromise = null;
+const loadScript = () =>
+  (scriptPromise ??= new Promise((resolve, reject) => {
+    const el = document.createElement("script");
+    el.src = "https://checkout.razorpay.com/v1/checkout.js";
+    el.onload = resolve;
+    el.onerror = () => {
+      scriptPromise = null;
+      reject(new Error("Couldn't load Razorpay. Check your connection and try again."));
+    };
+    document.body.appendChild(el);
+  }));
+
+async function openRealCheckout(order) {
+  await loadScript();
+  return new Promise((resolve) => {
+    const rzp = new window.Razorpay({
+      key: order.keyId,
+      order_id: order.orderId,
+      amount: order.amountPaise, // Razorpay works in paise; the website shows rupees
+      currency: order.currency || "INR",
+      name: order.name || siteConfig.name,
+      description: "Wallet recharge",
+      prefill: order.prefill,
+      theme: { color: "#c2410c" },
+      handler: (payment) => resolve({ outcome: "success", payment }),
+      modal: { ondismiss: () => resolve({ outcome: "closed" }) },
+    });
+    rzp.on("payment.failed", () => resolve({ outcome: "failure" }));
+    rzp.open();
   });
 }

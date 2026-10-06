@@ -193,6 +193,8 @@ export const MOCK_REFERRAL = () => ({
   code: "NAKSH7K2Q",
   rewardPerReferral: 50, // backend referral.referrerReward / refereeReward
   friendReward: 30,
+  trigger: "first_recharge",
+  minRecharge: 100,
   rewards: [
     { id: "rw_1", friendName: "Ankit S.", joinedAt: daysAgo(3), amount: 50, status: "credited" },
     { id: "rw_2", friendName: "Neha P.", joinedAt: daysAgo(6), amount: 50, status: "pending" },

@@ -29,6 +29,7 @@ const PROCESS = [ClipboardList, FileSearch, Video, Rocket];
 
 export default async function BecomeAstrologerPage({ params }) {
   const { lang } = await params;
+  const meta = await contentService.getMeta().catch(() => null); // specialty / language options
   const testimonials = await contentService.getAstrologerTestimonials(lang);
 
   return (
@@ -150,7 +151,7 @@ export default async function BecomeAstrologerPage({ params }) {
             <p className="mt-2 text-white/95">It takes about 5 minutes. Your details are kept confidential.</p>
           </div>
           <Card className="p-5 sm:p-8">
-            <ApplicationForm />
+            <ApplicationForm options={meta} />
           </Card>
         </div>
       </section>

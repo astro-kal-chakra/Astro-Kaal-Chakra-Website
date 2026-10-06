@@ -1,6 +1,8 @@
-import { env } from "@/config/site";
+import { env, siteConfig } from "@/config/site";
+import { CATEGORIES, LANGUAGES, SPECIALTIES } from "@/constants/astrologer";
+import { LEGAL_PAGES } from "@/features/legal/content";
+import { MOCK_ASTROLOGERS, MOCK_REVIEWS } from "../mock/astrologers";
 import { http, mockDelay } from "../http";
-import { MOCK_ASTROLOGERS } from "../mock/astrologers";
 import { BLOG_CATEGORIES, BLOG_COVERS, MOCK_POSTS } from "../mock/blog";
 import { FAQ_CATEGORIES, MOCK_ASTROLOGER_TESTIMONIALS, MOCK_FAQS } from "../mock/content";
 
@@ -105,4 +107,49 @@ export const contentService = {
     if (env.useMocks) return mockDelay({ applicationId: `APP-${Date.now().toString(36).toUpperCase()}` }, 900);
     return http("/astrologer-applications", { method: "POST", body: payload });
   },
+
+  /* ----------------------- Site-wide data (backend settings) ----------------------- */
+
+  /**
+   * Support contacts, app links, free-chat rules, recharge limits (rupees) — set in the admin dashboard.
+   * @returns {Promise<{ support: object, appLinks: object, freeChat: { enabled: boolean, minutes: number, modes: string[] }, minWalletBalance: number, recharge: object, referral: object }>}
+   */
+  async getSiteConfig() {
+    if (env.useMocks) return MOCK_SITE_CONFIG;
+    return http("/config", { next: { revalidate: 300 } }).catch(() => MOCK_SITE_CONFIG);
+  },
+
+  /** Filter / form options: languages astrologers speak, specialties, categories. */
+  async getMeta() {
+    if (env.useMocks) return { languages: LANGUAGES, specialties: SPECIALTIES, categories: CATEGORIES.map((c) => c.slug) };
+    return http("/meta", { next: { revalidate: 3600 } });
+  },
+
+  /** Latest 4–5★ written reviews from completed sessions (home / about). */
+  async getRecentReviews(limit = 4) {
+    if (env.useMocks) return MOCK_REVIEWS.slice(0, limit);
+    return http("/reviews/recent", { query: { limit }, next: { revalidate: 600 } });
+  },
+
+  /** Legal / info page managed in the dashboard → { slug, title, sections: [[heading, text]], updatedAt } or null. */
+  async getPage(slug) {
+    if (env.useMocks) {
+      const p = LEGAL_PAGES[slug];
+      return p ? { slug, title: p.title, sections: p.sections, updatedAt: null } : null;
+    }
+    return http(`/pages/${slug}`, { next: { revalidate: 600 } }).catch((e) => {
+      if (e.status === 404) return null;
+      throw e;
+    });
+  },
+};
+
+/** Mock-mode defaults (also used if the config call fails, so the layout never breaks). */
+const MOCK_SITE_CONFIG = {
+  support: { email: siteConfig.supportEmail, phone: null, whatsapp: null },
+  appLinks: { playStore: siteConfig.appLinks.playStore, appStore: siteConfig.appLinks.appStore },
+  freeChat: { enabled: true, minutes: 3, modes: ["chat"] },
+  minWalletBalance: 50,
+  recharge: { minAmount: 50, maxAmount: 100000, gstPercent: 18 },
+  referral: { enabled: true, referrerReward: 50, refereeReward: 30, trigger: "first_recharge", minRecharge: 100, expiryDays: 30 },
 };

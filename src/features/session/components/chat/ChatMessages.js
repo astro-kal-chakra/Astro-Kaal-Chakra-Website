@@ -28,7 +28,8 @@ function SystemMessage({ message }) {
   return (
     <li className="flex justify-center px-4">
       <p className="max-w-xs rounded-full bg-surface-muted px-3 py-1 text-center text-xs text-muted">
-        {t(`session.chat.system.${message.code}`, params)}
+        {/* Coded notices are translated; the backend's plain notices ("Chat started") are shown as sent */}
+        {message.code ? t(`session.chat.system.${message.code}`, params) : message.text}
       </p>
     </li>
   );

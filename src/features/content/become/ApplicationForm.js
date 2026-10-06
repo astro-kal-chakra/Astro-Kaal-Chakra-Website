@@ -68,7 +68,8 @@ function validateStep(step, v) {
   return e;
 }
 
-export function ApplicationForm() {
+/** `options` = { specialties, languages } from the backend (/meta). Applicants may speak languages no astrologer offers yet. */
+export function ApplicationForm({ options }) {
   const { toast } = useToast();
   const [stepIndex, setStepIndex] = useState(0);
   const [values, setValues] = useState(INITIAL);
@@ -167,8 +168,8 @@ export function ApplicationForm() {
     );
   }
 
-  const specialtyOptions = [...SPECIALTIES, ...EXTRA_SPECIALTIES].map((s) => ({ value: s, label: s }));
-  const languageOptions = LANGUAGES.map((l) => ({ value: l, label: l }));
+  const specialtyOptions = (options?.specialties?.length ? options.specialties : [...SPECIALTIES, ...EXTRA_SPECIALTIES]).map((s) => ({ value: s, label: s }));
+  const languageOptions = [...new Set([...LANGUAGES, ...(options?.languages || [])])].map((l) => ({ value: l, label: l }));
 
   return (
     <form onSubmit={onSubmit} noValidate className="scroll-mt-24">

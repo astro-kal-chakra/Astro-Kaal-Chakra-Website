@@ -1,3 +1,8 @@
+import nextEnv from "@next/env";
+
+// Read .env / .env.local here too: the image host below is derived from NEXT_PUBLIC_API_URL.
+nextEnv.loadEnvConfig(process.cwd());
+
 /** @type {import('next').NextConfig} */
 
 const securityHeaders = [
@@ -9,6 +14,14 @@ const securityHeaders = [
   { key: "Permissions-Policy", value: "camera=(self), microphone=(self), geolocation=(), payment=(self)" },
 ];
 
+// Astrologer photos and uploads are served by the backend (/uploads/...). Allow that host for next/image.
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ? new URL(process.env.NEXT_PUBLIC_API_URL) : null;
+const backendImages = apiUrl
+  ? [{ protocol: apiUrl.protocol.replace(":", ""), hostname: apiUrl.hostname, port: apiUrl.port, pathname: "/uploads/**" }]
+  : [];
+// Local development only (API on localhost / a LAN IP): Next.js blocks optimising images from private IPs otherwise.
+const localApi = Boolean(apiUrl && /^(localhost|127\.|10\.|192\.168\.)/.test(apiUrl.hostname));
+
 const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
@@ -17,7 +30,9 @@ const nextConfig = {
   },
   images: {
     formats: ["image/avif", "image/webp"],
+    dangerouslyAllowLocalIP: localApi,
     remotePatterns: [
+      ...backendImages,
       // Add your CDN / S3 bucket for astrologer photos and blog images, e.g.
       // { protocol: "https", hostname: "cdn.example.com" },
     ],

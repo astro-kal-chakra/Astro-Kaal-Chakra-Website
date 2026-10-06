@@ -3,6 +3,7 @@ import { BadgeCheck, Briefcase, Gift, Languages, Lock, Star, Timer, Users } from
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { routes } from "@/config/routes";
 import { astrologerService } from "@/lib/api/services/astrologer.service";
+import { contentService } from "@/lib/api/services/content.service";
 import { astrologerJsonLd, breadcrumbJsonLd } from "@/lib/seo/jsonld";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { formatCompact } from "@/lib/utils/format";
@@ -40,9 +41,10 @@ export default async function AstrologerProfilePage({ params }) {
   const astrologer = await astrologerService.getBySlug(slug);
   if (!astrologer) notFound();
 
-  const [reviews, similar] = await Promise.all([
+  const [reviews, similar, config] = await Promise.all([
     astrologerService.getReviews(astrologer.id),
     astrologerService.getSimilar(astrologer, 3),
+    contentService.getSiteConfig(),
   ]);
   const a = astrologer;
 
@@ -141,9 +143,9 @@ export default async function AstrologerProfilePage({ params }) {
               <li className="flex gap-2">
                 <Timer className="size-3.5 shrink-0 text-brand-500" aria-hidden /> Charged per minute at the rate shown · end anytime
               </li>
-              {a.freeChatEligible && (
+              {a.freeChatEligible && config.freeChat?.enabled && (
                 <li className="flex gap-2">
-                  <Gift className="size-3.5 shrink-0 text-brand-500" aria-hidden /> Your first 3-minute chat is free
+                  <Gift className="size-3.5 shrink-0 text-brand-500" aria-hidden /> {`Your first ${config.freeChat.minutes}-minute chat is free`}
                 </li>
               )}
               <li className="flex gap-2">

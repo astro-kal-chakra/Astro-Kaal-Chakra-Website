@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
-import { notificationService } from "@/lib/api/services/notification.service";
 
 const EVENT = "push-permission:change";
 
@@ -53,8 +52,8 @@ export function usePushPermission() {
       result = Notification.permission;
     }
     window.dispatchEvent(new Event(EVENT));
-    // TODO(push): obtain an FCM token (getToken with the VAPID key) and register it.
-    if (result === "granted") notificationService.registerPushToken(null).catch(() => {});
+    // TODO(push): obtain an FCM token (getToken with the VAPID key) and register it with
+    // notificationService.registerPushToken(token). Nothing is sent until there is a real token.
     return result;
   }, []);
 

@@ -8,16 +8,19 @@ import { useBrowserStorage } from "@/hooks/useBrowserStorage";
 const KEY = "smart_banner_dismissed";
 
 const noopSubscribe = () => () => {};
-function detectStore() {
+function detectPlatform() {
   const ua = navigator.userAgent;
-  if (/android/i.test(ua)) return siteConfig.appLinks.playStore;
-  if (/iphone|ipad|ipod/i.test(ua)) return siteConfig.appLinks.appStore;
+  if (/android/i.test(ua)) return "android";
+  if (/iphone|ipad|ipod/i.test(ua)) return "ios";
   return null;
 }
 
 /** Mobile-only "get the app" strip. Picks the right store by user agent. */
-export function SmartAppBanner() {
-  const store = useSyncExternalStore(noopSubscribe, detectStore, () => null);
+/** `appLinks` = { playStore, appStore } from the backend settings. */
+export function SmartAppBanner({ appLinks }) {
+  const platform = useSyncExternalStore(noopSubscribe, detectPlatform, () => null);
+  const store =
+    platform === "android" ? appLinks?.playStore || siteConfig.appLinks.playStore : platform === "ios" ? appLinks?.appStore || siteConfig.appLinks.appStore : null;
   const [dismissed, setDismissed] = useBrowserStorage(KEY, { storage: "sessionStorage", serverValue: "1" });
 
   if (!store || dismissed) return null;

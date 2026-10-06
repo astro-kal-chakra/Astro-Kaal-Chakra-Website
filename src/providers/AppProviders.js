@@ -2,6 +2,7 @@
 
 import { AuthProvider } from "@/features/auth/context/AuthProvider";
 import { LoginModal } from "@/features/auth/components/LoginModal";
+import { ReferralCapture } from "@/features/referral/components/ReferralCapture";
 import { SocketProvider } from "./SocketProvider";
 import { ThemeProvider } from "./ThemeProvider";
 import { ToastProvider } from "./ToastProvider";
@@ -15,6 +16,7 @@ export function AppProviders({ children }) {
             <SocketProvider>
               {children}
               <LoginModal />
+              <ReferralCapture />
             </SocketProvider>
           </AuthProvider>
         </ToastProvider>

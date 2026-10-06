@@ -18,6 +18,7 @@ import { AccountShell } from "./AccountShell";
 import { AccountEmptyCard, AccountErrorState } from "./AccountStates";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
+import { rewardWhen } from "@/features/referral/lib/terms";
 
 const STEPS = [
   { icon: Share2, n: 1 },
@@ -25,6 +26,7 @@ const STEPS = [
   { icon: Wallet, n: 3 },
 ];
 const TERMS = ["t1", "t2", "t3", "t4", "t5"];
+const FRIEND = { who: "your friend", whose: "your friend's" };
 
 function ReferralCodeCard({ referral }) {
   const locale = SITE_LOCALE;
@@ -74,7 +76,7 @@ function ReferralCodeCard({ referral }) {
             {`Give ${formatCurrency(referral.friendReward, locale)}, get ${formatCurrency(referral.rewardPerReferral, locale)}`}
           </h2>
           <p className="mt-1 text-sm text-white/90">
-            {`Your friend gets ${formatCurrency(referral.friendReward, locale)} wallet credit on their first recharge, and you get ${formatCurrency(referral.rewardPerReferral, locale)} once they make their first recharge of ₹100 or more.`}
+            {`Your friend signs up with your code. You get ${formatCurrency(referral.rewardPerReferral, locale)} and they get ${formatCurrency(referral.friendReward, locale)} bonus credit ${rewardWhen(referral, locale, FRIEND)}.`}
           </p>
         </div>
       </div>
@@ -192,7 +194,7 @@ export function ReferralView() {
           </summary>
           <ul className="list-disc space-y-1.5 px-4 pb-4 pl-9 text-sm leading-relaxed text-muted">
             {TERMS.map((k) => (
-              <li key={k}>{t(`account.referral.terms.${k}`)}</li>
+              <li key={k}>{k === "t3" && data ? `Rewards are credited ${rewardWhen(data, SITE_LOCALE, FRIEND)}.` : t(`account.referral.terms.${k}`)}</li>
             ))}
           </ul>
         </details>
