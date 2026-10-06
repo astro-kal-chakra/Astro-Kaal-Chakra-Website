@@ -19,7 +19,10 @@ import { useInflightOrder } from "../lib/inflight";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
 
-const COUPON_ERRORS = { INVALID_COUPON: "wallet.couponInvalid", COUPON_MIN_AMOUNT: "wallet.couponMinAmount" };
+/** "Get ₹120 +20%" line on the recharge pack cards — hidden for now; set to true to show it again. */
+const SHOW_PACK_BONUS = false;
+
+const COUPON_ERRORS ={ INVALID_COUPON: "wallet.couponInvalid", COUPON_MIN_AMOUNT: "wallet.couponMinAmount" };
 
 export function RechargePanel() {
   const locale = SITE_LOCALE;
@@ -208,16 +211,17 @@ export function RechargePanel() {
                       )}
                       <p className="text-xs text-muted">Pay</p>
                       <p className="font-display text-2xl font-bold">{formatCurrency(p.amount, locale)}</p>
-                      {bonus > 0 ? (
-                        <p className="mt-1 text-sm font-semibold text-green-700 dark:text-green-400">
-                          {`Get ${formatCurrency(p.credit, locale)}`}
-                          <span className="ml-1 text-xs font-medium opacity-80">
-                            {`+${Math.round((bonus / p.amount) * 100)}%`}
-                          </span>
-                        </p>
-                      ) : (
-                        <p className="mt-1 text-sm text-muted">{`Get ${formatCurrency(p.credit, locale)}`}</p>
-                      )}
+                      {SHOW_PACK_BONUS &&
+                        (bonus > 0 ? (
+                          <p className="mt-1 text-sm font-semibold text-green-700 dark:text-green-400">
+                            {`Get ${formatCurrency(p.credit, locale)}`}
+                            <span className="ml-1 text-xs font-medium opacity-80">
+                              {`+${Math.round((bonus / p.amount) * 100)}%`}
+                            </span>
+                          </p>
+                        ) : (
+                          <p className="mt-1 text-sm text-muted">{`Get ${formatCurrency(p.credit, locale)}`}</p>
+                        ))}
                     </button>
                   );
                 })
@@ -324,10 +328,6 @@ export function RechargePanel() {
               positive
             />
           )}
-          <Row
-            label={`GST (${Math.round(config.gstRate * 100)}%)`}
-            value={formatCurrency(valid ? quote.gst : 0, locale)}
-          />
           <div className="border-t border-dashed border-line pt-2.5">
             <Row label="Total payable" value={formatCurrency(valid ? quote.total : 0, locale)} strong />
           </div>
@@ -348,7 +348,6 @@ export function RechargePanel() {
           <Lock className="size-4" aria-hidden />
           {valid ? `Pay ${formatCurrency(quote.total, locale)}` : "Add money"}
         </Button>
-        <p className="text-center text-xs text-muted">{`GST (${Math.round(config.gstRate * 100)}%) is added on top of the recharge amount as per government rules. Bonus credit is tax-free.`}</p>
       </Card>
     </div>
   );

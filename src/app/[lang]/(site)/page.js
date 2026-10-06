@@ -45,8 +45,7 @@ export default async function HomePage({ params }) {
     <>
       <Hero panchang={panchang} freeChat={config.freeChat} />
 
-      {/* Short bottom padding: the next section's own top padding provides the gap */}
-      <section className="container-page pb-2 pt-14">
+      <section className="container-page pb-4 pt-8 sm:pb-6 sm:pt-10">
         <SectionHeading
           eyebrow={online.length ? "Live now" : "Top rated"}
           title={online.length ? "Astrologers online now" : "Our astrologers"}
@@ -58,7 +57,7 @@ export default async function HomePage({ params }) {
 
       <Categories categories={meta?.categories} />
 
-      <section className="container-page pb-6">
+      <section className="container-page py-4 sm:py-6">
         <SectionHeading eyebrow="Today" title="Your horoscope for today" action={{ href: routes.horoscope, label: "All horoscopes" }} />
         <ZodiacGrid locale={lang} variant="strip" />
       </section>
