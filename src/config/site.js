@@ -2,16 +2,20 @@
  * Global site configuration. Brand name is a placeholder — change it here
  * and it updates everywhere (header, footer, metadata, JSON-LD).
  */
+/** The live domain. Canonical URLs, robots.txt, sitemap, Open Graph and JSON-LD all point here. */
+const PRODUCTION_URL = "https://www.astrokaalchakra.com";
+
 /**
- * Public domain used in canonical URLs, robots.txt, sitemap and Open Graph.
- * Set NEXT_PUBLIC_SITE_URL to the live domain (e.g. https://www.example.com);
- * on Vercel it falls back to the project's production domain.
+ * NEXT_PUBLIC_SITE_URL overrides it (e.g. for a staging domain); production builds
+ * default to the live domain, local dev to localhost.
  */
-const siteUrl = (
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`) ||
-  "http://localhost:3000"
-).replace(/\/$/, "");
+const isProd = process.env.NODE_ENV === "production";
+const envUrl = process.env.NEXT_PUBLIC_SITE_URL;
+// A localhost value copied from .env.example must never reach the live site's canonical URLs / sitemap.
+const usableEnvUrl = envUrl && !(isProd && /localhost|127\.0\.0\.1/.test(envUrl)) ? envUrl : "";
+// Local dev follows whatever port the server actually started on (3000, 3001, …).
+const devUrl = typeof window !== "undefined" ? window.location.origin : `http://localhost:${process.env.PORT || 3000}`;
+const siteUrl = (usableEnvUrl || (isProd ? PRODUCTION_URL : devUrl)).replace(/\/$/, "");
 
 export const siteConfig = {
   name: "Astro-Kaal-Chakra",
@@ -33,7 +37,7 @@ export const siteConfig = {
   ogImage: "/images/og-default.png",
   /** Official social profiles — Google links them to the brand (Organization `sameAs`). */
   socialLinks: [
-    // "https://www.instagram.com/your-handle",
+    "https://www.instagram.com/astro_kaal_chakra",
     // "https://www.facebook.com/your-page",
     // "https://www.youtube.com/@your-channel",
   ],
