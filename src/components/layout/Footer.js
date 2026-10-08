@@ -5,12 +5,11 @@ import { LocaleLink } from "@/components/ui/LocaleLink";
 import { AppStoreButtons } from "./AppStoreButtons";
 import { Logo } from "./Logo";
 
-/** `config` = backend site settings (app links, support contacts). */
+
 export function Footer({ locale, config }) {
   const columns = [
     {
       title: "Company",
-      
       links: [
         [routes.about, "About us"],
         [routes.howItWorks, "How it works"],
