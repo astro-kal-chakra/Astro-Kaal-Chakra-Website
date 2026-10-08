@@ -27,7 +27,9 @@ export const siteConfig = {
     "guna milan", "daily horoscope", "panchang", "vedic astrology", "numerology", "jyotish",
   ],
   url: siteUrl,
-  supportEmail: "support@example.com",
+  supportEmail: "support@astrokaalchakra.com",
+  /** Floating "Chat with us" button (components/layout/WhatsAppButton.js): WhatsApp community invite. */
+  whatsappChatUrl: "https://chat.whatsapp.com/CvXNqmm4JeZAL3yDzdm9I6",
   appLinks: {
     playStore: process.env.NEXT_PUBLIC_PLAY_STORE_URL || "#",
     appStore: process.env.NEXT_PUBLIC_APP_STORE_URL || "#",
