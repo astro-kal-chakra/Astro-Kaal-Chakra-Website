@@ -194,6 +194,13 @@
   html {
     -webkit-tap-highlight-color: transparent;
   }
+  /* Very wide (2K/4K, or a zoomed-out browser): scale rem-based type and spacing up gently
+     (16px → max 18px) so the page keeps its proportions instead of looking tiny and empty. */
+  @media (width >= 2200px) {
+    html {
+      font-size: clamp(16px, calc(16px + (100vw - 2200px) * 0.004), 18px);
+    }
+  }
   body {
     background: var(--bg);
     color: var(--text);
@@ -225,6 +232,8 @@
   }
 }
 
+/* Page container. Grows on large / zoomed-out screens so content doesn't sit in a narrow strip
+   with empty bands either side (laptops and phones are unchanged). */
 @utility container-page {
   margin-inline: auto;
   width: 100%;
@@ -232,6 +241,14 @@
   padding-inline: 1rem;
   @media (width >= 40rem) {
     padding-inline: 1.5rem;
+  }
+  @media (width >= 1600px) {
+    max-width: 90rem;
+    padding-inline: 2rem;
+  }
+  @media (width >= 1920px) {
+    max-width: 100rem;
+    padding-inline: 2.5rem;
   }
 }
 

@@ -35,9 +35,11 @@ export function WhatsAppButton() {
         "motion-safe:hover:-translate-y-0.5"
       )}
     >
-      {/* soft attention pulse */}
-      <span className="pointer-events-none absolute inset-0 rounded-full bg-[#25D366] opacity-40 motion-safe:animate-ping motion-safe:[animation-duration:2.4s]" aria-hidden />
-      <WhatsAppIcon className="relative size-7 shrink-0 sm:size-6" />
+      {/* soft attention pulse — a ring around the icon only (pinging the whole pill looked like a pale box) */}
+      <span className="relative flex shrink-0">
+        <span className="pointer-events-none absolute -inset-1.5 rounded-full border-2 border-white/80 motion-safe:animate-ping motion-safe:[animation-duration:2.4s]" aria-hidden />
+        <WhatsAppIcon className="relative size-7 sm:size-6" />
+      </span>
       <span className="relative hidden text-sm font-semibold sm:inline">Chat with us</span>
     </a>
   );
