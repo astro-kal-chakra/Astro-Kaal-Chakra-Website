@@ -10,6 +10,7 @@ export function Footer({ locale, config }) {
   const columns = [
     {
       title: "Company",
+      
       links: [
         [routes.about, "About us"],
         [routes.howItWorks, "How it works"],
