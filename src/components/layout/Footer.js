@@ -46,8 +46,8 @@ export function Footer({ locale, config }) {
   return (
     <footer className="mt-16 border-t border-line bg-surface-muted/70">
       <div className="hairline" aria-hidden />
-      <div className="container-page grid grid-cols-1 gap-10 py-12 sm:grid-cols-2 md:grid-cols-[1.4fr_repeat(3,1fr)]">
-        <div className="space-y-4">
+      <div className="container-page grid grid-cols-2 gap-x-6 gap-y-10 py-12 md:grid-cols-[1.4fr_repeat(3,1fr)]">
+        <div className="col-span-2 space-y-4 md:col-span-1">
           <Logo />
           <p className="max-w-xs text-sm text-muted">{siteConfig.tagline}. Chat, call or video.</p>
           <AppStoreButtons label="Download the app" tone="light" links={config?.appLinks} />
@@ -61,7 +61,7 @@ export function Footer({ locale, config }) {
           )}
         </div>
         {columns.map((col) => (
-          <div key={col.title}>
+          <div key={col.title} className="min-w-0">
             <h3 className="eyebrow mb-4">{col.title}</h3>
             <ul className="space-y-2.5 text-sm">
               {col.links.map(([href, label]) => (

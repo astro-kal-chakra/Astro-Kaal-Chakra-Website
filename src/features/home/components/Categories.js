@@ -14,11 +14,11 @@ export function Categories({ categories }) {
   return (
     <section className="container-page py-4 sm:py-6">
       <SectionHeading eyebrow="Find the right expert" title="What's on your mind?" />
-      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      <ul className="reveal-stagger grid grid-cols-1 gap-3 min-[360px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
         {list.map((c) => {
           const Icon = ICONS[c.icon];
           return (
-            <li key={c.slug}>
+            <li key={c.slug} className="min-w-0">
               <LocaleLink
                 href={`${routes.astrologers}?category=${c.slug}`}
                 className="group flex h-full items-center gap-3 rounded-2xl border border-line bg-surface p-4 transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-[0_10px_30px_-14px_rgb(194_65_12/0.3)]"

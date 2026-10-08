@@ -7,7 +7,7 @@ import { __mockWallet } from "@/lib/api/services/wallet.service";
  * Razorpay checkout integration point — the ONLY file that talks to Razorpay.
  *
  * Flow (backend contract):
- *   1. POST /user/wallet/quote    { packId | amount, couponCode } → GST breakdown + bonus (walletService.quote)
+ *   1. POST /user/wallet/quote    { packId | amount, couponCode } → amount payable + bonus (walletService.quote)
  *   2. POST /user/payments/order  { packId | amount, couponCode } → { orderId, keyId, amount, currency, breakdown, prefill }
  *   3. openCheckout(order)        → Razorpay Checkout; on success it hands back
  *                                   { razorpay_payment_id, razorpay_order_id, razorpay_signature }

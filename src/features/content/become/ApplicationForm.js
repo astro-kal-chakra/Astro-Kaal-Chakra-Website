@@ -158,7 +158,7 @@ export function ApplicationForm({ options }) {
         <p className="mt-2 max-w-md text-muted">{`Thank you, ${result.name}. Our onboarding team will review your application and contact you within 2–3 working days.`}</p>
         <div className="mt-6 rounded-2xl border border-dashed border-gold-500/60 bg-gold-100/50 px-6 py-4 dark:bg-gold-700/15">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted">{f("applicationId")}</p>
-          <p className="mt-1 font-mono text-2xl font-bold tracking-wider text-brand-700 dark:text-gold-300">{result.id}</p>
+          <p className="mt-1 tabular-nums text-2xl font-bold tracking-wider text-brand-700 dark:text-gold-300">{result.id}</p>
         </div>
         <p className="mt-4 max-w-sm text-sm text-muted">{f("successNext")}</p>
         <ButtonLink href={routes.home} variant="outline" className="mt-6">

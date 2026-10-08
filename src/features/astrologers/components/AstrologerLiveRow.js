@@ -7,7 +7,7 @@ import { AstrologerCard } from "./AstrologerCard";
 export function AstrologerLiveRow({ astrologers }) {
   const withPresence = useAstrologerPresence(astrologers);
   return (
-    <div className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] md:mx-0 md:grid md:pb-0 grid-cols-1 md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-3">
+    <div className="reveal-stagger -mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] md:mx-0 md:grid md:pb-0 grid-cols-1 md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-3">
       {astrologers.map((a) => (
         <div key={a.id} className="w-[85%] shrink-0 snap-start sm:w-[60%] md:w-auto">
           <AstrologerCard astrologer={withPresence(a)} />

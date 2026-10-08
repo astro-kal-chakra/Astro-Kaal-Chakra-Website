@@ -76,6 +76,8 @@ export default async function BecomeAstrologerPage({ params }) {
             <h2 className="font-display text-2xl font-semibold sm:text-3xl">What you can earn</h2>
             <p className="mt-1 text-muted">Illustrative month at ₹30/min, 26 days, consulting for about half of your online time.</p>
             <Card className="mt-5 overflow-hidden">
+              {/* Scrolls inside the card on very narrow phones instead of being cut off */}
+              <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead className="bg-brand-600 text-white dark:bg-brand-800">
                   <tr>
@@ -94,6 +96,7 @@ export default async function BecomeAstrologerPage({ params }) {
                   ))}
                 </tbody>
               </table>
+              </div>
             </Card>
             <p className="mt-3 text-xs text-muted">
               *The full amount of every session is credited to your earnings. When you request a payout, a platform charge (30% by default) and 1% TDS are deducted, and the rest is sent to your bank. Actual earnings depend on your rates, ratings, availability and demand. You set your per-minute rates for chat, call and video within platform guidelines.

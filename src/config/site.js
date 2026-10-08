@@ -32,7 +32,7 @@ export const siteConfig = {
     playStore: process.env.NEXT_PUBLIC_PLAY_STORE_URL || "#",
     appStore: process.env.NEXT_PUBLIC_APP_STORE_URL || "#",
   },
-  /** Brand logo for Google (square, ≥112px). Generated from LogoMark. */
+  /** Brand logo (header, footer, Google). Generated from brand/logo-source.png. */
   logo: "/images/logo.png",
   ogImage: "/images/og-default.png",
   /** Official social profiles — Google links them to the brand (Organization `sameAs`). */

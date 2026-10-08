@@ -44,7 +44,7 @@ export function MockRazorpayCheckout() {
               </div>
               <div className="text-right">
                 <p className="text-xl font-bold tabular-nums">{formatCurrency(session.total, locale)}</p>
-                <p className="font-mono text-[10px] text-white/60">{session.orderId}</p>
+                <p className="tabular-nums text-[10px] text-white/60">{session.orderId}</p>
               </div>
             </div>
             <ul aria-label="Payment methods" className="divide-y divide-line">

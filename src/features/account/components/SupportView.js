@@ -145,7 +145,7 @@ function TicketList({ tickets }) {
           <LocaleLink href={routes.supportTicket(tk.id)} className="flex items-center gap-3 p-4 hover:bg-surface-muted">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-mono text-muted">{tk.id}</span>
+                <span className="text-xs tabular-nums text-muted">{tk.id}</span>
                 <Badge tone={TICKET_TONE[tk.status]}>{t(`account.support.status.${tk.status}`)}</Badge>
               </div>
               <p className="mt-1 truncate font-medium">{tk.subject}</p>

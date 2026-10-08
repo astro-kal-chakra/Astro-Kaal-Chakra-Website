@@ -32,7 +32,7 @@ export default async function LegalPage({ params }) {
       <div className="mt-8 space-y-6">
         {page.sections.map(([heading, body], i) => (
           <section key={`${i}-${heading}`}>
-            {heading && <h2 className="text-lg font-semibold">{heading}</h2>}
+            {heading && <h2 className="font-display text-xl">{heading}</h2>}
             {body.split(/\n/).map((line, j) => (
               <p key={j} className="mt-1 leading-relaxed text-muted">
                 {line}

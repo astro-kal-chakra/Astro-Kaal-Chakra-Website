@@ -85,6 +85,8 @@
   --animate-sun-rays: orbit 40s linear infinite;
   --animate-twinkle: twinkle 3s ease-in-out infinite;
   --animate-float: float 6s ease-in-out infinite;
+  --animate-wiggle: wiggle 0.6s ease-in-out;
+  --animate-glow: glow 2.8s ease-in-out infinite;
 
   --animate-sheet-up: sheet-up 0.28s cubic-bezier(0.32, 0.72, 0, 1);
   --animate-dialog-in: dialog-in 0.2s ease-out;
@@ -116,6 +118,75 @@
   @keyframes pulse-dot {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.5; transform: scale(1.35); }
+  }
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(0) scale(1); }
+    30% { transform: rotate(-8deg) scale(1.12); }
+    60% { transform: rotate(6deg) scale(1.12); }
+  }
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgb(255 255 255 / 0.55), 0 4px 14px rgb(124 45 18 / 0.25); }
+    50% { box-shadow: 0 0 0 10px rgb(255 255 255 / 0), 0 4px 14px rgb(124 45 18 / 0.25); }
+  }
+}
+
+/* Soft pulse for CelestialBackdrop's sun (plain CSS: used from an arbitrary animation value) */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.12); opacity: 1; }
+}
+
+/* Cards inside a revealed section rise one after another. `animation` + `backwards` (not transition-delay)
+   so it plays once and never delays the cards' own hover transitions afterwards. */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px); }
+}
+.reveal[data-reveal="shown"] .reveal-stagger > * {
+  animation: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 70ms + 120ms);
+}
+.reveal-stagger > :nth-child(2) { --i: 1; }
+.reveal-stagger > :nth-child(3) { --i: 2; }
+.reveal-stagger > :nth-child(4) { --i: 3; }
+.reveal-stagger > :nth-child(5) { --i: 4; }
+.reveal-stagger > :nth-child(6) { --i: 5; }
+.reveal-stagger > :nth-child(n + 7) { --i: 6; }
+
+/* Soft light sweep across a banner every few seconds (parent needs overflow-hidden) */
+.shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 35%, rgb(255 255 255 / 0.22) 48%, transparent 62%);
+  transform: translateX(-120%);
+  animation: shine 7s ease-in-out infinite;
+}
+@keyframes shine {
+  0%, 65% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+
+/* Scroll reveal (components/ui/Reveal.js): only elements that start below the fold get data-reveal. */
+.reveal {
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal[data-reveal="hidden"] {
+  opacity: 0;
+  transform: translateY(28px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal[data-reveal="hidden"] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .reveal[data-reveal="shown"] .reveal-stagger > *,
+  .shine::after {
+    animation: none;
   }
 }
 
