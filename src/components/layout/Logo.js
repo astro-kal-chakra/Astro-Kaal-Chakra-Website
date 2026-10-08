@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils/cn";
  */
 export function LogoMark({ className, priority = false }) {
   return (
+    
     <Image
       src="/images/logo-mark.png"
       alt=""
