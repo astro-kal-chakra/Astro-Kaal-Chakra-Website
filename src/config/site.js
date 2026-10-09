@@ -27,12 +27,14 @@ export const siteConfig = {
     "guna milan", "daily horoscope", "panchang", "vedic astrology", "numerology", "jyotish",
   ],
   url: siteUrl,
-  supportEmail: "support@example.com",
+  supportEmail: "support@astrokaalchakra.com",
+  /** Floating "Chat with us" button: fallback when the dashboard has no Support → WhatsApp set. */
+  whatsappChatUrl: "https://chat.whatsapp.com/CvXNqmm4JeZAL3yDzdm9I6",
   appLinks: {
     playStore: process.env.NEXT_PUBLIC_PLAY_STORE_URL || "#",
     appStore: process.env.NEXT_PUBLIC_APP_STORE_URL || "#",
   },
-  /** Brand logo for Google (square, ≥112px). Generated from LogoMark. */
+  /** Brand logo (header, footer, Google). Generated from brand/logo-source.png. */
   logo: "/images/logo.png",
   ogImage: "/images/og-default.png",
   /** Official social profiles — Google links them to the brand (Organization `sameAs`). */

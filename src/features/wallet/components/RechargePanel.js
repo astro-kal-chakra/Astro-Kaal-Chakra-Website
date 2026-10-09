@@ -263,7 +263,7 @@ export function RechargePanel() {
               <div className="flex h-11 items-center gap-2 rounded-xl border border-green-500/40 bg-green-50 px-3 dark:bg-green-900/20">
                 <Tag className="size-4 text-green-600 dark:text-green-400" aria-hidden />
                 <span className="min-w-0 flex-1 truncate text-sm">
-                  <strong className="font-mono">{coupon.code}</strong>{" "}
+                  <strong className="tabular-nums">{coupon.code}</strong>{" "}
                   <span className="text-green-700 dark:text-green-400">
                     {`applied · +${formatCurrency(coupon.bonus, locale)} extra`}
                   </span>
@@ -294,7 +294,7 @@ export function RechargePanel() {
                   }}
                   placeholder="WELCOME50"
                   autoComplete="off"
-                  className="font-mono uppercase"
+                  className="tabular-nums uppercase"
                   aria-invalid={coupon.status === "invalid"}
                 />
                 <Button

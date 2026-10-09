@@ -20,7 +20,7 @@ export function HowItWorks({ freeChat }) {
   return (
     <section className="container-page py-4 sm:py-6">
       <SectionHeading eyebrow="Simple" title="How it works" align="center" />
-      <ol className="relative grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-5">
+      <ol className="reveal-stagger relative grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-5">
         {/* Thread joining the three steps */}
         <span className="hairline absolute inset-x-[16%] top-8 hidden md:block" aria-hidden />
         {steps.map((s, i) => (
@@ -50,7 +50,7 @@ export function TrustSection() {
   return (
     <section className="container-page py-4 sm:py-6">
       <SectionHeading eyebrow="Trust" title="Why people choose us" />
-      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <ul className="reveal-stagger grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {items.map((it) => (
           <Card as="li" key={it.title} className="p-5">
             <it.icon className="size-6 text-brand-600 dark:text-brand-300" aria-hidden />
@@ -68,13 +68,13 @@ export function OffersBanner({ freeChat, minRecharge = 50 }) {
   if (!freeChat?.enabled) return null;
   return (
     <section className="container-page py-4 sm:py-6">
-      <div className="bg-cosmic flex flex-col items-start justify-between gap-5 overflow-hidden rounded-3xl p-7 text-white sm:flex-row sm:items-center sm:p-10">
+      <div className="bg-cosmic shine relative flex flex-col items-start justify-between gap-5 overflow-hidden rounded-3xl p-7 text-white sm:flex-row sm:items-center sm:p-10">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/85">New here?</p>
           <h2 className="mt-2 font-display text-3xl sm:text-4xl">{`Your first ${freeChat.minutes}-minute chat is free`}</h2>
           <p className="mt-2 max-w-xl text-white/90">{`One free chat per account. After that, recharge from ₹${minRecharge} and pay the astrologer's per-minute rate.`}</p>
         </div>
-        <ButtonLink href={routes.astrologers} size="lg" variant="light">
+        <ButtonLink href={routes.astrologers} size="lg" variant="light" className="relative z-10 motion-safe:animate-glow">
           Start free chat
         </ButtonLink>
       </div>
@@ -94,7 +94,7 @@ export function FreeTools() {
   return (
     <section className="container-page py-4 sm:py-6">
       <SectionHeading eyebrow="Free tools" title="Start with your own chart" subtitle="Free, no login needed. Save them to your account any time." />
-      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <ul className="reveal-stagger grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {tools.map((tool) => (
           <li key={tool.title}>
             <LocaleLink href={tool.href} className="group block h-full">
@@ -120,7 +120,7 @@ export function Reviews({ locale, reviews }) {
     <section className="border-y border-line bg-surface-muted/60 py-8 sm:py-10">
       <div className="container-page">
         <SectionHeading eyebrow="Reviews" title="What our users say" subtitle="From users who completed a session." />
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="reveal-stagger grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {reviews.map((r) => (
             <ReviewCard key={r.id} review={r} locale={locale} />
           ))}

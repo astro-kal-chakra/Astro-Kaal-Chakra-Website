@@ -18,8 +18,8 @@ export default async function HoroscopeIndexPage({ params }) {
       </header>
       {["daily", "weekly", "monthly", "yearly"].map((period) => (
         <section key={period}>
-          <h2 className="mb-4 text-xl font-semibold">{t(`horoscope.${period}`)}</h2>
-          <ZodiacGrid locale={lang} period={period} />
+          <h2 className="mb-4 font-display text-2xl">{t(`horoscope.${period}`)}</h2>
+          <ZodiacGrid locale={lang} period={period} variant="strip" />
         </section>
       ))}
       <HoroscopeCta />

@@ -162,7 +162,7 @@ export function SupportTicketView({ id }) {
   return (
     <AccountShell back={back} title={ticket.subject}>
       <div className="-mt-4 mb-6 flex flex-wrap items-center gap-2 text-sm text-muted">
-        <span className="font-mono text-xs">{ticket.id}</span>
+        <span className="tabular-nums text-xs">{ticket.id}</span>
         <Badge tone={TICKET_TONE[ticket.status]}>{t(`account.support.status.${ticket.status}`)}</Badge>
         <span>{t(`account.support.categories.${ticket.category}`)}</span>
         <span aria-hidden>·</span>

@@ -78,7 +78,8 @@ export function Header() {
         <button className="-ml-2 p-2 xl:hidden" onClick={() => setOpen((o) => !o)} aria-label="Menu" aria-expanded={open}>
           {open ? <X className="size-6" /> : <Menu className="size-6" />}
         </button>
-        <Logo />
+        {/* Site name only where the row has room for it (logged in, the account buttons need the space at 640–768px) */}
+        <Logo priority wordmarkClassName={isAuthenticated ? "hidden min-[480px]:inline sm:hidden md:inline" : "hidden min-[480px]:inline"} />
         <nav className="ml-6 hidden items-center gap-1 xl:flex" aria-label="Main">
           {NAV.map((item) => (
             <LocaleLink
@@ -98,7 +99,7 @@ export function Header() {
             </LocaleLink>
           ))}
         </nav>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex shrink-0 items-center gap-2">
           {/* Phones: compact EN/हिं (guests only, logged-in header is full) · tablet+: full labels */}
           {/* Logged in: keep the compact toggle on desktop too, so the header fits its container */}
           <LanguageToggle variant="compact" className={isAuthenticated ? "hidden sm:inline-flex" : "inline-flex md:hidden"} />

@@ -113,7 +113,7 @@ function SessionRow({ session: s, onTranscript }) {
             <span aria-hidden>·</span>
             <time dateTime={s.startedAt}>{formatDateTime(s.startedAt, locale)}</time>
           </p>
-          <dl className="mt-2 flex gap-6 text-sm">
+          <dl className="mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm">
             <div>
               <dt className="text-xs text-muted">Duration</dt>
               <dd className="font-medium tabular-nums">{formatDuration(s.durationSec)}</dd>

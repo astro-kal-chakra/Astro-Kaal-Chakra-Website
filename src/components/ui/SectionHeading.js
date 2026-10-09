@@ -13,7 +13,7 @@ export function SectionHeading({ title, subtitle, eyebrow, action, align = "left
       <div className={cn(centered && "max-w-2xl")}>
         {eyebrow && (
           <p className="eyebrow mb-2">
-            <ChakraGlyph className="size-3.5" /> {eyebrow}
+            <ChakraGlyph className="size-3.5 motion-safe:animate-orbit-fast" /> {eyebrow}
           </p>
         )}
         <Tag className="font-display text-[1.7rem] leading-tight tracking-tight text-fg sm:text-[2.1rem]">{title}</Tag>

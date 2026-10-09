@@ -25,7 +25,7 @@ export const LEGAL_PAGES = {
         "You pay the astrologer's own per-minute rate, shown before the session starts. Each minute is held from your wallet as it starts, and any unused part is returned to your wallet automatically when the session ends. To start a paid session you need at least ₹50 or 5 minutes of the rate, whichever is more. Billing is calculated on our servers.",
       ],
       ["Free first chat", "New users get one free chat of 3 minutes, once per account and device. It applies to chat only (not calls or video) and with astrologers who offer it. The chat ends when the free time is over."],
-      ["Recharges", "Recharges are processed by Razorpay. Each recharge must be between ₹50 and ₹1,00,000, and 18% GST is added on top of the recharge amount. Bonus credit from packs, coupons or referrals is promotional, can be used only for consultations and may expire."],
+      ["Recharges", "Recharges are processed by Razorpay. Each recharge must be between ₹50 and ₹1,00,000, and you pay exactly the recharge amount shown. Bonus credit from packs, coupons or referrals is promotional, can be used only for consultations and may expire."],
       ["Conduct", "Sharing contact details, abusive language or soliciting off-platform payments is not allowed and may lead to suspension."],
       ["Guidance only", "Astrology consultations are for guidance and entertainment and are not a substitute for medical, legal or financial advice."],
     ],

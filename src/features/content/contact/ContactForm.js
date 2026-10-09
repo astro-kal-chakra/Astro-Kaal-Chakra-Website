@@ -74,7 +74,7 @@ export function ContactForm({ defaultTopic = "" }) {
         </span>
         <h3 className="mt-4 text-xl font-semibold">Message sent!</h3>
         <p className="mt-2 max-w-sm text-muted">{`Thanks, ${result.name}. Our team will reply within 24 hours.`}</p>
-        <p className="mt-3 rounded-full bg-surface-muted px-3 py-1 font-mono text-sm">{`Reference: ${result.id}`}</p>
+        <p className="mt-3 rounded-full bg-surface-muted px-3 py-1 tabular-nums text-sm">{`Reference: ${result.id}`}</p>
         <Button
           variant="outline"
           className="mt-6"

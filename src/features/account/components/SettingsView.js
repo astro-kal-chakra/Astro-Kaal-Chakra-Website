@@ -280,7 +280,7 @@ function DeleteAccountModal({ open, onClose }) {
             autoCapitalize="characters"
             spellCheck={false}
             placeholder={CONFIRM_WORD}
-            className="font-mono tracking-widest"
+            className="tabular-nums tracking-widest"
           />
         </Field>
 

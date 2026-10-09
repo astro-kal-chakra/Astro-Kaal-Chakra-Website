@@ -5,7 +5,7 @@ import { ApiError, http, mockDelay } from "../http";
  * Wallet & payments (Razorpay).
  *
  * Real flow (backend contract):
- *   1. POST /user/wallet/quote    { packId | amount, couponCode } → { amount, gstAmount, gstPercent,
+ *   1. POST /user/wallet/quote    { packId | amount, couponCode } → { amount,
  *                                 totalAmount, packBonus, couponBonus, bonusAmount, creditAmount, coupon }
  *      Coupons are applied here — there is no separate "validate coupon" call.
  *   2. POST /user/payments/order  { packId | amount, couponCode } → { orderId, keyId, amount, currency, breakdown, prefill }
@@ -18,7 +18,8 @@ import { ApiError, http, mockDelay } from "../http";
  * Backend amounts are in paise; this layer works in rupees.
  * TODO(api): convert at the boundary when wiring the real endpoints.
  *
- * Recharge limits (backend settings): ₹50 – ₹1,00,000 per recharge, 18% GST on top.
+ * Recharge limits (backend settings): ₹50 – ₹1,00,000 per recharge. GST is set from the dashboard;
+ * at 0% (the default) the user pays exactly the recharge amount.
  *
  * Order status values: "created" | "pending" | "success" | "failed"
  * Transaction types: "recharge" | "consultation" | "refund" | "bonus" | "report"
@@ -138,7 +139,7 @@ function assertAmount(amount) {
 export function quoteRecharge({ amount, packs = MOCK_PACKS, couponBonus: extra = 0, gstRate = WALLET_CONFIG.gstRate }) {
   const pack = packs.find((p) => p.amount === amount);
   const packBonus = pack ? pack.credit - pack.amount : 0;
-  const gst = Math.round(amount * gstRate * 100) / 100;
+  const gst = Math.round(amount * (gstRate || 0) * 100) / 100;
   return {
     amount,
     packBonus,
@@ -262,10 +263,10 @@ export const walletService = {
   },
 
   /**
-   * POST /user/wallet/quote — GST breakdown + pack / coupon bonus for a recharge.
+   * POST /user/wallet/quote — amount payable + pack / coupon bonus for a recharge.
    * Coupons are applied here. Throws ApiError code INVALID_COUPON | COUPON_MIN_AMOUNT | INVALID_AMOUNT.
    * @param {{ packId?: string, amount: number, couponCode?: string }} p
-   * @returns {Promise<{ amount: number, gst: number, gstPercent: number, total: number, packBonus: number, couponBonus: number, bonus: number, credit: number, coupon: { code: string } | null }>}
+   * @returns {Promise<{ amount: number, total: number, packBonus: number, couponBonus: number, bonus: number, credit: number, coupon: { code: string } | null }>}
    */
   async quote({ packId, amount, couponCode }) {
     if (env.useMocks) {
@@ -273,7 +274,7 @@ export const walletService = {
       assertAmount(amount);
       const extra = couponCode ? couponBonus(couponCode, amount) : 0;
       const q = quoteRecharge({ amount, couponBonus: extra });
-      return { ...q, gstPercent: Math.round(WALLET_CONFIG.gstRate * 100), coupon: couponCode ? { code: couponCode } : null, packId };
+      return { ...q, coupon: couponCode ? { code: couponCode } : null, packId };
     }
     return http("/wallet/quote", { method: "POST", body: { packId, amount, couponCode } });
   },
@@ -350,15 +351,13 @@ export const walletService = {
     return http("/wallet/transactions", { query: { page, pageSize, type: type === "all" ? undefined : type }, cache: "no-store" });
   },
 
-  /** GST invoice data for a successful recharge. */
+  /** Payment receipt data for a successful recharge. */
   async getInvoice(transactionId) {
     if (env.useMocks) {
       const s = readStore();
       const t = s.txns.find((x) => x.id === transactionId);
       if (!t) throw new ApiError("Not found", { status: 404 });
       const order = t.meta?.orderId ? s.orders[t.meta.orderId] : null;
-      const taxable = t.amount;
-      const gst = Math.round(taxable * WALLET_CONFIG.gstRate * 100) / 100;
       return mockDelay(
         {
           invoiceNo: `INV-${new Date(t.createdAt).getFullYear()}-${transactionId.slice(-6).toUpperCase()}`,
@@ -366,13 +365,10 @@ export const walletService = {
           orderId: t.meta?.orderId,
           method: t.meta?.method || "UPI",
           customer: { name: readUser()?.name || "", phone: readUser()?.phone || "" },
-          seller: { name: "Nakshatra Astro Services Pvt. Ltd.", gstin: "29ABCDE1234F1Z5", address: "Bengaluru, Karnataka, India" },
-          lines: [{ description: "wallet_recharge", amount: taxable }],
-          taxable,
-          cgst: gst / 2,
-          sgst: gst / 2,
-          total: Math.round((taxable + gst) * 100) / 100,
-          credit: order?.credit ?? taxable,
+          seller: { name: "Nakshatra Astro Services Pvt. Ltd.", address: "Bengaluru, Karnataka, India" },
+          lines: [{ description: "wallet_recharge", amount: t.amount }],
+          total: t.amount,
+          credit: order?.credit ?? t.amount,
         },
         200,
       );
