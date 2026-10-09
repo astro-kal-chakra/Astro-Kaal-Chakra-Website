@@ -16,6 +16,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { AstrologerLiveRow } from "@/features/astrologers/components/AstrologerLiveRow";
 import { AstrologerProfileLive } from "@/features/astrologers/components/AstrologerProfileLive";
 import { ReviewCard } from "@/features/home/components/InfoSections";
+import { MoreReviews } from "@/features/astrologers/components/MoreReviews";
 import { label as t } from "@/lib/labels";
 
 export async function generateStaticParams() {
@@ -131,6 +132,7 @@ export default async function AstrologerProfilePage({ params }) {
               {reviews.items.map((r) => (
                 <ReviewCard key={r.id} review={r} locale={lang} />
               ))}
+              <MoreReviews astrologerId={astrologer.id} hasMore={reviews.hasMore ?? reviews.items.length < reviews.total} locale={lang} />
             </ul>
           </section>
         </div>
@@ -145,7 +147,7 @@ export default async function AstrologerProfilePage({ params }) {
               </li>
               {a.freeChatEligible && config.freeChat?.enabled && (
                 <li className="flex gap-2">
-                  <Gift className="size-3.5 shrink-0 text-brand-500" aria-hidden /> {`Your first ${config.freeChat.minutes}-minute chat is free`}
+                  <Gift className="size-3.5 shrink-0 text-brand-500" aria-hidden /> {`New users: your first ${config.freeChat.minutes}-minute chat is free`}
                 </li>
               )}
               <li className="flex gap-2">

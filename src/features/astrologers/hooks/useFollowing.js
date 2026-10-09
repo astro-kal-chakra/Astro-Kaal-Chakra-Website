@@ -24,10 +24,11 @@ const serverSnapshot = () => EMPTY;
 function load(userId) {
   if (loading && state.userId === userId) return;
   state = { userId, ids: null };
+  // Just the ids (one light request), not the followed astrologers' cards
   loading = userService
-    .listFollowing()
-    .then((list) => {
-      if (state.userId === userId) state = { userId, ids: new Set(list.map((a) => a.id)) };
+    .listFollowingIds()
+    .then((ids) => {
+      if (state.userId === userId) state = { userId, ids: new Set(ids.map(String)) };
     })
     .catch(() => {})
     .finally(() => {

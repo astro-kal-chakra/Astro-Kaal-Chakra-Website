@@ -16,7 +16,8 @@ import { useAccountResource } from "../hooks/useAccountResource";
 import { formatShortDate } from "../lib/format";
 import { AccountTextarea } from "./AccountControls";
 import { AccountShell } from "./AccountShell";
-import { AccountEmptyCard, AccountErrorState, AccountListSkeleton } from "./AccountStates";
+import { AccountEmptyCard, AccountErrorState, AccountListSkeleton, AccountLoadMore } from "./AccountStates";
+import { usePagedResource } from "../hooks/usePagedResource";
 import { AttachmentPicker } from "./SupportAttachments";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
@@ -164,7 +165,8 @@ function TicketList({ tickets }) {
 
 export function SupportView() {
   const [formOpen, setFormOpen] = useState(false);
-  const { data, status, reload, mutate } = useAccountResource(() => supportService.listTickets());
+  const tickets = usePagedResource((page) => supportService.listTickets({ page }));
+  const { items: data, status, reload, mutate } = tickets;
   const site = useAccountResource(() => contentService.getSiteConfig(), "site-config"); // support email from the dashboard
 
   const onCreated = (ticket) => {
@@ -228,6 +230,7 @@ export function SupportView() {
             />
           )}
           {status === "success" && data.length > 0 && <TicketList tickets={data} />}
+          {status === "success" && <AccountLoadMore list={tickets} />}
         </section>
       </div>
     </AccountShell>

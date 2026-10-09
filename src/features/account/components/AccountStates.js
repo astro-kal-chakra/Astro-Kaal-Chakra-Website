@@ -53,3 +53,25 @@ export function AccountEmptyCard({ className, ...props }) {
     </Card>
   );
 }
+
+/**
+ * "Show more" under a paged list (usePagedResource): loads the next page, shows progress, and offers a retry
+ * when a page fails. Renders nothing once everything is loaded.
+ */
+export function AccountLoadMore({ list, label = "Show more", className }) {
+  if (!list.hasMore && list.more !== "error") return null;
+  return (
+    <div className={cn("mt-4 flex flex-col items-center gap-1.5", className)}>
+      <Button variant="outline" size="sm" loading={list.more === "loading"} onClick={list.loadMore}>
+        {list.more === "error" ? (
+          <>
+            <RefreshCw className="size-3.5" aria-hidden /> Try again
+          </>
+        ) : (
+          label
+        )}
+      </Button>
+      {list.more === "error" && <p className="text-xs text-muted">Couldn&apos;t load more. Check your connection.</p>}
+    </div>
+  );
+}

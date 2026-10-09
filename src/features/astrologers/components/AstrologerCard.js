@@ -70,11 +70,12 @@ export function AstrologerCard({ astrologer: a, priority = false }) {
         ))}
       </ul>
 
-      {((a.freeChatEligible && a.status === "online") || a.queueCount > 0) && (
+      {((a.freeChatOnly && a.status !== "offline") || a.queueCount > 0) && (
         <div className="mt-2.5 flex flex-wrap gap-1.5 text-xs font-medium">
-          {a.freeChatEligible && a.status === "online" && (
+          {/* Free chat mode: free first chats for new users (paid sessions paused) */}
+          {a.freeChatOnly && a.status !== "offline" && (
             <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 text-brand-700 dark:bg-brand-950/50 dark:text-brand-200">
-              <Gift className="size-3" aria-hidden /> Free first chat
+              <Gift className="size-3" aria-hidden /> Free chat · new users
             </span>
           )}
           {a.queueCount > 0 && (

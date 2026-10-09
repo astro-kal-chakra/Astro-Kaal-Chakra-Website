@@ -1,5 +1,5 @@
 import { env } from "@/config/site";
-import { http, mockDelay } from "../http";
+import { http, mockDelay, mockPage } from "../http";
 import { mockStore } from "../mock/account";
 import { MOCK_NOTIFICATION_PREFS, MOCK_NOTIFICATIONS } from "../mock/account-notifications";
 
@@ -24,18 +24,22 @@ const localise = (n, locale) => {
 
 export const notificationService = {
   /** Server localises title/body by `lang`. */
-  async list({ locale = "en", limit } = {}) {
+  /**
+   * Latest `limit` notifications ({ items, unreadCount }), or one `page` of them
+   * ({ items, unreadCount, total, page, pageSize, hasMore }); `unread` keeps only unread ones.
+   */
+  async list({ locale = "en", limit, page, unread } = {}) {
     if (env.useMocks) {
-      const items = notificationsStore
+      const all = notificationsStore
         .get()
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         .map((n) => localise(n, locale));
-      return mockDelay({
-        items: limit ? items.slice(0, limit) : items,
-        unreadCount: items.filter((n) => !n.read).length,
-      });
+      const unreadCount = all.filter((n) => !n.read).length;
+      const items = unread ? all.filter((n) => !n.read) : all;
+      if (page) return mockDelay({ ...mockPage(items, page, limit || 20), unreadCount });
+      return mockDelay({ items: limit ? items.slice(0, limit) : items, unreadCount });
     }
-    return http("/me/notifications", { query: { lang: locale, limit } });
+    return http("/me/notifications", { query: { lang: locale, limit, page, unread: unread ? 1 : undefined } });
   },
 
   async markRead(id) {

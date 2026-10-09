@@ -34,7 +34,7 @@ export default async function HomePage({ params }) {
   const [onlineRes, topRes, liveRes, config, meta, reviews, faqGroups, panchang] = await Promise.all([
     astrologerService.list({ online: "1" }, { pageSize: 6 }),
     astrologerService.list({}, { pageSize: 6 }),
-    liveService.list(lang).catch(() => ({ live: [] })),
+    liveService.list(lang, { revalidate: 15 }).catch(() => ({ live: [] })),
     contentService.getSiteConfig(),
     contentService.getMeta().catch(() => null),
     contentService.getRecentReviews(4).catch(() => []),

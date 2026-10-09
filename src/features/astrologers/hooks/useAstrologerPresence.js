@@ -26,8 +26,12 @@ export function useAstrologerPresence(astrologers) {
 
     if (socket) {
       // `modes`: which modes the astrologer switched on for this online session (chat / call / video)
-      const onStatus = ({ astrologerId, status, queueCount, modes }) =>
-        setLive((prev) => ({ ...prev, [astrologerId]: { status, queueCount, ...(modes ? { availableModes: modes } : {}) } }));
+      // `freeChat`: online in free chat mode (free chats for new users only)
+      const onStatus = ({ astrologerId, status, queueCount, modes, freeChat }) =>
+        setLive((prev) => ({
+          ...prev,
+          [astrologerId]: { status, queueCount, ...(modes ? { availableModes: modes } : {}), ...(freeChat !== undefined ? { freeChatOnly: Boolean(freeChat) } : {}) },
+        }));
       socket.emit(SOCKET_EVENTS.SUBSCRIBE_PRESENCE, ids);
       socket.on(SOCKET_EVENTS.ASTROLOGER_STATUS, onStatus);
       return () => {

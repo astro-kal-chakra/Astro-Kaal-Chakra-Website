@@ -52,7 +52,7 @@ const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 export const liveService = {
   /** @returns {Promise<{ live: object[], upcoming: object[] }>} */
-  async list(locale = "en") {
+  async list(locale = "en", { revalidate } = {}) {
     if (env.useMocks) {
       const all = MOCK_LIVE_SESSIONS.map((s) => localize(s, locale));
       return mockDelay(
@@ -63,7 +63,8 @@ export const liveService = {
         80
       );
     }
-    return http("/live", { query: { locale }, cache: "no-store" });
+    // `revalidate` (seconds) lets cached pages such as home reuse the list; the Live page reads it fresh
+    return http("/live", { query: { locale }, ...(revalidate ? { next: { revalidate } } : { cache: "no-store" }) });
   },
 
   async get(id, locale = "en") {

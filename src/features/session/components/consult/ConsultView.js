@@ -138,14 +138,22 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
   const price = priceFor(a, activeMode);
   const freeChatAvailable = user?.freeChatAvailable !== false && pre.freeChatAvailable;
   const astrologerAllowsFree = a.freeChatEligible !== false;
-  const useFreeChat = activeMode === SESSION_MODES.CHAT && freeChatAvailable && astrologerAllowsFree;
+  // Free applies to the modes chosen in the dashboard (chat by default)
+  const freeModes = pre.freeModes?.length ? pre.freeModes : [SESSION_MODES.CHAT];
+  const useFreeChat = freeModes.includes(activeMode) && freeChatAvailable && astrologerAllowsFree;
+  // Astrologer in "free chat" mode takes only new users' free chats
+  const freeOnlyBlocked = Boolean(a.freeChatOnly) && !useFreeChat;
   const required = minBalanceFor(price);
-  const hasEnough = useFreeChat || pre.balance >= required;
+  const hasEnough = !freeOnlyBlocked && (useFreeChat || pre.balance >= required);
   const isBusy = a.status === "busy";
   const isOffline = a.status === "offline";
   const wantsQueue = isBusy || (waitlist && a.status !== "online");
 
   const handleError = (err) => {
+    if (err?.code === "ASTRO_FREE_ONLY" || err?.code === "FREE_CHAT_USED") {
+      toast({ type: "error", title: "Free chat only", message: err.message });
+      return;
+    }
     const key = {
       INSUFFICIENT_BALANCE: "session.errors.insufficientBalance",
       ASTROLOGER_BUSY: "session.errors.astrologerBusy",
@@ -317,13 +325,18 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
             />
           )}
 
-          {(phase !== "select" || isOffline || isBusy) && similar}
+          {(phase !== "select" || isOffline || isBusy || freeOnlyBlocked) && similar}
         </div>
       </div>
 
       {phase === "select" && !isOffline && (
         <div className="shrink-0 border-t border-line bg-surface/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur">
           <div className="mx-auto max-w-lg">
+            {freeOnlyBlocked && (
+              <p role="status" className="mb-2 rounded-xl bg-surface-muted px-3 py-2 text-center text-sm text-muted">
+                {a.name} is taking free chats for new users only right now. Please choose another astrologer below.
+              </p>
+            )}
             {wantsQueue ? (
               <Button size="lg" variant="gold" className="w-full" onClick={joinQueue} loading={busy === "queue"} disabled={!hasEnough}>
                 <ListPlus className="size-5" aria-hidden />
@@ -401,7 +414,7 @@ function SelectStep({ a, modes, activeMode, onModeChange, price, pre, required, 
           {modes.map((m) => {
             const Icon = MODE_ICONS[m];
             const selected = m === activeMode;
-            const off = !openModes.includes(m);
+            const off = !isModeAvailable(a, m);
             return (
               <label
                 key={m}

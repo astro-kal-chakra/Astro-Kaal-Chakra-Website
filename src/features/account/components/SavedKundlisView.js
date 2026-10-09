@@ -9,11 +9,11 @@ import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { LocaleLink } from "@/components/ui/LocaleLink";
-import { useAccountResource } from "../hooks/useAccountResource";
+import { usePagedResource } from "../hooks/usePagedResource";
 import { formatBirthDate, formatBirthTime, formatShortDate } from "../lib/format";
 import { AccountConfirmModal } from "./AccountControls";
 import { AccountShell } from "./AccountShell";
-import { AccountEmptyCard, AccountErrorState, AccountListSkeleton } from "./AccountStates";
+import { AccountEmptyCard, AccountErrorState, AccountListSkeleton, AccountLoadMore } from "./AccountStates";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
 
@@ -22,7 +22,8 @@ const openHref = (k) => `${k.type === "matching" ? routes.kundliMatching : route
 export function SavedKundlisView() {
   const locale = SITE_LOCALE;
   const { toast } = useToast();
-  const { data, status, reload, mutate } = useAccountResource(() => userService.listSavedKundlis());
+  const list = usePagedResource((page) => userService.listSavedKundlis({ page }));
+  const { items: data, status, reload, mutate } = list;
   const [deleting, setDeleting] = useState(null);
   const [busy, setBusy] = useState(false);
 
@@ -106,6 +107,7 @@ export function SavedKundlisView() {
           })}
         </ul>
       )}
+      {status === "success" && <AccountLoadMore list={list} />}
 
       <p className="mt-6 text-sm text-muted">
         Looking for purchased reports?{" "}

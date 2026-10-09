@@ -7,14 +7,15 @@ import { AstrologerCard, AstrologerCardSkeleton } from "@/features/astrologers/c
 import { userService } from "@/lib/api/services/user.service";
 import { useToast } from "@/providers/ToastProvider";
 import { Button, ButtonLink } from "@/components/ui/Button";
-import { useAccountResource } from "../hooks/useAccountResource";
+import { usePagedResource } from "../hooks/usePagedResource";
 import { AccountShell } from "./AccountShell";
-import { AccountEmptyCard, AccountErrorState } from "./AccountStates";
+import { AccountEmptyCard, AccountErrorState, AccountLoadMore } from "./AccountStates";
 import { setFollowing } from "@/features/astrologers/hooks/useFollowing";
 
 export function FollowingView() {
   const { toast } = useToast();
-  const { data, status, reload, mutate } = useAccountResource(() => userService.listFollowing());
+  const list = usePagedResource((page) => userService.listFollowing({ page }));
+  const { items: data, status, reload, mutate } = list;
   const [busyId, setBusyId] = useState(null);
 
   const unfollow = async (a) => {
@@ -68,6 +69,7 @@ export function FollowingView() {
           ))}
         </ul>
       )}
+      {status === "success" && <AccountLoadMore list={list} />}
     </AccountShell>
   );
 }

@@ -1,5 +1,5 @@
 import { env } from "@/config/site";
-import { ApiError, http, mockDelay } from "../http";
+import { ApiError, http, mockDelay, mockPage } from "../http";
 import { __mockWallet } from "./wallet.service";
 
 /**
@@ -170,15 +170,15 @@ export const reportService = {
     });
   },
 
-  /** @returns {Promise<object[]>} purchased reports, newest first, with status "generating" | "ready" | "failed". */
-  async getMyReports() {
+  /** One page of purchased reports, newest first ({ items, total, page, pageSize, hasMore }); status "generating" | "ready" | "failed". */
+  async getMyReports({ page = 1, pageSize = 10 } = {}) {
     if (env.useMocks) {
       const items = readReports()
         .items.map(withStatus)
         .sort((a, b) => b.purchasedAt - a.purchasedAt);
-      return mockDelay(items, 300);
+      return mockDelay(mockPage(items, page, pageSize), 300);
     }
-    return http("/me/reports", { cache: "no-store" });
+    return http("/me/reports", { query: { page, pageSize }, cache: "no-store" });
   },
 
   /** Short-lived signed URL to the PDF. */

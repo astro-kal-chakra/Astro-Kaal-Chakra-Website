@@ -98,3 +98,13 @@ export async function http(path, { method = "GET", body, query, headers, retry =
 
 /** Small helper so mocks feel like a real network call in dev. */
 export const mockDelay = (value, ms = 300) => new Promise((r) => setTimeout(() => r(value), ms));
+
+/** One page of an in-memory list, shaped like the API's paged answers. */
+export const mockPage = (all, page = 1, pageSize = 20) => ({
+  items: all.slice((page - 1) * pageSize, page * pageSize),
+  total: all.length,
+  page,
+  pageSize,
+  totalPages: Math.max(1, Math.ceil(all.length / pageSize)),
+  hasMore: page * pageSize < all.length,
+});

@@ -1,6 +1,6 @@
 import { env } from "@/config/site";
 import { SORT_OPTIONS } from "@/constants/astrologer";
-import { http, mockDelay } from "../http";
+import { http, mockDelay, mockPage } from "../http";
 import { MOCK_ASTROLOGERS, MOCK_REVIEWS } from "../mock/astrologers";
 
 const STATUS_RANK = { online: 0, busy: 1, offline: 2 };
@@ -54,7 +54,7 @@ export const astrologerService = {
   },
 
   async getReviews(astrologerId, { page = 1 } = {}) {
-    if (env.useMocks) return { items: MOCK_REVIEWS, total: MOCK_REVIEWS.length, page };
+    if (env.useMocks) return { ...mockPage(MOCK_REVIEWS, page, 10) };
     return http(`/astrologers/${astrologerId}/reviews`, { query: { page }, next: { revalidate: 300 } });
   },
 

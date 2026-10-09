@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, BadgeCheck, Clock, Gift, LogOut, ShieldAlert, Wallet, WalletCards, WifiOff, UserX } from "lucide-react";
 import { routes } from "@/config/routes";
@@ -150,12 +151,27 @@ const REASON_ICON = {
   [END_REASONS.FREE_OVER]: Gift,
 };
 
+/** Seconds the "free chat ended" panel shows before moving on to the review screen. */
+const REVIEW_REDIRECT_SECONDS = 4;
+
 /** Shown when the session finishes for any reason other than the user ending it here. */
 export function SessionEndedPanel({ sessionId, ended, astrologer, isFree, tone = "default" }) {
   const locale = SITE_LOCALE;
   const router = useRouter();
   const reason = REASON_ICON[ended.reason] ? ended.reason : "other";
   const Icon = REASON_ICON[reason] || LogOut;
+  // Free time over: straight on to the summary to rate the astrologer (a short pause to read this)
+  const autoReview = ended.reason === END_REASONS.FREE_OVER;
+  const [left, setLeft] = useState(REVIEW_REDIRECT_SECONDS);
+  useEffect(() => {
+    if (!autoReview) return;
+    const timer = setInterval(() => setLeft((n) => Math.max(0, n - 1)), 1000);
+    const go = setTimeout(() => router.replace(`${routes.sessionSummary(sessionId)}`), REVIEW_REDIRECT_SECONDS * 1000);
+    return () => {
+      clearInterval(timer);
+      clearTimeout(go);
+    };
+  }, [autoReview, router, sessionId]);
   return (
     <div
       role="alertdialog"
@@ -191,7 +207,7 @@ export function SessionEndedPanel({ sessionId, ended, astrologer, isFree, tone =
         )}
         <div className="mt-5 grid gap-2">
           <Button size="lg" onClick={() => router.push(`${routes.sessionSummary(sessionId)}`)}>
-            View summary
+            {autoReview ? `Rate your astrologer (${left}s)` : "View summary"}
           </Button>
           {(ended.reason === END_REASONS.BALANCE || ended.reason === END_REASONS.FREE_OVER) && (
             <ButtonLink href={routes.wallet} variant="gold" size="lg">

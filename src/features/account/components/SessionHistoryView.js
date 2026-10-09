@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FileText, History, LifeBuoy, MessageCircle, MessagesSquare, Phone, RotateCcw, Video } from "lucide-react";
 import { routes } from "@/config/routes";
 import { sessionHistoryService } from "@/lib/api/services/session-history.service";
@@ -13,11 +13,11 @@ import { Card } from "@/components/ui/Card";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { Modal } from "@/components/ui/Modal";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { useAccountResource } from "../hooks/useAccountResource";
 import { formatDateTime, formatTime } from "../lib/format";
 import { AccountFilterChips } from "./AccountControls";
 import { AccountShell } from "./AccountShell";
-import { AccountEmptyCard, AccountErrorState, AccountListSkeleton } from "./AccountStates";
+import { AccountEmptyCard, AccountErrorState, AccountListSkeleton, AccountLoadMore } from "./AccountStates";
+import { usePagedResource } from "../hooks/usePagedResource";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
 
@@ -26,12 +26,22 @@ const STATUS_TONE = { completed: "success", missed: "warning", refunded: "brand"
 
 const TYPE_ICON = { chat: MessageCircle, call: Phone, video: Video };
 
+/** Messages per transcript request (the API's part size). */
+const TRANSCRIPT_PAGE = 500;
+
 function TranscriptModal({ session, onClose }) {
   const locale = SITE_LOCALE;
-  const { data, status, reload } = useAccountResource(
-    () => (session ? sessionHistoryService.getTranscript(session.id) : Promise.resolve([])),
-    session?.id || ""
-  );
+  // Long chats come in parts of TRANSCRIPT_PAGE messages; the next part starts after the last one shown
+  const lastAt = useRef(null);
+  const list = usePagedResource(async (page) => {
+    if (!session) return { items: [], hasMore: false };
+    const rows = await sessionHistoryService.getTranscript(session.id, page > 1 ? { after: lastAt.current } : {});
+    return { items: rows, hasMore: rows.length >= TRANSCRIPT_PAGE };
+  }, session?.id || "");
+  useEffect(() => {
+    lastAt.current = list.items.at(-1)?.at ?? null;
+  });
+  const { items: data, status, reload } = list;
 
   return (
     <Modal
@@ -80,6 +90,7 @@ function TranscriptModal({ session, onClose }) {
                   </div>
                 )
               )}
+            {status === "success" && <AccountLoadMore list={list} label="Show more of this chat" className="mt-2" />}
           </div>
           <p className="mt-3 text-xs text-muted">Transcripts are private to you. They may be reviewed for safety if a complaint is raised.</p>
         </div>
@@ -158,7 +169,8 @@ function SessionRow({ session: s, onTranscript }) {
 export function SessionHistoryView() {
   const [tab, setTab] = useState("all");
   const [transcriptFor, setTranscriptFor] = useState(null);
-  const { data, status, reload } = useAccountResource(() => sessionHistoryService.list({ type: tab }), tab);
+  const list = usePagedResource((page) => sessionHistoryService.list({ type: tab, page }), tab);
+  const { status, reload } = list;
 
   return (
     <AccountShell title="Session history" subtitle="All your consultations in one place.">
@@ -172,7 +184,7 @@ export function SessionHistoryView() {
 
       {status === "loading" && <AccountListSkeleton rows={4} />}
       {status === "error" && <AccountErrorState onRetry={reload} />}
-      {status === "success" && data.items.length === 0 && (
+      {status === "success" && list.items.length === 0 && (
         <AccountEmptyCard
           icon={History}
           title="No sessions yet"
@@ -180,16 +192,17 @@ export function SessionHistoryView() {
           action={<ButtonLink href={routes.astrologers}>Find an astrologer</ButtonLink>}
         />
       )}
-      {status === "success" && data.items.length > 0 && (
+      {status === "success" && list.items.length > 0 && (
         <>
           <p className="mb-2 text-sm text-muted" aria-live="polite">
-            {`${data.total} sessions`}
+            {`${list.total} sessions`}
           </p>
           <ul className="space-y-3">
-            {data.items.map((s) => (
+            {list.items.map((s) => (
               <SessionRow key={s.id} session={s} onTranscript={setTranscriptFor} />
             ))}
           </ul>
+          <AccountLoadMore list={list} label="Show older sessions" />
         </>
       )}
 
