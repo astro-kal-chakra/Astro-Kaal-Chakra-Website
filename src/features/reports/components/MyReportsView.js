@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { ReportIcon } from "./ReportIcon";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
+import { reportCopy } from "../lib/copy";
 
 const POLL_MS = 5000;
 
@@ -109,7 +110,7 @@ function MyReportRow({ report: r }) {
       <div className="flex min-w-0 flex-1 items-center gap-4">
         <ReportIcon icon={r.icon} />
         <div className="min-w-0">
-          <p className="truncate font-semibold">{t(`wallet.reports.catalog.${r.slug}.title`)}</p>
+          <p className="truncate font-semibold">{reportCopy(r).title}</p>
           <p className="truncate text-sm text-muted">{`For ${r.profileNames.join(" & ")}`}</p>
           <p className="text-xs text-muted">
             {`Purchased ${formatDate(r.purchasedAt, locale)} · ${formatCurrency(r.price, locale)}`}

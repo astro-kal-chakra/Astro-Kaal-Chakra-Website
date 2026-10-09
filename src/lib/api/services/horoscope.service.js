@@ -24,7 +24,7 @@ export const horoscopeService = {
     if (env.useMocks) return buildMockHoroscope({ sign, period, locale, dateKey });
     return http(`/horoscope/${period}/${sign}`, {
       query: { lang: locale, date: dateKey },
-      next: { revalidate: 3600, tags: [`horoscope-${period}`] },
+      next: { revalidate: 300, tags: [`horoscope-${period}`] },
     });
   },
 };

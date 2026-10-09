@@ -10,7 +10,9 @@ import { cn } from "@/lib/utils/cn";
 import { formatCurrency } from "@/lib/utils/format";
 import { useToast } from "@/providers/ToastProvider";
 import { Button } from "@/components/ui/Button";
+import { PushPermissionPrompt } from "@/features/notifications/components/PushPermissionPrompt";
 import { astrologerModes } from "../lib/modes";
+import { setFollowing, useIsFollowing } from "../hooks/useFollowing";
 
 /**
  * Chat / Call / Video / Waitlist / Follow. Browsing is open; login is requested
@@ -20,8 +22,10 @@ export function AstrologerActions({ astrologer, layout = "card", showFollow = fa
   const { requireAuth } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
-  const [following, setFollowing] = useState(Boolean(astrologer.isFollowing));
+  const following = useIsFollowing(astrologer);
   const [followBusy, setFollowBusy] = useState(false);
+  // Just followed: offer browser notifications (the prompt hides itself if already allowed / blocked)
+  const [justFollowed, setJustFollowed] = useState(false);
 
   const start = (mode) =>
     requireAuth(() => {
@@ -39,8 +43,9 @@ export function AstrologerActions({ astrologer, layout = "card", showFollow = fa
       try {
         const next = !following;
         await astrologerService.follow(astrologer.id, next);
-        setFollowing(next);
-        if (next) toast({ type: "success", title: `You'll be notified when ${astrologer.name} comes online` });
+        setFollowing(astrologer.id, next);
+        setJustFollowed(next);
+        if (next) toast({ type: "success", title: `You'll be notified when ${astrologer.name} comes online or goes live` });
       } catch {
         toast({ type: "error", title: "Something went wrong" });
       } finally {
@@ -63,8 +68,10 @@ export function AstrologerActions({ astrologer, layout = "card", showFollow = fa
             size={size}
             variant={i === 0 ? "primary" : "soft"}
             onClick={() => start(m.key)}
+            disabled={!m.available}
+            title={m.available ? undefined : `${astrologer.name} is taking only ${modes.filter((x) => x.available).map((x) => x.label.toLowerCase()).join(" and ") || "other"} requests right now`}
             className={cn(card ? (i === 0 ? "flex-[1.4] px-2" : "flex-1 px-2") : "w-full justify-between")}
-            aria-label={`${m.label} with ${astrologer.name}`}
+            aria-label={m.available ? `${m.label} with ${astrologer.name}` : `${m.label} not available right now`}
           >
             <span className="flex items-center gap-2">
               <m.icon className="size-4" aria-hidden /> {card ? m.label : `Start ${m.label.toLowerCase()}`}
@@ -78,10 +85,19 @@ export function AstrologerActions({ astrologer, layout = "card", showFollow = fa
         </Button>
       )}
       {status === "offline" && (
-        <Button size={size} variant="outline" onClick={showFollow ? toggleFollow : undefined} disabled={!showFollow} className="flex-1">
+        <Button
+          size={size}
+          variant="outline"
+          onClick={showFollow ? toggleFollow : undefined}
+          disabled={!showFollow}
+          loading={followBusy}
+          aria-pressed={showFollow ? following : undefined}
+          className="flex-1"
+        >
           {showFollow ? (
             <>
-              <BellRing className="size-4" aria-hidden /> Notify me when online
+              <BellRing className={cn("size-4", following && "fill-current text-accent")} aria-hidden />
+              {following ? "Following · we'll notify you" : "Notify me when online"}
             </>
           ) : (
             "Offline now"
@@ -94,6 +110,7 @@ export function AstrologerActions({ astrologer, layout = "card", showFollow = fa
           {following ? "Following" : "Follow"}
         </Button>
       )}
+      {showFollow && justFollowed && <PushPermissionPrompt context="follow" variant="banner" className="col-span-full w-full" onDone={() => setJustFollowed(false)} />}
     </div>
   );
 }

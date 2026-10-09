@@ -18,6 +18,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
+import { reportCopy } from "../lib/copy";
 
 /** Price card + purchase sheet (pick birth profile(s) → pay from wallet / recharge). */
 export function ReportPurchasePanel({ report }) {
@@ -69,7 +70,7 @@ export function ReportPurchasePanel({ report }) {
         </Button>
       </Card>
 
-      <Modal open={open} onClose={() => setOpen(false)} title={t(`wallet.reports.catalog.${report.slug}.title`)}>
+      <Modal open={open} onClose={() => setOpen(false)} title={reportCopy(report).title}>
         <PurchaseSheet key={sheetKey} report={report} profiles={profiles} onClose={() => setOpen(false)} />
       </Modal>
     </>

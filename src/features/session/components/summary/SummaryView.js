@@ -18,6 +18,7 @@ import { END_REASONS, REVIEW_MAX_LENGTH, normalizeEndReason } from "../../lib/se
 import { SessionScreenState } from "../SessionParts";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
+import { setFollowing, useIsFollowing } from "@/features/astrologers/hooks/useFollowing";
 
 const MODE_ICONS = { chat: MessageCircle, call: Phone, video: Video };
 
@@ -139,14 +140,14 @@ function ReviewForm({ sessionId, astrologer, initialReview }) {
 
 function FollowButton({ astrologer }) {
   const { toast } = useToast();
-  const [following, setFollowing] = useState(Boolean(astrologer.isFollowing));
+  const following = useIsFollowing(astrologer);
   const [busy, setBusy] = useState(false);
   const toggle = async () => {
     setBusy(true);
     try {
       const next = !following;
       await astrologerService.follow(astrologer.id, next);
-      setFollowing(next);
+      setFollowing(astrologer.id, next);
       if (next) toast({ type: "success", title: `You're now following ${astrologer.name}` });
     } catch {
       toast({ type: "error", title: "Something went wrong" });

@@ -25,7 +25,7 @@ import { ApiError, http, mockDelay } from "../http";
  * Transaction status: "success" | "pending" | "failed"
  */
 
-export const WALLET_CONFIG = { minAmount: 50, maxAmount: 100000, gstRate: 0.18 };
+export const WALLET_CONFIG = { minAmount: 50, maxAmount: 100000, gstRate: 0 }; // GST rate comes from the dashboard (Settings); 0 = none
 
 export const TXN_FILTERS = ["all", "recharge", "consultation", "refund", "bonus"];
 

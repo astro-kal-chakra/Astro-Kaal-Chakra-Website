@@ -6,9 +6,8 @@ import { __mockWallet } from "./wallet.service";
  * Paid astrology reports (PDF). Bought from the wallet balance; generated
  * asynchronously by the backend (status "generating" → "ready" | "failed").
  *
- * Report copy (title / description / included items) is localised in
- * dictionaries/<lang>/wallet.json under wallet.reports.catalog.<slug> and
- * wallet.reports.item.<key>. TODO(api): switch to localised copy from the API if the CMS owns it.
+ * The catalogue (title, descriptions, "what's included", prices) is managed in the admin dashboard
+ * (Content → Reports) and served by the backend; see features/reports/lib/copy.js for how it is shown.
  */
 
 const CATALOG = [
@@ -112,12 +111,12 @@ const withStatus = (r) => ({
 export const reportService = {
   async list() {
     if (env.useMocks) return CATALOG;
-    return http("/reports", { next: { revalidate: 3600 } });
+    return http("/reports", { next: { revalidate: 300 } });
   },
 
   async getBySlug(slug) {
     if (env.useMocks) return CATALOG.find((r) => r.slug === slug) || null;
-    return http(`/reports/${slug}`, { next: { revalidate: 3600 } }).catch((e) => {
+    return http(`/reports/${slug}`, { next: { revalidate: 300 } }).catch((e) => {
       if (e.status === 404) return null;
       throw e;
     });
@@ -125,7 +124,7 @@ export const reportService = {
 
   async listSlugs() {
     if (env.useMocks) return CATALOG.map((r) => r.slug);
-    return http("/reports/slugs", { next: { revalidate: 3600 } });
+    return http("/reports/slugs", { next: { revalidate: 300 } });
   },
 
   /**

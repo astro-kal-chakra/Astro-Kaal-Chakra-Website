@@ -9,6 +9,7 @@ import { StatusBadge } from "@/features/astrologers/components/StatusBadge";
 import { SOCKET_EVENTS } from "@/lib/socket/events";
 import { astrologerService } from "@/lib/api/services/astrologer.service";
 import { modesFor, priceFor, sessionService } from "@/lib/api/services/session.service";
+import { isModeAvailable } from "@/features/astrologers/lib/modes";
 import { cn } from "@/lib/utils/cn";
 import { formatCurrency } from "@/lib/utils/format";
 import { useToast } from "@/providers/ToastProvider";
@@ -131,7 +132,9 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
 
   const a = astrologer;
   const modes = modesFor(a);
-  const activeMode = modes.includes(mode) ? mode : SESSION_MODES.CHAT;
+  // Only modes the astrologer switched on for this online session can be requested (e.g. chat only)
+  const openModes = modes.filter((m) => isModeAvailable(a, m));
+  const activeMode = openModes.includes(mode) ? mode : openModes[0] || SESSION_MODES.CHAT;
   const price = priceFor(a, activeMode);
   const freeChatAvailable = user?.freeChatAvailable !== false && pre.freeChatAvailable;
   const astrologerAllowsFree = a.freeChatEligible !== false;
@@ -398,11 +401,14 @@ function SelectStep({ a, modes, activeMode, onModeChange, price, pre, required, 
           {modes.map((m) => {
             const Icon = MODE_ICONS[m];
             const selected = m === activeMode;
+            const off = !openModes.includes(m);
             return (
               <label
                 key={m}
+                title={off ? "Not available right now" : undefined}
                 className={cn(
                   "relative flex cursor-pointer flex-col items-center gap-1 rounded-2xl border-2 p-3 text-center transition-colors",
+                  off && "cursor-not-allowed opacity-50",
                   "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring",
                   selected
                     ? "border-brand-500 bg-brand-50 dark:border-gold-400 dark:bg-brand-800/40"
@@ -414,14 +420,14 @@ function SelectStep({ a, modes, activeMode, onModeChange, price, pre, required, 
                   name="mode"
                   value={m}
                   checked={selected}
+                  disabled={off}
                   onChange={() => onModeChange(m)}
                   className="sr-only"
                 />
                 <Icon className={cn("size-6", selected ? "text-brand-600 dark:text-gold-400" : "text-muted")} aria-hidden />
                 <span className="text-sm font-semibold">{t(`session.modes.${m}`)}</span>
                 <span className="text-xs text-muted">
-                  {formatCurrency(priceFor(a, m), locale)}
-                  /min
+                  {off ? "Not available now" : `${formatCurrency(priceFor(a, m), locale)}/min`}
                 </span>
               </label>
             );

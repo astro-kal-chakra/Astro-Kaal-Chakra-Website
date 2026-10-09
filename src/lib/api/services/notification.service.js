@@ -76,12 +76,15 @@ export const notificationService = {
     return http("/me/notification-preferences", { method: "PATCH", body: { category, channel, enabled } });
   },
 
-  /**
-   * Register this browser for web push after permission is granted.
-   * TODO(push): get an FCM token with the VAPID key and send it here.
-   */
-  async registerPushToken(token) {
-    if (env.useMocks) return mockDelay({ registered: true });
-    return http("/me/push-tokens", { method: "POST", body: { token, platform: "web" } });
+  /** Save this browser's Web Push subscription ({ endpoint, keys: { p256dh, auth } }) for the signed-in user. */
+  async savePushSubscription(subscription) {
+    if (env.useMocks) return mockDelay({ subscribed: true });
+    return http("/me/push-subscriptions", { method: "POST", body: subscription });
+  },
+
+  /** Forget this browser's subscription (logout / turned off). */
+  async removePushSubscription(endpoint) {
+    if (env.useMocks) return mockDelay({ subscribed: false });
+    return http("/me/push-subscriptions", { method: "DELETE", body: { endpoint } });
   },
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Eye, Gift, HelpCircle, MessageCircle, Send, UserCheck, UserPlus, X } from "lucide-react";
+import { ArrowLeft, Eye, Gift, HelpCircle, MessageCircle, Send, UserCheck, UserPlus, Volume2, X } from "lucide-react";
 import { routes } from "@/config/routes";
 import { useAuth } from "@/features/auth/context/AuthProvider";
 import { astrologerService } from "@/lib/api/services/astrologer.service";
@@ -18,6 +18,8 @@ import { Modal } from "@/components/ui/Modal";
 import { newIdempotencyKey } from "../utils";
 import { FloatingGift } from "./FloatingGift";
 import { LiveBadge } from "./LiveBadge";
+import { useLiveStream } from "../hooks/useLiveStream";
+import { setFollowing, useIsFollowing } from "@/features/astrologers/hooks/useFollowing";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
 
@@ -25,9 +27,8 @@ const MAX_MESSAGES = 120;
 const MAX_FLOATING = 8;
 
 /**
- * Live session room (phase 2). Video is a placeholder stage until the Agora
- * live-streaming integration lands. Chat, viewers and gifts come from
- * liveService.subscribe (socket, or a simulation in mock mode).
+ * Live session room. The astrologer's broadcast plays on the stage (Agora, watch-only; useLiveStream).
+ * Chat, viewers and gifts come from liveService.subscribe (socket, or a simulation in mock mode).
  */
 export function LiveRoom({ session, gifts }) {
   const locale = SITE_LOCALE;
@@ -39,12 +40,14 @@ export function LiveRoom({ session, gifts }) {
   const [viewers, setViewers] = useState(session.viewers || 0);
   const [ended, setEnded] = useState(false);
   const [text, setText] = useState("");
-  const [following, setFollowing] = useState(false);
+  const following = useIsFollowing(a ?? { id: "" });
   const [followBusy, setFollowBusy] = useState(false);
   const [floating, setFloating] = useState([]);
   const [giftsOpen, setGiftsOpen] = useState(false);
   const [giftBusy, setGiftBusy] = useState(null);
   const [askOpen, setAskOpen] = useState(false);
+  const { videoRef, state: streamState, soundBlocked, unmute } = useLiveStream(session.id, !ended);
+  const playing = streamState === "playing";
 
   const listRef = useRef(null);
   const stickToBottom = useRef(true);
@@ -111,7 +114,7 @@ export function LiveRoom({ session, gifts }) {
       const nextState = !following;
       try {
         await astrologerService.follow(a.id, nextState);
-        setFollowing(nextState);
+        setFollowing(a.id, nextState);
         toast({ type: "success", message: (nextState ? `You're following ${a.name}` : `Unfollowed ${a.name}`) });
       } catch {
         toast({ type: "error", message: "Something went wrong. Please try again." });
@@ -157,16 +160,39 @@ export function LiveRoom({ session, gifts }) {
             className={cn("relative flex aspect-[4/5] items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br sm:aspect-video", session.gradient)}
           >
             <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(white_1px,transparent_1px)] [background-size:24px_24px]" aria-hidden />
-            {!ended && (
+            {/* The astrologer's video (Agora renders a <video> in here) */}
+            <div ref={videoRef} className={cn("absolute inset-0 bg-black", !(playing && !ended) && "invisible")} aria-label={a ? `${a.name}'s live video` : "Live video"} />
+            {!playing && !ended && (
               <>
                 <span className="absolute size-44 animate-ping rounded-full bg-gold-400/15 [animation-duration:3s]" aria-hidden />
                 <span className="absolute size-60 rounded-full border border-gold-300/20" aria-hidden />
               </>
             )}
-            <div className="relative flex flex-col items-center text-center text-white">
-              <Avatar name={a?.name} src={a?.avatarUrl} size={128} />
-              <p className="mt-3 text-sm text-white/70">{ended ? "This live session has ended." : "Live video will appear here"}</p>
-            </div>
+            {!(playing && !ended) && (
+              <div className="relative flex flex-col items-center px-6 text-center text-white">
+                <Avatar name={a?.name} src={a?.avatarUrl} size={128} />
+                <p className="mt-3 text-sm text-white/70" role="status">
+                  {ended
+                    ? "This live session has ended."
+                    : streamState === "unavailable"
+                      ? "Live video isn't available right now."
+                      : streamState === "error"
+                        ? "Couldn't load the live video. Refresh the page to try again."
+                        : streamState === "waiting"
+                          ? `Waiting for ${a?.name || "the astrologer"}'s video…`
+                          : "Connecting to the live video…"}
+                </p>
+              </div>
+            )}
+            {playing && !ended && soundBlocked && (
+              <button
+                type="button"
+                onClick={unmute}
+                className="absolute left-1/2 top-1/2 z-10 inline-flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-full bg-black/70 px-5 py-3 font-semibold text-white backdrop-blur hover:bg-black/80"
+              >
+                <Volume2 className="size-5" aria-hidden /> Tap to unmute
+              </button>
+            )}
 
             <div className="absolute inset-x-3 top-3 flex items-center justify-between gap-2 sm:inset-x-4 sm:top-4">
               {!ended && <LiveBadge label="LIVE" />}

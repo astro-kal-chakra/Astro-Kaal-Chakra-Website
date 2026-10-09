@@ -49,7 +49,7 @@ export function buildInvoiceHtml(inv, t, locale) {
   <tbody>
     ${inv.lines.map((l) => row(t(`wallet.invoice.line_${l.description}`), money(l.amount))).join("")}
     ${row("Taxable value", money(inv.taxable))}
-    ${inv.igst ? row(`IGST @ ${inv.gstPercent ?? 18}%`, money(inv.igst)) : `${row(`CGST @ ${(inv.gstPercent ?? 18) / 2}%`, money(inv.cgst))}${row(`SGST @ ${(inv.gstPercent ?? 18) / 2}%`, money(inv.sgst))}`}
+    ${inv.igst ? row(`IGST @ ${inv.gstPercent}%`, money(inv.igst)) : inv.cgst || inv.sgst ? `${row(`CGST @ ${inv.gstPercent / 2}%`, money(inv.cgst))}${row(`SGST @ ${inv.gstPercent / 2}%`, money(inv.sgst))}` : ""}
     ${row("Total paid", money(inv.total), true)}
   </tbody>
 </table>

@@ -108,6 +108,12 @@ export const liveService = {
     return http(`/live/${sessionId}/remind`, { method: "POST" });
   },
 
+  /** Watch-only Agora credentials for the astrologer's broadcast (guests too). @returns {Promise<{ appId, channel, token, uid }>} */
+  async getRtcCredentials(sessionId) {
+    if (env.useMocks) return mockDelay({ appId: "AGORA_NOT_CONFIGURED", channel: `live_${sessionId}`, token: null, uid: 1 });
+    return http(`/live/${sessionId}/rtc-token`, { method: "POST" });
+  },
+
   /**
    * Subscribe to room events. Calls onEvent({ type: "message" | "viewers", ... }).
    * In mock mode it simulates incoming chat, gifts and viewer count changes.

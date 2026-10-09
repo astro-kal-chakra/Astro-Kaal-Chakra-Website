@@ -26,7 +26,7 @@ const pick = (a) => ({
 export const priceFor = (astrologer, mode) =>
   mode === "chat" ? astrologer.chatPrice : mode === "call" ? astrologer.callPrice : astrologer.videoPrice;
 
-/** Modes this astrologer offers (chat always; call / video when enabled). */
+/** Modes this astrologer offers (chat always; call / video when priced). Which can start now: isModeAvailable(). */
 export const modesFor = (astrologer) => [
   "chat",
   ...(astrologer.supportsCall !== false ? ["call"] : []),

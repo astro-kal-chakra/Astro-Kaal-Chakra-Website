@@ -82,7 +82,7 @@ export const LABELS = {
         "sessions": "Sessions & queue"
       },
       "categoryDesc": {
-        "follows": "When an astrologer you follow comes online",
+        "follows": "When an astrologer you follow comes online or goes live",
         "horoscope": "Your daily prediction every morning",
         "offers": "Discounts and festive offers",
         "payments": "Recharge success, refunds and low balance",
@@ -146,7 +146,7 @@ export const LABELS = {
     "push": {
       "text": "Turn on notifications to know when your astrologer is ready or someone you follow comes online.",
       "textAfterSession": "Get notified about your session summary, replies and when your astrologer is next online.",
-      "textFollow": "We'll let you know the moment this astrologer comes online."
+      "textFollow": "Turn on notifications and we'll tell you the moment this astrologer comes online or goes live."
     },
     "referral": {
       "how1Text": "Send your code or link to friends and family.",
@@ -1468,4 +1468,9 @@ export function label(key, vars) {
     return key;
   }
   return vars ? value.replace(/\{(\w+)\}/g, (_, name) => vars[name] ?? `{${name}}`) : value;
+}
+
+/** True when `key` has text (used where data may carry either a label key or plain text). */
+export function hasLabel(key) {
+  return typeof key.split(".").reduce((acc, part) => acc?.[part], LABELS) === "string";
 }

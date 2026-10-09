@@ -54,7 +54,11 @@ export function AstrologerCard({ astrologer: a, priority = false }) {
       {/* Price per mode */}
       <ul className="mt-4 grid gap-1.5" style={{ gridTemplateColumns: `repeat(${modes.length}, minmax(0, 1fr))` }}>
         {modes.map((m) => (
-          <li key={m.key} className="rounded-xl border border-line bg-surface-muted/60 px-2 py-1.5 text-center">
+          <li
+            key={m.key}
+            className={cn("rounded-xl border border-line bg-surface-muted/60 px-2 py-1.5 text-center", a.status === "online" && !m.available && "opacity-45")}
+            title={a.status === "online" && !m.available ? "Not available right now" : undefined}
+          >
             <span className="flex items-center justify-center gap-1 text-[11px] text-muted">
               <m.icon className="size-3" aria-hidden /> {m.label}
             </span>

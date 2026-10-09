@@ -328,6 +328,8 @@ export function RechargePanel() {
               positive
             />
           )}
+          {/* GST only when the dashboard turns it on: never folded silently into the total */}
+          {valid && quote.gst > 0 && <Row label={`GST (${Math.round((config.gstRate || 0) * 100)}%)`} value={`+${formatCurrency(quote.gst, locale)}`} />}
           <div className="border-t border-dashed border-line pt-2.5">
             <Row label="Total payable" value={formatCurrency(valid ? quote.total : 0, locale)} strong />
           </div>

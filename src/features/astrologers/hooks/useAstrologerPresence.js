@@ -25,8 +25,9 @@ export function useAstrologerPresence(astrologers) {
     if (!ids.length) return;
 
     if (socket) {
-      const onStatus = ({ astrologerId, status, queueCount }) =>
-        setLive((prev) => ({ ...prev, [astrologerId]: { status, queueCount } }));
+      // `modes`: which modes the astrologer switched on for this online session (chat / call / video)
+      const onStatus = ({ astrologerId, status, queueCount, modes }) =>
+        setLive((prev) => ({ ...prev, [astrologerId]: { status, queueCount, ...(modes ? { availableModes: modes } : {}) } }));
       socket.emit(SOCKET_EVENTS.SUBSCRIBE_PRESENCE, ids);
       socket.on(SOCKET_EVENTS.ASTROLOGER_STATUS, onStatus);
       return () => {

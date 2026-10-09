@@ -6,6 +6,7 @@ import { formatCurrency, formatDate, formatDuration } from "@/lib/utils/format";
 import { Badge } from "@/components/ui/Badge";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
+import { reportCopy } from "@/features/reports/lib/copy";
 
 const ICONS = {
   recharge: { icon: ArrowDownLeft, tone: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400" },
@@ -44,7 +45,7 @@ export function useTxnText() {
           subtitle: m.coupon ? `Code ${m.coupon}` : "",
         };
       case "report":
-        return { title: "Report purchase", subtitle: m.slug ? t(`wallet.reports.catalog.${m.slug}.title`) : "" };
+        return { title: "Report purchase", subtitle: m.title || (m.slug ? reportCopy({ slug: m.slug }).title : "") };
       default:
         return { title: txn.type, subtitle: "" };
     }

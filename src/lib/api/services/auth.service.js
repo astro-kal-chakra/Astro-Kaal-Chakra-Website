@@ -1,5 +1,22 @@
 import { AUTH_HINT_COOKIE, env } from "@/config/site";
 import { ApiError, http, mockDelay } from "../http";
+import { contentService } from "./content.service";
+
+/** Firebase (phone OTP) only when the backend uses it and this site has the Firebase web config. */
+async function firebaseMode() {
+  const { firebaseConfigured } = await import("@/lib/firebase/phoneAuth");
+  if (!firebaseConfigured()) return null;
+  const auth = (await contentService.getSiteConfig().catch(() => null))?.auth;
+  return auth?.otpProvider === "firebase" ? auth : null;
+}
+
+/** Firebase error → ApiError the login form can show (message), keeping our codes where they matter. */
+async function firebaseError(err) {
+  const { firebaseErrorMessage } = await import("@/lib/firebase/phoneAuth");
+  const message = firebaseErrorMessage(err?.code);
+  if (!message) return err;
+  return new ApiError(message, { code: err.code === "auth/invalid-verification-code" ? "INVALID_OTP" : err.code });
+}
 
 /** Dev-only OTP when running on mocks. */
 export const MOCK_OTP = "123456";
@@ -17,6 +34,16 @@ export const authService = {
   /** Backend enforces rate limits + bot protection; we surface its errors. */
   async sendOtp(phone) {
     if (env.useMocks) return mockDelay({ requestId: "mock", resendAfter: 30, maxAttempts: 3 });
+    const fb = await firebaseMode();
+    if (fb) {
+      const { sendPhoneCode } = await import("@/lib/firebase/phoneAuth");
+      try {
+        await sendPhoneCode(phone, { testing: !fb.firebaseProd });
+      } catch (err) {
+        throw await firebaseError(err);
+      }
+      return { requestId: "firebase", resendAfter: 30, maxAttempts: 5 };
+    }
     return http("/auth/otp/send", { method: "POST", body: { phone, countryCode: "+91" } });
   },
 
@@ -29,6 +56,19 @@ export const authService = {
       const user = existing?.phone === phone ? existing : { id: "u_mock", phone, name: "", profileComplete: false, walletBalance: 300, freeChatAvailable: true };
       localStorage.setItem(MOCK_USER_KEY, JSON.stringify(user));
       return { user, isNewUser: !user.profileComplete, ...(referralCode ? { referral: user.profileComplete ? "not_eligible" : "applied" } : {}) };
+    }
+    if (requestId === "firebase") {
+      // Firebase checks the code; the backend verifies Firebase's ID token and sets our cookies
+      const { confirmPhoneCode, finishPhoneSignIn } = await import("@/lib/firebase/phoneAuth");
+      let idToken;
+      try {
+        idToken = await confirmPhoneCode(phone, otp);
+      } catch (err) {
+        throw await firebaseError(err);
+      }
+      const res = await http("/auth/firebase", { method: "POST", body: { idToken, ...(referralCode ? { referralCode } : {}) } });
+      await finishPhoneSignIn();
+      return res;
     }
     // Backend sets httpOnly access/refresh cookies on success.
     return http("/auth/otp/verify", { method: "POST", body: { phone, otp, requestId, ...(referralCode ? { referralCode } : {}) } });

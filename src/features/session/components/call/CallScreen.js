@@ -73,12 +73,14 @@ export function CallScreen({ sessionId, voiceOnly: voiceParam }) {
       rtc.on("remote-joined", ({ hasVideo }) => setRemote({ joined: true, hasVideo: Boolean(hasVideo) }));
       rtc.on("remote-video", ({ hasVideo }) => setRemote((r) => ({ ...r, hasVideo })));
       rtc.on("remote-left", () => setRemote({ joined: false, hasVideo: false }));
+      rtc.on("autoplay-blocked", () =>
+        toast({ id: "rtc-autoplay", type: "warning", title: "Tap anywhere to hear the call", message: "Your browser paused the sound until you interact with the page." })
+      );
       await rtc.join(creds);
       await rtc.publish({ stream: media.stream });
       if (media.selected.speaker) await rtc.setPlaybackDevice(media.selected.speaker);
       rtc.setMicEnabled(controls.micOn);
       rtc.setCameraEnabled(controls.camOn);
-      if (remoteRef.current) rtc.playRemoteVideo(remoteRef.current);
       setPhase("incall");
     } catch {
       toast({ type: "error", title: "Couldn't join the call", message: "Please try again. If the problem continues, contact support." });
@@ -88,6 +90,11 @@ export function CallScreen({ sessionId, voiceOnly: voiceParam }) {
       setJoining(false);
     }
   };
+
+  // The remote video container exists only in the in-call view: hand it to the RTC client once shown
+  useEffect(() => {
+    if (phase === "incall" && remoteRef.current) rtcRef.current?.playRemoteVideo(remoteRef.current);
+  }, [phase]);
 
   const toggle = (key) => {
     const next = !controls[key];

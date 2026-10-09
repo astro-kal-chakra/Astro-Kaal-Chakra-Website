@@ -6,6 +6,7 @@ import { routes } from "@/config/routes";
 import { AUTH_HINT_COOKIE } from "@/config/site";
 import { authService } from "@/lib/api/services/auth.service";
 import { getSocket, reconnectSocket } from "@/lib/socket/client";
+import { disableWebPush, enableWebPush } from "@/lib/push/webPush";
 import { SIGNED_IN_ELSEWHERE, SOCKET_EVENTS } from "@/lib/socket/events";
 import { useToast } from "@/providers/ToastProvider";
 
@@ -68,6 +69,7 @@ export function AuthProvider({ children }) {
     if (reason !== SIGNED_IN_ELSEWHERE || signedOutHandled.current) return;
     signedOutHandled.current = true;
     authService.clearLocal();
+    disableWebPush().catch(() => {}); // this browser no longer belongs to the account
     // Clear this browser's (already revoked) cookies, then continue as a guest
     authService.logout().catch(() => {}).finally(reconnectSocket);
     setUser(null);
@@ -98,7 +100,13 @@ export function AuthProvider({ children }) {
     reconnectSocket(); // pick up the new login cookie
   }, []);
 
+  // Signed in and notifications already allowed: (re)attach this browser's push subscription to the account
+  useEffect(() => {
+    if (status === "authenticated") enableWebPush().catch(() => {});
+  }, [status]);
+
   const logout = useCallback(async (opts) => {
+    await disableWebPush().catch(() => {}); // while still signed in, so the backend forgets this browser
     await authService.logout(opts).catch(() => {});
     reconnectSocket(); // continue as a guest
     setUser(null);

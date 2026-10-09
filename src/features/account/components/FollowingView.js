@@ -10,6 +10,7 @@ import { Button, ButtonLink } from "@/components/ui/Button";
 import { useAccountResource } from "../hooks/useAccountResource";
 import { AccountShell } from "./AccountShell";
 import { AccountEmptyCard, AccountErrorState } from "./AccountStates";
+import { setFollowing } from "@/features/astrologers/hooks/useFollowing";
 
 export function FollowingView() {
   const { toast } = useToast();
@@ -20,6 +21,7 @@ export function FollowingView() {
     setBusyId(a.id);
     try {
       await userService.unfollow(a.id);
+      setFollowing(a.id, false);
       mutate((list = []) => list.filter((x) => x.id !== a.id));
       toast({ type: "success", title: `You unfollowed ${a.name}` });
     } catch {
