@@ -34,10 +34,11 @@ export function subscribeLanguage(callback) {
 export function setLanguage(code) {
   if (code === getCurrentLanguage()) return;
 
-  // Restoring the original page is only reliable with a reload.
+  // Back to the original language: restore in place (instant), reload only as a last resort.
   if (code === PAGE_LANGUAGE) {
     writeCookie(null);
-    location.reload();
+    window.dispatchEvent(new Event(CHANGE_EVENT));
+    if (!restoreOriginal()) location.reload();
     return;
   }
 
@@ -62,6 +63,29 @@ export function setLanguage(code) {
     }
   };
   apply();
+}
+
+/**
+ * Show the original page without reloading, by clicking the "Show original" button in Google's
+ * (visually hidden) translate bar — Google's own restore, so its state stays clean: it clears the
+ * cookie itself and later switches translate normally again.
+ * (Selecting the page language in the widget's <select> also restores, but leaves Google in a state
+ * where the next switch is ignored — don't use it.)
+ * @returns {boolean} false if the bar isn't available (caller reloads)
+ */
+function restoreOriginal() {
+  for (const frame of document.querySelectorAll("iframe.skiptranslate")) {
+    try {
+      const button = frame.contentDocument?.querySelector('[id$=".restore"]');
+      if (button) {
+        button.click();
+        return true;
+      }
+    } catch {
+      // cross-origin frame — skip
+    }
+  }
+  return false;
 }
 
 /**
