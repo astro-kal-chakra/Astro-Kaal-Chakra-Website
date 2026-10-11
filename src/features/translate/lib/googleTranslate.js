@@ -44,16 +44,19 @@ export function setLanguage(code) {
   writeCookie(`/${PAGE_LANGUAGE}/${code}`);
   window.dispatchEvent(new Event(CHANGE_EVENT));
 
-  // The widget script may still be loading — wait up to ~3s, then fall back to a
-  // reload (the widget applies the cookie on load).
+  // Translate in place through the widget's <select>. It appears ~1 s after page load, and its
+  // language options are filled in a moment later — setting the value before the option exists
+  // silently does nothing, so wait for the option itself. Only if the widget never becomes ready
+  // (e.g. Google blocked) fall back to a reload, which applies the cookie on load.
   let tries = 0;
   const apply = () => {
     const combo = document.querySelector(".goog-te-combo");
-    if (combo) {
+    const ready = combo && [...combo.options].some((o) => o.value === code);
+    if (ready) {
       combo.value = code;
       combo.dispatchEvent(new Event("change"));
-    } else if (++tries < 15) {
-      setTimeout(apply, 200);
+    } else if (++tries < 60) {
+      setTimeout(apply, 100);
     } else {
       location.reload();
     }
