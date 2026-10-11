@@ -13,7 +13,8 @@ export default function robots() {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/images/"],
+        // Public legal pages are listed explicitly (they are also in the sitemap).
+        allow: ["/", "/images/", "/legal/"],
         // `$` = exact match, so "/chat" doesn't also block a future "/chat-with-astrologer" page.
         // Sorted listings duplicate the default listing, so they're kept out of the crawl budget.
         disallow: ["/api/", ...PRIVATE.flatMap((p) => [`${p}$`, `${p}/`, `${p}?`]), "/*?*sort="],

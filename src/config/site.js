@@ -40,7 +40,8 @@ export const siteConfig = {
   /** Official social profiles — Google links them to the brand (Organization `sameAs`). */
   socialLinks: [
     "https://www.instagram.com/astro_kaal_chakra",
-    // "https://www.facebook.com/your-page",
+    // Facebook page (canonical og:url of the share link facebook.com/share/19vPBQUKqy)
+    "https://www.facebook.com/people/Astro-Kaal-Chakra/pfbid02JJwnkfrdA9AkzogrqYjgg3C4THYag79hiFdH4QKmYu9H2nwBVW9jbh5PbhVkynvHl/",
     // "https://www.youtube.com/@your-channel",
   ],
   /** Search Console / Bing Webmaster verification codes (the `content` value of their meta tag). */

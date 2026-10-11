@@ -46,6 +46,21 @@ const nextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
+  // Short / common addresses people type for the legal pages → the real page (permanent, so search
+  // engines treat them as the same page).
+  async redirects() {
+    const legal = {
+      "privacy-policy": ["/privacy", "/privacy-policy", "/privacypolicy", "/privacy-notice"],
+      terms: ["/terms", "/terms-of-use", "/terms-of-service", "/terms-and-conditions", "/terms-conditions", "/tos", "/tnc"],
+      "refund-policy": ["/refund", "/refunds", "/refund-policy", "/refund-and-cancellation", "/cancellation", "/cancellation-policy", "/return-policy"],
+      disclaimer: ["/disclaimer"],
+    };
+    return [
+      ...Object.entries(legal).flatMap(([slug, sources]) => sources.map((source) => ({ source, destination: `/legal/${slug}`, permanent: true }))),
+      // /legal on its own has no page: open the privacy policy
+      { source: "/legal", destination: "/legal/privacy-policy", permanent: false },
+    ];
+  },
 };
 
 export default nextConfig;
