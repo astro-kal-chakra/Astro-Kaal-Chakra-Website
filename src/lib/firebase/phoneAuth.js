@@ -34,17 +34,28 @@ async function load() {
   return sdk;
 }
 
-/** Invisible reCAPTCHA (Firebase's bot check before sending an SMS). */
-function recaptcha(s) {
-  if (verifier) return verifier;
-  let el = document.getElementById(RECAPTCHA_ID);
-  if (!el) {
-    el = document.createElement("div");
-    el.id = RECAPTCHA_ID;
-    document.body.appendChild(el);
-  }
+/**
+ * Invisible reCAPTCHA (Firebase's bot check before sending an SMS). A fresh one for every send: a reCAPTCHA
+ * can't be rendered twice in the same element, so the old widget and its element are thrown away first
+ * (otherwise a retry or "Resend OTP" fails until the page is reloaded).
+ */
+function freshRecaptcha(s) {
+  resetRecaptcha();
+  const el = document.createElement("div");
+  el.id = RECAPTCHA_ID;
+  document.body.appendChild(el);
   verifier = new s.RecaptchaVerifier(s.auth, el, { size: "invisible" });
   return verifier;
+}
+
+function resetRecaptcha() {
+  try {
+    verifier?.clear?.();
+  } catch {
+    /* already cleared */
+  }
+  verifier = null;
+  document.getElementById(RECAPTCHA_ID)?.remove();
 }
 
 /** Friendly text for Firebase Auth error codes. */
@@ -61,7 +72,12 @@ export function firebaseErrorMessage(code) {
       "auth/network-request-failed": "No internet connection. Please check and try again.",
       "auth/unauthorized-domain": "Login isn't enabled for this website address yet. Please contact support.",
       "auth/operation-not-allowed": "Phone login isn't enabled yet. Please contact support.",
-    }[code] || null
+      "auth/invalid-app-credential": "Security check failed. Please refresh the page and try again.",
+      "auth/missing-app-credential": "Security check failed. Please refresh the page and try again.",
+      "auth/billing-not-enabled": "SMS login isn't available right now. Please try again later.",
+      "auth/error-code:-39": "OTP limit reached for now. Please try again later.",
+      "auth/internal-error": "Couldn't send the OTP right now. Please try again.",
+    }[code] || (code?.startsWith("auth/") ? `Couldn't complete login (${code}). Please try again.` : null)
   );
 }
 
@@ -70,12 +86,12 @@ export async function sendPhoneCode(phone, { testing }) {
   const s = await load();
   s.auth.settings.appVerificationDisabledForTesting = Boolean(testing);
   try {
-    const confirmation = await s.signInWithPhoneNumber(s.auth, `+91${phone}`, recaptcha(s));
+    const confirmation = await s.signInWithPhoneNumber(s.auth, `+91${phone}`, freshRecaptcha(s));
     pending = { phone, confirmation };
   } catch (err) {
-    // A used / expired reCAPTCHA can't be reused: start a fresh one next time
-    verifier?.clear?.();
-    verifier = null;
+    // Shows the exact Firebase code in the browser console (Settings / domains / quota problems)
+    console.error("[firebase] sending the OTP failed:", err?.code, err?.message);
+    resetRecaptcha();
     throw err;
   }
 }

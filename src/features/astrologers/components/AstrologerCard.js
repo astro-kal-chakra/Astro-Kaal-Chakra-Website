@@ -75,7 +75,7 @@ export function AstrologerCard({ astrologer: a, priority = false }) {
           {/* Free chat mode: free first chats for new users (paid sessions paused) */}
           {a.freeChatOnly && a.status !== "offline" && (
             <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 text-brand-700 dark:bg-brand-950/50 dark:text-brand-200">
-              <Gift className="size-3" aria-hidden /> Free chat · new users
+              <Gift className="size-3" aria-hidden /> Free for new users
             </span>
           )}
           {a.queueCount > 0 && (

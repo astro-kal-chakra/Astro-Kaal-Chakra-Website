@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { CheckCircle2, ChevronRight, Clock, CreditCard, Landmark, QrCode, ShieldCheck, Wallet, XCircle } from "lucide-react";
+import { CheckCircle2, ChevronRight, Clock, CreditCard, Landmark, QrCode, ShieldCheck, XCircle } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { formatCurrency } from "@/lib/utils/format";
 import { Badge } from "@/components/ui/Badge";
@@ -24,7 +24,6 @@ export function MockRazorpayCheckout() {
     [QrCode, "UPI / QR", "Google Pay, PhonePe, Paytm & more"],
     [CreditCard, "Cards", "Visa, Mastercard, RuPay"],
     [Landmark, "Netbanking", "All major banks"],
-    [Wallet, "Wallet", "Paytm, Mobikwik & more"],
   ];
   const choices = [
     { outcome: "success", icon: CheckCircle2, variant: "success", label: "Simulate success" },

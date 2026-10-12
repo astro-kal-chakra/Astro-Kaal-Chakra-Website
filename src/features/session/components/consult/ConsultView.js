@@ -30,6 +30,10 @@ import { SITE_LOCALE } from "@/config/locale";
 
 const MODE_ICONS = { chat: MessageCircle, call: Phone, video: Video };
 
+/** Start button while the first session is free (the dashboard decides which modes are free). */
+const FREE_START = { chat: "Start free chat", call: "Start free voice call", video: "Start free video call" };
+const FREE_NOUN = { chat: "chat", call: "voice call", video: "video call" };
+
 /** Path of the live screen for a session in a given mode (voice calls use ?mode=call). */
 export const liveSessionPath = (sessionId, mode) =>
   mode === SESSION_MODES.CHAT
@@ -138,8 +142,8 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
   const price = priceFor(a, activeMode);
   const freeChatAvailable = user?.freeChatAvailable !== false && pre.freeChatAvailable;
   const astrologerAllowsFree = a.freeChatEligible !== false;
-  // Free applies to the modes chosen in the dashboard (chat by default)
-  const freeModes = pre.freeModes?.length ? pre.freeModes : [SESSION_MODES.CHAT];
+  // An astrologer in free mode has exactly their free modes switched on (chosen per astrologer in the dashboard)
+  const freeModes = a.freeChatOnly ? openModes : pre.freeModes?.length ? pre.freeModes : [SESSION_MODES.CHAT];
   const useFreeChat = freeModes.includes(activeMode) && freeChatAvailable && astrologerAllowsFree;
   // Astrologer in "free chat" mode takes only new users' free chats
   const freeOnlyBlocked = Boolean(a.freeChatOnly) && !useFreeChat;
@@ -151,7 +155,7 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
 
   const handleError = (err) => {
     if (err?.code === "ASTRO_FREE_ONLY" || err?.code === "FREE_CHAT_USED") {
-      toast({ type: "error", title: "Free chat only", message: err.message });
+      toast({ type: "error", title: "Free sessions only", message: err.message });
       return;
     }
     const key = {
@@ -294,7 +298,7 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
               required={required}
               hasEnough={hasEnough}
               useFreeChat={useFreeChat}
-              freeBlockedByAstrologer={activeMode === SESSION_MODES.CHAT && freeChatAvailable && !astrologerAllowsFree}
+              freeBlockedByAstrologer={freeModes.includes(activeMode) && freeChatAvailable && !astrologerAllowsFree}
               isOffline={isOffline}
             />
           )}
@@ -334,7 +338,7 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
           <div className="mx-auto max-w-lg">
             {freeOnlyBlocked && (
               <p role="status" className="mb-2 rounded-xl bg-surface-muted px-3 py-2 text-center text-sm text-muted">
-                {a.name} is taking free chats for new users only right now. Please choose another astrologer below.
+                {a.name} is taking free sessions for new users only right now. Please choose another astrologer below.
               </p>
             )}
             {wantsQueue ? (
@@ -348,7 +352,7 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
                   const Icon = MODE_ICONS[activeMode];
                   return <Icon className="size-5" aria-hidden />;
                 })()}
-                {useFreeChat ? "Start free chat" : t(`session.consult.start.${activeMode}`)}
+                {useFreeChat ? FREE_START[activeMode] || "Start free chat" : t(`session.consult.start.${activeMode}`)}
               </Button>
             )}
             <p className="mt-2 flex items-center justify-center gap-1 text-center text-xs text-muted">
@@ -453,16 +457,16 @@ function SelectStep({ a, modes, activeMode, onModeChange, price, pre, required, 
           <Gift className="size-6 shrink-0 text-gold-300" aria-hidden />
           <div>
             <p className="font-semibold text-gold-200">
-              {`Your first ${pre.freeMinutes || FREE_CHAT_MINUTES}-minute chat is free`}
+              {`Your first ${pre.freeMinutes || FREE_CHAT_MINUTES}-minute ${FREE_NOUN[activeMode] || "chat"} is free`}
             </p>
             <p className="mt-0.5 text-sm text-white/80">
-              {`Chat only, once per account and device. The chat ends when the free ${pre.freeMinutes || FREE_CHAT_MINUTES} minutes are over — nothing is taken from your wallet.`}
+              {`Once per account and device. It ends when the free ${pre.freeMinutes || FREE_CHAT_MINUTES} minutes are over — nothing is taken from your wallet.`}
             </p>
           </div>
         </div>
       )}
       {freeBlockedByAstrologer && (
-        <p className="rounded-2xl bg-surface-muted p-3 text-xs text-muted">{"Your free first chat can't be used with this astrologer. Choose an astrologer marked FREE to use it."}</p>
+        <p className="rounded-2xl bg-surface-muted p-3 text-xs text-muted">{"Your free first session can't be used with this astrologer. Choose an astrologer marked FREE to use it."}</p>
       )}
 
       <Card className="p-4">

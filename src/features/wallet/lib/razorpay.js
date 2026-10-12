@@ -90,6 +90,8 @@ async function openRealCheckout(order) {
       description: "Wallet recharge",
       prefill: order.prefill,
       theme: { color: "#c2410c" },
+      // We take UPI, cards and net banking only: Razorpay hides wallets and Pay Later in the checkout
+      config: { display: { hide: [{ method: "wallet" }, { method: "paylater" }], preferences: { show_default_blocks: true } } },
       handler: (payment) => resolve({ outcome: "success", payment }),
       modal: { ondismiss: () => resolve({ outcome: "closed" }) },
     });

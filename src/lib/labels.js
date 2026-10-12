@@ -691,8 +691,8 @@ export const LABELS = {
       "astrologerTitle": "{name} ended the session",
       "balanceText": "The session ended because your wallet couldn't cover the next minute. Recharge to continue with this astrologer.",
       "balanceTitle": "Your balance ran out",
-      "free_overText": "Your free chat is over. Recharge to start a paid chat with this astrologer.",
-      "free_overTitle": "Your free chat has ended",
+      "free_overText": "Your free time is over. Recharge to continue with this astrologer.",
+      "free_overTitle": "Your free session has ended",
       "otherText": "This session has finished.",
       "otherTitle": "Session ended",
       "rechargeCta": "Recharge wallet",
@@ -723,7 +723,7 @@ export const LABELS = {
         "admin": "This session was ended by our support team.",
         "astrologer": "{name} ended the session.",
         "balance": "The session ended because your wallet balance ran out.",
-        "free_over": "Your free chat ended when the free time was over."
+        "free_over": "Your free session ended when the free time was over."
       }
     },
     "waiting": {
