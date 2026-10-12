@@ -60,11 +60,11 @@ export function CelestialBackdrop({ className }) {
     <div ref={ref} aria-hidden className={cn("pointer-events-none fixed inset-0 -z-10 overflow-hidden", className)}>
       {/* Main wheel: top-right on desktop; on phones centred above the header so only the rings sweep behind the title */}
       <div className="absolute left-1/2 top-[-72vw] w-[140vw] opacity-45 [transform:translate(-50%,0)] sm:left-auto sm:right-[-12lvmin] sm:top-[6lvh] sm:w-[78lvmin] sm:opacity-80 sm:[transform:translate(var(--px,0px),var(--py,0px))]">
-        <Wheel />
+        <ZodiacWheel />
       </div>
       {/* Small counter-turning wheel, bottom-left (desktop) */}
       <div className="absolute bottom-[-14lvmin] left-[-10lvmin] hidden w-[42lvmin] opacity-50 [transform:translate(calc(var(--px,0px)*-0.6),calc(var(--py,0px)*-0.6))] md:block">
-        <Wheel small />
+        <ZodiacWheel small />
       </div>
       {SPARKLES.map(([left, top, size, delay], i) => (
         <svg
@@ -80,8 +80,8 @@ export function CelestialBackdrop({ className }) {
   );
 }
 
-/** One wheel: turning rashi ring, dashed orbits with circling planets, pulsing sun. */
-function Wheel({ small = false }) {
+/** One wheel: turning rashi ring, dashed orbits with circling planets, pulsing sun. Also used on its own (e.g. the footer). */
+export function ZodiacWheel({ small = false }) {
   const ring = small ? "motion-safe:[animation:orbit_160s_linear_infinite_reverse]" : "motion-safe:[animation:orbit_140s_linear_infinite]";
   return (
     <svg viewBox="0 0 400 400" className="block w-full text-brand-400 dark:text-brand-300">

@@ -34,31 +34,58 @@ export function subscribeLanguage(callback) {
 export function setLanguage(code) {
   if (code === getCurrentLanguage()) return;
 
-  // Restoring the original page is only reliable with a reload.
+  // Back to the original language: restore in place (instant), reload only as a last resort.
   if (code === PAGE_LANGUAGE) {
     writeCookie(null);
-    location.reload();
+    window.dispatchEvent(new Event(CHANGE_EVENT));
+    if (!restoreOriginal()) location.reload();
     return;
   }
 
   writeCookie(`/${PAGE_LANGUAGE}/${code}`);
   window.dispatchEvent(new Event(CHANGE_EVENT));
 
-  // The widget script may still be loading — wait up to ~3s, then fall back to a
-  // reload (the widget applies the cookie on load).
+  // Translate in place through the widget's <select>. It appears ~1 s after page load, and its
+  // language options are filled in a moment later — setting the value before the option exists
+  // silently does nothing, so wait for the option itself. Only if the widget never becomes ready
+  // (e.g. Google blocked) fall back to a reload, which applies the cookie on load.
   let tries = 0;
   const apply = () => {
     const combo = document.querySelector(".goog-te-combo");
-    if (combo) {
+    const ready = combo && [...combo.options].some((o) => o.value === code);
+    if (ready) {
       combo.value = code;
       combo.dispatchEvent(new Event("change"));
-    } else if (++tries < 15) {
-      setTimeout(apply, 200);
+    } else if (++tries < 60) {
+      setTimeout(apply, 100);
     } else {
       location.reload();
     }
   };
   apply();
+}
+
+/**
+ * Show the original page without reloading, by clicking the "Show original" button in Google's
+ * (visually hidden) translate bar — Google's own restore, so its state stays clean: it clears the
+ * cookie itself and later switches translate normally again.
+ * (Selecting the page language in the widget's <select> also restores, but leaves Google in a state
+ * where the next switch is ignored — don't use it.)
+ * @returns {boolean} false if the bar isn't available (caller reloads)
+ */
+function restoreOriginal() {
+  for (const frame of document.querySelectorAll("iframe.skiptranslate")) {
+    try {
+      const button = frame.contentDocument?.querySelector('[id$=".restore"]');
+      if (button) {
+        button.click();
+        return true;
+      }
+    } catch {
+      // cross-origin frame — skip
+    }
+  }
+  return false;
 }
 
 /**
