@@ -44,9 +44,12 @@ export function postMedia(post) {
  * Cover area of a blog card. Video → poster with a centred play button (plays inline when `interactive`);
  * image → the image; neither → the illustrated gradient cover (BlogCover), as before.
  */
-export function PostMedia({ post, size = "md", interactive = false, priority = false, className }) {
+export function PostMedia({ post, size = "md", interactive = false, priority = false, className, playing: playingProp, onPlay }) {
   const media = postMedia(post);
-  const [playing, setPlaying] = useState(false);
+  const [playingState, setPlayingState] = useState(false);
+  // Controlled when the parent passes `playing` (e.g. the featured card also plays it from the title)
+  const playing = playingProp ?? playingState;
+  const setPlaying = (v) => (onPlay ? onPlay(v) : setPlayingState(v));
   const box = cn("relative overflow-hidden bg-surface-muted", size === "lg" ? "aspect-[16/10]" : "aspect-[16/9]", className);
 
   if (!media) return <BlogCover cover={post.cover} size={size} className={className} />;
@@ -68,17 +71,19 @@ export function PostMedia({ post, size = "md", interactive = false, priority = f
   // Video, playing inline
   if (playing) {
     return (
-      <div className={cn(box, "bg-black")}>
+      // Fill the card, never black bars: <video> uses object-cover; the YouTube frame is sized with container
+      // units (cq) to cover the box like object-cover. Edges are trimmed if the video shape differs.
+      <div className={cn(box, "bg-black [container-type:size]")}>
         {media.youtubeId ? (
           <iframe
             src={`https://www.youtube-nocookie.com/embed/${media.youtubeId}?autoplay=1&rel=0`}
             title={post.title}
             allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
             allowFullScreen
-            className="absolute inset-0 size-full"
+            className="absolute left-1/2 top-1/2 h-[max(100cqh,56.25cqw)] w-[max(100cqw,177.78cqh)] -translate-x-1/2 -translate-y-1/2"
           />
         ) : (
-          <video src={media.src} poster={media.poster || undefined} controls autoPlay playsInline className="absolute inset-0 size-full object-contain" />
+          <video src={media.src} poster={media.poster || undefined} controls autoPlay playsInline className="absolute inset-0 size-full object-cover" />
         )}
       </div>
     );

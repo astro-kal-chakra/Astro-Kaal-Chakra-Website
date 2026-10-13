@@ -248,13 +248,7 @@ const toOrderStatus = (o) => ({
 export const walletService = {
   async getPacks() {
     if (env.useMocks) return mockDelay(MOCK_PACKS, 100);
-    const packs = await http("/wallet/packs");
-    // DEBUG (remove when done): recharge packs exactly as the API returns them. `tag` drives the
-    // "Popular" / "Best value" badges, and the "popular" pack is pre-selected on the wallet page.
-    console.log("[wallet] /wallet/packs API response:", packs);
-    console.table((packs || []).map(({ id, amount, credit, tag, label }) => ({ id, amount, credit, bonus: credit - amount, tag: tag ?? "—", label })));
-    console.log("[wallet] popular pack:", (packs || []).find((x) => x.tag === "popular") ?? "none (wallet falls back to the first pack)");
-    return packs;
+    return http("/wallet/packs");
   },
 
   /** @returns {{ minAmount: number, maxAmount: number, gstRate: number }} */

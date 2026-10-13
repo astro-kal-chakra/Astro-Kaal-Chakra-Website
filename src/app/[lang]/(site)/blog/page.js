@@ -17,6 +17,7 @@ import { PostCard } from "@/features/content/blog/PostCard";
 
 const PAGE_SIZE = 6;
 
+
 function parseFilters(sp) {
   const str = (v) => (typeof v === "string" ? v.trim() : "");
   // Any category slug (also ones added in the dashboard, e.g. "Basics"), not just the built-in list
