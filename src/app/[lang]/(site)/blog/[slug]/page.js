@@ -52,10 +52,13 @@ export default async function BlogPostPage({ params }) {
   const post = await contentService.getPost(slug, lang);
   if (!post) notFound();
 
-  const [related, helpers] = await Promise.all([
-    contentService.getRelatedPosts(post, { limit: 3, locale: lang }),
-    astrologerService.list({ specialty: post.specialty }, { pageSize: 4 }),
+  const [relatedRes, helpersRes] = await Promise.all([
+    // extras: if either request fails the article still shows, just without that section
+    contentService.getRelatedPosts(post, { limit: 3, locale: lang }).catch(() => []),
+    astrologerService.list({ specialty: post.specialty }, { pageSize: 4 }).catch(() => ({ items: [] })),
   ]);
+  const related = Array.isArray(relatedRes) ? relatedRes : [];
+  const helpers = Array.isArray(helpersRes?.items) ? helpersRes.items : [];
   const path = routes.blogPost(slug);
   const absoluteUrl = new URL(`${path}`, siteConfig.url).toString();
   const categoryLabel = blogCategoryLabel(post.category);
@@ -151,10 +154,10 @@ export default async function BlogPostPage({ params }) {
 
       <ContentCta className="mx-auto mt-14 max-w-6xl" title="Want to know how this applies to your chart?" text="Chat privately with a verified astrologer. Your first chat is free." cta="Talk to an astrologer" />
 
-      {helpers.items.length > 0 && (
+      {helpers.length > 0 && (
         <section className="mt-14">
           <SectionHeading title="Astrologers who can help" action={{ href: routes.astrologers, label: "View all" }} />
-          <AstrologerLiveRow astrologers={helpers.items} />
+          <AstrologerLiveRow astrologers={helpers} />
         </section>
       )}
 

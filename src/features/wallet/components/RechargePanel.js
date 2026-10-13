@@ -19,7 +19,8 @@ import { useInflightOrder } from "../lib/inflight";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
 
-/** "Get ₹120 +20%" line on the recharge pack cards — hidden for now; set to true to show it again. */
+/** "Get ₹120 +20%" line on every recharge pack card — hidden for now (true shows it on all packs).
+ *  The pack the API tags "popular" always shows its reward. */
 const SHOW_PACK_BONUS = false;
 
 const COUPON_ERRORS ={ INVALID_COUPON: "wallet.couponInvalid", COUPON_MIN_AMOUNT: "wallet.couponMinAmount" };
@@ -211,6 +212,15 @@ export function RechargePanel() {
                       )}
                       <p className="text-xs text-muted">Pay</p>
                       <p className="font-display text-2xl font-bold">{formatCurrency(p.amount, locale)}</p>
+                      {/* Reward only on the pack the API tags "popular" (tag + credit come from /wallet/packs) */}
+                      {!SHOW_PACK_BONUS && p.tag === "popular" && bonus > 0 && (
+                        <p className="mt-1 text-sm font-semibold text-green-700 dark:text-green-400" data-pack-reward>
+                          {`Get ${formatCurrency(p.credit, locale)}`}
+                          <span className="ml-1.5 rounded-full bg-green-100 px-1.5 py-0.5 text-xs font-semibold dark:bg-green-900/40">
+                            {`+${formatCurrency(bonus, locale)} bonus`}
+                          </span>
+                        </p>
+                      )}
                       {SHOW_PACK_BONUS &&
                         (bonus > 0 ? (
                           <p className="mt-1 text-sm font-semibold text-green-700 dark:text-green-400">

@@ -20,13 +20,25 @@ export function ToastProvider({ children }) {
   // Track ids so the same event from socket + push only shows once.
   const seen = useRef(new Set());
 
-  const dismiss = useCallback((id) => setToasts((t) => t.filter((x) => x.id !== id)), []);
+  // Optional per-toast close callbacks, called once when the toast goes away (× / action / timeout / dismiss()).
+  const onCloseById = useRef(new Map());
+
+  const dismiss = useCallback((id) => {
+    setToasts((t) => t.filter((x) => x.id !== id));
+    const onClose = onCloseById.current.get(id);
+    onCloseById.current.delete(id);
+    onClose?.();
+  }, []);
 
   const toast = useCallback(
-    /** `action` (optional): { label, href } — a link button inside the toast; clicking it closes the toast. */
-    ({ id = crypto.randomUUID(), type = "info", title, message, action, duration = 4000 }) => {
+    /**
+     * `action` (optional): { label, href } — a link button inside the toast; clicking it closes the toast.
+     * `duration: 0` keeps the toast until the user closes it. `onClose` (optional) runs when it goes away.
+     */
+    ({ id = crypto.randomUUID(), type = "info", title, message, action, duration = 4000, onClose }) => {
       if (seen.current.has(id)) return;
       seen.current.add(id);
+      if (onClose) onCloseById.current.set(id, onClose);
       setToasts((t) => [...t.slice(-3), { id, type, title, message, action }]);
       if (duration) setTimeout(() => dismiss(id), duration);
     },

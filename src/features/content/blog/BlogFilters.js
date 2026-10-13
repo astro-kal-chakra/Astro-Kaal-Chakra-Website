@@ -1,10 +1,12 @@
 import { blogCategoryLabel } from "@/features/content/blog/categoryLabel";
+import Form from "next/form";
 import { Search } from "lucide-react";
 import { routes } from "@/config/routes";
 import { buttonClasses } from "@/components/ui/Button";
 import { inputClasses } from "@/components/ui/Input";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { cn } from "@/lib/utils/cn";
+import { LinkPending } from "./LinkPending";
 
 /** Build a blog listing URL from filters (locale-less, for LocaleLink). */
 export function blogHref({ category, q, page } = {}) {
@@ -17,8 +19,9 @@ export function blogHref({ category, q, page } = {}) {
 }
 
 /**
- * Category chips + search. Works without JavaScript: chips are links and the
- * search box is a plain GET form, so every filtered view is a shareable URL.
+ * Category chips + search. Every filtered view is a shareable URL, and it still works without JavaScript
+ * (chips are links, search is a GET form). With JavaScript, next/form + Link switch results in place
+ * without a full page reload or a jump to the top, and the clicked chip shows a spinner straight away.
  */
 export function BlogFilters({ lang, categories, category, q }) {
   const chip = (active) =>
@@ -31,7 +34,7 @@ export function BlogFilters({ lang, categories, category, q }) {
 
   return (
     <div className="space-y-4">
-      <form action={`${routes.blog}`} method="get" role="search" className="flex max-w-xl gap-2">
+      <Form action={routes.blog} scroll={false} role="search" className="flex max-w-xl gap-2">
         {category && <input type="hidden" name="category" value={category} />}
         <label htmlFor="blog-search" className="sr-only">
           Search articles
@@ -51,23 +54,26 @@ export function BlogFilters({ lang, categories, category, q }) {
         <button type="submit" className={buttonClasses({ className: "h-11" })}>
           Search
         </button>
-      </form>
+      </Form>
 
       <nav aria-label="Filter by category">
         <ul className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0">
           <li>
-            <LocaleLink href={blogHref({ q })} className={chip(!category)} aria-current={!category ? "page" : undefined}>
+            <LocaleLink href={blogHref({ q })} scroll={false} className={chip(!category)} aria-current={!category ? "page" : undefined}>
               All
+              <LinkPending />
             </LocaleLink>
           </li>
           {categories.map((c) => (
             <li key={c}>
               <LocaleLink
                 href={blogHref({ category: c, q })}
+                scroll={false}
                 className={chip(category === c)}
                 aria-current={category === c ? "page" : undefined}
               >
                 {blogCategoryLabel(c)}
+                <LinkPending />
               </LocaleLink>
             </li>
           ))}

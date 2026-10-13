@@ -21,9 +21,10 @@ function entry(path, { changeFrequency = "weekly", priority = 0.5, lastModified 
 
 export default async function sitemap() {
   const [astrologers, posts, reports] = await Promise.all([
-    astrologerService.listSlugs(),
-    contentService.listPostSlugs(),
-    reportService.listSlugs(),
+    // a failed request leaves that group out instead of breaking the whole sitemap
+    astrologerService.listSlugs().catch(() => []),
+    contentService.listPostSlugs().catch(() => []),
+    reportService.listSlugs().catch(() => []),
   ]);
 
   return [

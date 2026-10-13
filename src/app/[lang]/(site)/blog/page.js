@@ -5,12 +5,11 @@ import { contentService } from "@/lib/api/services/content.service";
 import { breadcrumbJsonLd } from "@/lib/seo/jsonld";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { ButtonLink } from "@/components/ui/Button";
-import { EmptyState } from "@/components/ui/EmptyState";
 import { SkCardGrid } from "@/components/ui/PageSkeletons";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ContentBreadcrumbs } from "@/features/content/components/ContentBreadcrumbs";
 import { ContentCta } from "@/features/content/components/ContentCta";
+import { BlogEmptyState } from "@/features/content/blog/BlogEmptyState";
 import { BlogFilters, blogHref } from "@/features/content/blog/BlogFilters";
 import { BlogPagination } from "@/features/content/blog/BlogPagination";
 import { FeaturedPost } from "@/features/content/blog/FeaturedPost";
@@ -53,9 +52,15 @@ export default async function BlogPage({ params, searchParams }) {
   // Both requests start right away (not awaited here); the list only needs the featured slug to exclude it.
   const unfiltered = !category && !q;
   const featuredPromise = unfiltered ? contentService.getFeaturedPost(lang).catch(() => null) : Promise.resolve(null);
-  const listPromise = featuredPromise.then((featuredPost) =>
-    contentService.listPosts({ category, q, page, pageSize: PAGE_SIZE, locale: lang, excludeSlug: featuredPost?.slug })
-  );
+  // Never let a failed or empty response break the page: normalise to a safe shape (items: []).
+  const listPromise = featuredPromise
+    .then((featuredPost) => contentService.listPosts({ category, q, page, pageSize: PAGE_SIZE, locale: lang, excludeSlug: featuredPost?.slug }))
+    .then((res) => ({ items: Array.isArray(res?.items) ? res.items : [], total: Number(res?.total) || 0, totalPages: Number(res?.totalPages) || 1, failed: false }))
+    .catch(() => ({ items: [], total: 0, totalPages: 1, failed: true }));
+
+  // A new key per filter makes React treat each category / search / page as new content, so the skeletons
+  // below show immediately on every switch instead of the old results staying on screen while loading.
+  const viewKey = `${category}|${q}|${page}`;
 
   return (
     <div className="container-page py-8">
@@ -73,7 +78,7 @@ export default async function BlogPage({ params, searchParams }) {
       <BlogFilters lang={lang} categories={contentService.categories} category={category} q={q} />
 
       {unfiltered && page === 1 && (
-        <Suspense fallback={<Skeleton className="mt-8 h-80 w-full rounded-2xl md:h-96" />}>
+        <Suspense key={`featured-${viewKey}`} fallback={<Skeleton className="mt-8 h-80 w-full rounded-2xl md:h-96" />}>
           <FeaturedSection promise={featuredPromise} />
         </Suspense>
       )}
@@ -83,12 +88,12 @@ export default async function BlogPage({ params, searchParams }) {
           <h2 id="blog-list-title" className="font-display text-2xl font-semibold">
             {q ? `Results for “${q}”` : category ? blogCategoryLabel(category) : "Latest articles"}
           </h2>
-          <Suspense fallback={<Skeleton className="h-4 w-20" />}>
+          <Suspense key={`count-${viewKey}`} fallback={<Skeleton className="h-4 w-20" />}>
             <PostCount promise={listPromise} />
           </Suspense>
         </div>
-        <Suspense fallback={<SkCardGrid count={PAGE_SIZE} />}>
-          <PostList promise={listPromise} page={page} category={category} q={q} />
+        <Suspense key={`list-${viewKey}`} fallback={<SkCardGrid count={PAGE_SIZE} />}>
+          <PostList promise={listPromise} featuredPromise={featuredPromise} page={page} category={category} q={q} />
         </Suspense>
       </section>
 
@@ -120,35 +125,34 @@ async function FeaturedSection({ promise }) {
 }
 
 async function PostCount({ promise }) {
-  const { total } = await promise;
+  const { total, failed } = await promise;
+  if (failed || !total) return null; // no "0 articles" next to an empty state
   return <p className="text-sm text-muted">{`${total} ${total === 1 ? "article" : "articles"}`}</p>;
 }
 
-async function PostList({ promise, page, category, q }) {
-  const { items, totalPages } = await promise;
+async function PostList({ promise, featuredPromise, page, category, q }) {
+  const [{ items, totalPages, failed }, featured] = await Promise.all([promise, featuredPromise]);
+  const filtered = Boolean(category || q);
+
+  if (failed) return <BlogEmptyState variant="failed" retryHref={blogHref({ category, q, page })} />;
+
+  if (!items.length) {
+    // Featured post shown above but nothing else yet: a short note instead of a big empty card.
+    if (!filtered && featured) {
+      return <p className="rounded-2xl border border-dashed border-line px-5 py-6 text-center text-muted">More articles from our astrologers are coming soon.</p>;
+    }
+    return <BlogEmptyState variant={filtered ? "noResults" : "none"} q={q} category={category} categories={contentService.categories} />;
+  }
+
   return (
     <>
-      {items.length ? (
-        <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((post) => (
-            <li key={post.slug}>
-              <PostCard post={post} />
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <EmptyState
-          title={category || q ? "No articles found" : "More articles coming soon"}
-          description={category || q ? "Try a different search term or browse all categories." : "New guidance from our astrologers is on its way."}
-          action={
-            category || q ? (
-              <ButtonLink href={routes.blog} variant="outline">
-                Clear filters
-              </ButtonLink>
-            ) : null
-          }
-        />
-      )}
+      <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((post) => (
+          <li key={post.slug}>
+            <PostCard post={post} />
+          </li>
+        ))}
+      </ul>
       <BlogPagination page={page} totalPages={totalPages} category={category} q={q} />
     </>
   );

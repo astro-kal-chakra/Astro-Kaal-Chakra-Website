@@ -7,7 +7,7 @@ import { Spinner } from "@/components/ui/Skeleton";
 import { useAuth } from "../context/AuthProvider";
 import { safeNext } from "./LoginView";
 import { useToast } from "@/providers/ToastProvider";
-import { scheduleProfileReminder, showProfileReminder } from "./ProfileReminder";
+import { showProfileReminder } from "./ProfileReminder";
 import { ProfileSetupForm } from "./ProfileSetupForm";
 import { SITE_LOCALE } from "@/config/locale";
 
@@ -33,8 +33,7 @@ export function OnboardingView() {
         onClick={() => {
           // Tell the user first, then go to the website (the toast stays visible across the redirect).
           setSkipping(true);
-          showProfileReminder(toast);
-          scheduleProfileReminder(user?.id);
+          showProfileReminder(toast, user?.id); // stays until closed; the next one comes 20 s after closing
           setTimeout(() => router.replace(next), 1500);
         }}
         className="mx-auto mt-4 block text-sm font-medium text-muted underline-offset-4 hover:text-fg hover:underline"
