@@ -1,10 +1,10 @@
+import { blogCategoryLabel } from "@/features/content/blog/categoryLabel";
 import { Search } from "lucide-react";
 import { routes } from "@/config/routes";
 import { buttonClasses } from "@/components/ui/Button";
 import { inputClasses } from "@/components/ui/Input";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { cn } from "@/lib/utils/cn";
-import { label as t } from "@/lib/labels";
 
 /** Build a blog listing URL from filters (locale-less, for LocaleLink). */
 export function blogHref({ category, q, page } = {}) {
@@ -67,7 +67,7 @@ export function BlogFilters({ lang, categories, category, q }) {
                 className={chip(category === c)}
                 aria-current={category === c ? "page" : undefined}
               >
-                {t(`content.blog.categories.${c}`)}
+                {blogCategoryLabel(c)}
               </LocaleLink>
             </li>
           ))}

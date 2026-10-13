@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { LogOut, Menu, User, Wallet, X } from "lucide-react";
 import { routes } from "@/config/routes";
@@ -60,11 +60,39 @@ function AuthArea() {
   );
 }
 
+/**
+ * Guarantees the full site name in the header. After layout (and on every resize, font load or
+ * translation that changes the menu width) it checks whether the wordmark is being cut off; if so it
+ * sets data-compact on the row, which hides the optional menu links (still in the mobile menu + footer).
+ * Pure DOM attributes, so no React re-render.
+ */
+function useNameFit() {
+  const ref = useRef(null);
+  useLayoutEffect(() => {
+    const row = ref.current;
+    if (!row) return;
+    const fit = () => {
+      const name = row.querySelector("[data-wordmark]");
+      row.dataset.compact = "false"; // try with every link shown first
+      if (name && name.offsetParent && name.scrollWidth > name.clientWidth + 1) row.dataset.compact = "true";
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(row);
+    const nav = row.querySelector("nav");
+    if (nav) ro.observe(nav);
+    document.fonts?.ready.then(fit);
+    return () => ro.disconnect();
+  }, []);
+  return ref;
+}
+
 export function Header() {
   const { isAuthenticated, logout } = useAuth();
   const pathname = usePathname();
   // Menu is "open for a given path", so navigating auto-closes it without an effect.
   const [openOn, setOpenOn] = useState(null);
+  const rowRef = useNameFit();
   const open = openOn === pathname;
   const setOpen = (fn) => setOpenOn(fn(open) ? pathname : null);
 
@@ -74,13 +102,14 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-surface/90 backdrop-blur-md">
-      <div className="container-page flex h-16 items-center gap-4">
+      <div ref={rowRef} className="group/header container-page flex h-16 items-center gap-4">
         <button className="-ml-2 p-2 xl:hidden" onClick={() => setOpen((o) => !o)} aria-label="Menu" aria-expanded={open}>
           {open ? <X className="size-6" /> : <Menu className="size-6" />}
         </button>
         {/* Site name only where the row has room for it (logged in, the account buttons need the space at 640–768px) */}
         <Logo priority wordmarkClassName={isAuthenticated ? "hidden min-[480px]:inline sm:hidden md:inline" : "hidden min-[480px]:inline"} />
-        <nav className="ml-6 hidden items-center gap-1 xl:flex" aria-label="Main">
+        {/* Live-site spacing from 2xl (1536px, where the container widens); slightly tighter below so the full name fits (e.g. logged in + Hindi labels) */}
+        <nav className="ml-2 hidden items-center gap-1 xl:flex 2xl:ml-6" aria-label="Main">
           {NAV.map((item) => (
             <LocaleLink
               key={item.href}
@@ -88,10 +117,11 @@ export function Header() {
               aria-current={isActive(item.href) ? "page" : undefined}
               className={cn(
                 // Active: saffron text + a short saffron bar under it
-                "relative whitespace-nowrap px-3 py-2 text-sm font-medium text-muted transition-colors hover:text-fg",
-                "after:absolute after:inset-x-3 after:-bottom-[13px] after:h-0.5 after:rounded-full after:bg-brand-500 after:opacity-0 after:transition-opacity",
+                "relative whitespace-nowrap px-2 py-2 text-sm font-medium text-muted transition-colors hover:text-fg 2xl:px-3",
+                "after:absolute after:inset-x-2 2xl:after:inset-x-3 after:-bottom-[13px] after:h-0.5 after:rounded-full after:bg-brand-500 after:opacity-0 after:transition-opacity",
+                // From 2xl (1536px), where the page container widens to fit all links plus the full site name.
                 // Logged in, the account controls take that room, so secondary links stay in the menu + footer.
-                item.wideOnly && (isAuthenticated ? "hidden" : "hidden 2xl:block"),
+                item.wideOnly && (isAuthenticated ? "hidden" : "hidden 2xl:block group-data-[compact=true]/header:hidden"),
                 isActive(item.href) && "text-accent after:opacity-100"
               )}
             >

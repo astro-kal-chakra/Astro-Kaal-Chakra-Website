@@ -12,7 +12,7 @@ export function LogoMark({ className, priority = false }) {
     
     <Image
       src="/images/logo-mark.png"
-      alt=""
+      alt={`${siteConfig.name} logo`}
       width={48}
       height={48}
       priority={priority}
@@ -35,8 +35,10 @@ export function Logo({ className, onDark = false, priority = false, wordmarkClas
     >
       <LogoMark priority={priority} />
       <span
+        data-wordmark
         className={cn(
-          // min-w-0 + truncate: if space ever runs out the name shortens instead of widening the page
+          // min-w-0 + truncate: a last-resort safety so the page never widens; the header's useNameFit()
+          // hides optional menu links first, so in practice the full name always shows
           "min-w-0 truncate bg-clip-text text-transparent",
           wordmarkClassName,
           onDark

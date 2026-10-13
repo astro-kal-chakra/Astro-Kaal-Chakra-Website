@@ -57,7 +57,7 @@ export function Hero({ panchang, freeChat }) {
           </h1>
           <p className="mt-5 max-w-xl text-lg text-muted">
             Chat, call or video with verified Vedic astrologers on love, career, marriage and health. See each astrologer&apos;s per-minute rate before you
-            start, and end the session whenever you like.
+            start, end the session whenever you like, and find clarity today.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -85,6 +85,7 @@ export function Hero({ panchang, freeChat }) {
               <LocaleLink
                 key={m.label}
                 href={m.href}
+                rel="nofollow" // filter shortcut (?mode=): keeps parameter URLs out of crawling
                 className="flex items-center gap-1.5 border-r border-line px-4 py-2 text-sm font-medium text-muted transition last:border-r-0 hover:bg-brand-50 hover:text-brand-700 dark:hover:bg-brand-950/40 dark:hover:text-brand-200"
               >
                 <m.icon className="size-4" aria-hidden /> {m.label}

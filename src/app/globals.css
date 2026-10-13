@@ -130,6 +130,14 @@
   }
 }
 
+/* Firebase phone login's invisible reCAPTCHA badge (bottom-right): hidden, but kept in the page and working.
+   visibility (never display:none, which can stop reCAPTCHA from running). Google's required notice is shown
+   in the login form instead (LoginForm.js → RecaptchaNotice). The image challenge, when Google asks for one,
+   is a separate pop-up and still appears. */
+.grecaptcha-badge {
+  visibility: hidden !important;
+}
+
 /* Soft pulse for CelestialBackdrop's sun (plain CSS: used from an arbitrary animation value) */
 @keyframes breathe {
   0%, 100% { transform: scale(1); opacity: 0.85; }
@@ -242,7 +250,7 @@
   @media (width >= 40rem) {
     padding-inline: 1.5rem;
   }
-  @media (width >= 1600px) {
+  @media (width >= 1536px) {
     max-width: 90rem;
     padding-inline: 2rem;
   }

@@ -21,6 +21,7 @@ export function Categories({ categories }) {
             <li key={c.slug} className="min-w-0">
               <LocaleLink
                 href={`${routes.astrologers}?category=${c.slug}`}
+                rel="nofollow" // filter link (?category=): keeps parameter URLs out of crawling
                 className="group flex h-full items-center gap-3 rounded-2xl border border-line bg-surface p-4 transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-[0_10px_30px_-14px_rgb(194_65_12/0.3)]"
               >
                 <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-600 transition group-hover:bg-brand-600 group-hover:text-white dark:bg-brand-950/50 dark:text-brand-300">

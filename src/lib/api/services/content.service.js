@@ -133,12 +133,15 @@ export const contentService = {
 
   /** Legal / info page managed in the dashboard → { slug, title, sections: [[heading, text]], updatedAt } or null. */
   async getPage(slug) {
-    if (env.useMocks) {
+    // Built-in default text (features/legal/content.js): used in mock mode, and whenever the
+    // dashboard hasn't published that page yet, so a legal page linked in the footer never 404s.
+    const builtIn = () => {
       const p = LEGAL_PAGES[slug];
       return p ? { slug, title: p.title, sections: p.sections, updatedAt: null } : null;
-    }
+    };
+    if (env.useMocks) return builtIn();
     return http(`/pages/${slug}`, { next: { revalidate: 600 } }).catch((e) => {
-      if (e.status === 404) return null;
+      if (e.status === 404) return builtIn();
       throw e;
     });
   },

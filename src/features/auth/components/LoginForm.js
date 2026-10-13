@@ -15,6 +15,26 @@ import { clearPendingReferral } from "@/features/referral/lib/pending";
 import { useAuth } from "../context/AuthProvider";
 import { OtpInput } from "./OtpInput";
 
+/**
+ * Google's required notice when the reCAPTCHA badge is hidden (globals.css: .grecaptcha-badge). Shown on both
+ * steps because sending and resending the OTP each run the invisible reCAPTCHA.
+ */
+function RecaptchaNotice() {
+  return (
+    <p className="text-center text-[11px] leading-snug text-muted">
+      This site is protected by reCAPTCHA and the Google{" "}
+      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-fg">
+        Privacy Policy
+      </a>{" "}
+      and{" "}
+      <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-fg">
+        Terms of Service
+      </a>{" "}
+      apply.
+    </p>
+  );
+}
+
 const PHONE_RE = /^[6-9]\d{9}$/;
 
 /** Message after login when a referral code was sent (the backend never blocks login over a code). */
@@ -121,6 +141,7 @@ export function LoginForm({ onSuccess }) {
             By continuing you agree to our Terms and Privacy Policy.
           </LocaleLink>
         </p>
+        <RecaptchaNotice />
       </form>
     );
   }
@@ -155,6 +176,7 @@ export function LoginForm({ onSuccess }) {
           <span key={resend.seconds} className="text-muted">{`Resend OTP in ${resend.seconds}s`}</span>
         )}
       </div>
+      <RecaptchaNotice />
     </form>
   );
 }

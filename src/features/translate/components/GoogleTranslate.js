@@ -34,6 +34,17 @@ export function GoogleTranslate() {
         },
         "google_translate_element"
       );
+      // Google's widget injects (and re-renders) small icon images with missing or empty alt text, which SEO checkers flag:
+      // label every one as soon as it appears.
+      // (Some sit in the widget, one in Google's translation tooltip #goog-gt-tt, which it appends to <body>.)
+      const host = document.getElementById("google_translate_element");
+      const label = () =>
+        document
+          .querySelectorAll("#google_translate_element img:not([alt]), #google_translate_element img[alt=\"\"], #goog-gt-tt img:not([alt]), #goog-gt-tt img[alt=\"\"]")
+          .forEach((img) => img.setAttribute("alt", "Google Translate"));
+      label();
+      if (host) new MutationObserver(label).observe(host, { childList: true, subtree: true });
+      new MutationObserver(label).observe(document.body, { childList: true }); // body's direct children only: cheap
     };
 
     const script = document.createElement("script");

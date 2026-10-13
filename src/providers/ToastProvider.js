@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
 import { CheckCircle2, Info, TriangleAlert, X, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { LocaleLink } from "@/components/ui/LocaleLink";
@@ -33,8 +33,11 @@ export function ToastProvider({ children }) {
     [dismiss]
   );
 
+  // Stable value: components that only call toast() don't re-render every time a toast shows or hides.
+  const api = useMemo(() => ({ toast, dismiss }), [toast, dismiss]);
+
   return (
-    <ToastContext.Provider value={{ toast, dismiss }}>
+    <ToastContext.Provider value={api}>
       {children}
       <div
         aria-live="polite"

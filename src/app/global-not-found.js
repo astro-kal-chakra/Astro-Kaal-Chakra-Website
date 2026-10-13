@@ -11,15 +11,18 @@ export const metadata = {
   robots: { index: false },
 };
 
-/** Fallback 404 for URLs that match no route at all (e.g. unknown locale). */
+/** Fallback for URLs that match no route at all: redirect to the home page (the link stays as a fallback). */
 export default function GlobalNotFound() {
   return (
     <html lang="en" className={`${inter.variable} ${poppins.variable} ${marcellus.variable}`}>
+      <head>
+        <meta httpEquiv="refresh" content="0;url=/" />
+      </head>
       <body className="bg-cosmic flex min-h-dvh items-center justify-center p-6 font-sans text-white">
         <div className="text-center">
           <p className="font-bold text-white/90">404</p>
           <h1 className="mt-2 font-display text-3xl">Page not found</h1>
-          <p className="mt-2 text-white/90">The page you&apos;re looking for doesn&apos;t exist.</p>
+          <p className="mt-2 text-white/90">Taking you to the home page…</p>
           <Link href="/" className="mt-6 inline-block rounded-full bg-white px-6 py-3 font-semibold text-brand-700">
             Go to home
           </Link>

@@ -1,6 +1,6 @@
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 
-/** Any unknown path under a valid locale renders the localized not-found page. */
+/** Any address that matches no page (typos, old links, random text) goes straight to the home page. */
 export default function CatchAll() {
-  notFound();
+  redirect("/");
 }

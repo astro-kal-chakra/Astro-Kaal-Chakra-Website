@@ -44,7 +44,7 @@ export function HomeAstrologers({ online, all }) {
             eyebrow="Online now"
             title="Astrologers online now"
             subtitle="Start in seconds. Busy? Join the waitlist and we'll offer you the next slot."
-            action={{ href: `${routes.astrologers}?online=1`, label: "View all online" }}
+            action={{ href: `${routes.astrologers}?online=1`, label: "View all online", rel: "nofollow" }}
           />
           <Row astrologers={onlineNow} />
         </section>
@@ -55,7 +55,7 @@ export function HomeAstrologers({ online, all }) {
             eyebrow="Top rated"
             title="Our astrologers"
             subtitle="Verified Vedic astrologers. Follow your favourites to know when they come online or go live."
-            action={{ href: routes.astrologers, label: "View all" }}
+            action={{ href: routes.astrologers, label: "View all astrologers" }}
           />
           <Row astrologers={top} />
         </section>

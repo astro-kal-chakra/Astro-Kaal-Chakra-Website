@@ -24,7 +24,7 @@ export function AppStoreButtons({ label, className, tone = "onBrand", links }) {
           <span className="text-xs leading-tight">
             GET IT ON
             <br />
-            <strong className="text-sm">Google Play</strong>
+            <span className="text-sm font-bold">Google Play</span>
           </span>
         </a>
         <a href={appStore} className={btn} rel="noopener" target="_blank">
@@ -32,7 +32,7 @@ export function AppStoreButtons({ label, className, tone = "onBrand", links }) {
           <span className="text-xs leading-tight">
             Download on the
             <br />
-            <strong className="text-sm">App Store</strong>
+            <span className="text-sm font-bold">App Store</span>
           </span>
         </a>
       </div>

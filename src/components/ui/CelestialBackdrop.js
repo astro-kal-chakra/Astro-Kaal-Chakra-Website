@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils/cn";
+import { fadeOutOverFooter } from "@/lib/utils/fadeOutOverFooter";
 
 const RASHI = ["♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑", "♒", "♓"];
 const point = (r, deg) => [200 + r * Math.sin((deg * Math.PI) / 180), 200 - r * Math.cos((deg * Math.PI) / 180)];
@@ -28,6 +29,9 @@ const SPARKLES = [
  */
 export function CelestialBackdrop({ className }) {
   const ref = useRef(null);
+
+  // Hide while the footer is on screen: the footer has its own wheel, so they would overlap.
+  useEffect(() => fadeOutOverFooter(ref.current), []);
 
   useEffect(() => {
     const el = ref.current;

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils/cn";
+import { fadeOutOverFooter } from "@/lib/utils/fadeOutOverFooter";
 
 /**
  * rgb strings. Dark = a deep night sky (many soft glowing stars).
@@ -315,6 +316,8 @@ export function ParticleField({ contained = false, density = 1, darkOnly = false
     readTheme();
     resize();
     start();
+    // Full-screen background: fade out while the footer (with its own animation) is on screen.
+    const stopFooterFade = contained ? () => {} : fadeOutOverFooter(canvas);
     const themeObserver = new MutationObserver(() => {
       readTheme();
       start();
@@ -343,6 +346,7 @@ export function ParticleField({ contained = false, density = 1, darkOnly = false
 
     return () => {
       cancelAnimationFrame(raf);
+      stopFooterFade();
       clearTimeout(resizeTimer);
       themeObserver.disconnect();
       sizeObserver?.disconnect();

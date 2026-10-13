@@ -22,6 +22,7 @@ export function SectionHeading({ title, subtitle, eyebrow, action, align = "left
       {action && (
         <LocaleLink
           href={action.href}
+          rel={action.rel}
           className="group shrink-0 text-sm font-semibold text-accent underline-offset-4 hover:underline"
         >
           {action.label} <span className="inline-block transition-transform group-hover:translate-x-0.5">→</span>

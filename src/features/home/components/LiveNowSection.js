@@ -26,7 +26,7 @@ export function LiveNowSection({ sessions }) {
           </span>
         }
         subtitle={`${count} live ${count === 1 ? "session" : "sessions"} on air. Watch free, chat with others and ask your question.`}
-        action={{ href: routes.live, label: "View all" }}
+        action={{ href: routes.live, label: "View all live sessions" }}
       />
       {/* One session: a plain card. Several: swipeable carousel on phones/tablets; on desktop a grid for up to 3, carousel beyond. */}
       {count > 1 && (

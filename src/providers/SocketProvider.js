@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useState, useSyncExternalStore } from "react";
+import { createContext, useCallback, useContext, useMemo, useState, useSyncExternalStore } from "react";
 import { getSocket } from "@/lib/socket/client";
 
 const SocketContext = createContext({ socket: null, connected: false });
@@ -23,7 +23,8 @@ export function SocketProvider({ children }) {
   );
   const connected = useSyncExternalStore(subscribe, () => Boolean(socket?.connected), () => false);
 
-  return <SocketContext.Provider value={{ socket, connected }}>{children}</SocketContext.Provider>;
+  const value = useMemo(() => ({ socket, connected }), [socket, connected]);
+  return <SocketContext.Provider value={value}>{children}</SocketContext.Provider>;
 }
 
 export const useSocket = () => useContext(SocketContext);

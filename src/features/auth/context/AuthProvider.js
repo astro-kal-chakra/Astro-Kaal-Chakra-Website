@@ -35,20 +35,27 @@ export function AuthProvider({ children }) {
     setHintCookie(Boolean(me));
   }, []);
 
+  // The login check failed (network error, server error, request blocked): treat as a guest AND drop the
+  // "logged in" hint cookie — otherwise the proxy keeps bouncing /login to the home page with no way out.
+  const asGuest = useCallback(() => {
+    setStatus("guest");
+    setHintCookie(false);
+  }, []);
+
   const refresh = useCallback(
     () =>
       authService
         .me()
         .then(applyUser)
-        .catch(() => setStatus("guest")),
-    [applyUser]
+        .catch(asGuest),
+    [applyUser, asGuest]
   );
 
   useEffect(() => {
     authService
       .me()
       .then(applyUser)
-      .catch(() => setStatus("guest"));
+      .catch(asGuest);
     const onExpired = () => {
       setUser(null);
       setStatus("guest");
@@ -57,7 +64,7 @@ export function AuthProvider({ children }) {
     };
     window.addEventListener("auth:expired", onExpired);
     return () => window.removeEventListener("auth:expired", onExpired);
-  }, [applyUser]);
+  }, [applyUser, asGuest]);
 
   /**
    * One signed-in device per account: when the account signs in elsewhere the

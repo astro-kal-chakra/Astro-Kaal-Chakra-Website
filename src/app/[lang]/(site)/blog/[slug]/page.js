@@ -1,3 +1,4 @@
+import { blogCategoryLabel } from "@/features/content/blog/categoryLabel";
 import { notFound } from "next/navigation";
 import { BadgeCheck, MessageCircle } from "lucide-react";
 import { routes } from "@/config/routes";
@@ -25,7 +26,6 @@ import { PostCard } from "@/features/content/blog/PostCard";
 import { PostMeta } from "@/features/content/blog/PostMeta";
 import { ShareButtons } from "@/features/content/blog/ShareButtons";
 import { TableOfContents } from "@/features/content/blog/TableOfContents";
-import { label as t } from "@/lib/labels";
 
 export const revalidate = 3600;
 
@@ -58,7 +58,7 @@ export default async function BlogPostPage({ params }) {
   ]);
   const path = routes.blogPost(slug);
   const absoluteUrl = new URL(`${path}`, siteConfig.url).toString();
-  const categoryLabel = t(`content.blog.categories.${post.category}`);
+  const categoryLabel = blogCategoryLabel(post.category);
   const signs = post.signs.map(getSign).filter(Boolean);
   const author = post.author;
 
