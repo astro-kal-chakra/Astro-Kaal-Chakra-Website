@@ -2,7 +2,7 @@ import { Inter, Marcellus, Noto_Sans_Devanagari, Poppins } from "next/font/googl
 import { notFound } from "next/navigation";
 import { siteConfig } from "@/config/site";
 import { hasLocale, locales } from "@/config/locale";
-import { organizationJsonLd } from "@/lib/seo/jsonld";
+import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/jsonld";
 import { AppProviders } from "@/providers/AppProviders";
 import { ThemeInitScript } from "@/providers/ThemeInitScript";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -35,14 +35,37 @@ export const viewport = {
   ],
 };
 
-export async function generateMetadata({ params }) {
-  const { lang } = await params;
+export async function generateMetadata() {
+  const { verification } = siteConfig;
   return {
     metadataBase: new URL(siteConfig.url),
     title: { default: `${siteConfig.name} – ${"Talk to Verified Astrologers Online – Chat & Video Call"}`, template: `%s | ${siteConfig.name}` },
-    description: "Chat or video call with verified Vedic astrologers for love, career, marriage, finance and health. Free first chat. Daily horoscope, free Kundli and Panchang.",
+    description: siteConfig.description,
+    keywords: siteConfig.keywords,
     applicationName: siteConfig.name,
+    authors: [{ name: siteConfig.name, url: siteConfig.url }],
+    creator: siteConfig.name,
+    publisher: siteConfig.name,
+    category: "astrology",
     formatDetection: { telephone: false },
+    // Pages without their own Open Graph data still get a branded preview when shared.
+    openGraph: {
+      type: "website",
+      siteName: siteConfig.name,
+      locale: "en_IN",
+      images: [{ url: siteConfig.ogImage, width: 1200, height: 630, alt: siteConfig.name }],
+    },
+    twitter: { card: "summary_large_image", images: [siteConfig.ogImage] },
+    // Large image previews and full snippets in Google results.
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+    },
+    verification: {
+      ...(verification.google ? { google: verification.google } : {}),
+      ...(verification.bing ? { other: { "msvalidate.01": verification.bing } } : {}),
+    },
   };
 }
 
@@ -61,7 +84,7 @@ export default async function RootLayout({ children, params }) {
           {children}
         </AppProviders>
         <GoogleTranslate />
-        <JsonLd data={organizationJsonLd()} />
+        <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
       </body>
     </html>
   );

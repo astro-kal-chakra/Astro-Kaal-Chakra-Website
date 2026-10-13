@@ -106,7 +106,7 @@ export function AccountView() {
               <p className="text-xs text-white/90">Wallet balance</p>
               <p className="text-xl font-bold">{formatCurrency(user?.walletBalance ?? 0, locale)}</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <ButtonLink href={routes.walletTransactions} size="sm" variant="ghost" className="text-white hover:bg-white/10">
                 Transactions
               </ButtonLink>

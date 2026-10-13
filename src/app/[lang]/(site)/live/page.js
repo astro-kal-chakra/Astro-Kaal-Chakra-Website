@@ -41,7 +41,7 @@ export default async function LivePage({ params }) {
       </header>
 
       <section aria-labelledby="live-now-title">
-        <h2 id="live-now-title" className="mb-4 flex items-center gap-2 text-xl font-semibold">
+        <h2 id="live-now-title" className="mb-4 flex items-center gap-2 font-display text-2xl">
           <Radio className="size-5 text-red-600" aria-hidden /> Live now
           <span className="text-sm font-normal text-muted">({live.length})</span>
         </h2>
@@ -64,7 +64,7 @@ export default async function LivePage({ params }) {
       </section>
 
       <section aria-labelledby="upcoming-title" className="mt-12">
-        <h2 id="upcoming-title" className="mb-4 flex items-center gap-2 text-xl font-semibold">
+        <h2 id="upcoming-title" className="mb-4 flex items-center gap-2 font-display text-2xl">
           <CalendarClock className="size-5 text-gold-500" aria-hidden /> Upcoming
         </h2>
         {upcoming.length ? (

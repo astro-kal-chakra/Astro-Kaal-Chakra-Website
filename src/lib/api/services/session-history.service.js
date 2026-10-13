@@ -1,5 +1,5 @@
 import { env } from "@/config/site";
-import { http, mockDelay } from "../http";
+import { http, mockDelay, mockPage } from "../http";
 import { MOCK_SESSIONS, mockStore, mockTranscript } from "../mock/account";
 
 const sessionsStore = mockStore("sessions_v2", MOCK_SESSIONS);
@@ -13,16 +13,17 @@ export const sessionHistoryService = {
         .get()
         .filter((s) => type === "all" || s.mode === type)
         .sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt));
-      return mockDelay({ items: all.slice((page - 1) * pageSize, page * pageSize), total: all.length, page, pageSize });
+      return mockDelay(mockPage(all, page, pageSize));
     }
     return http("/me/sessions", { query: { type: type === "all" ? undefined : type, page, pageSize } });
   },
 
-  async getTranscript(sessionId) {
+  /** Up to 500 messages, oldest first; pass `after` (the last message's `at`) for the next part. */
+  async getTranscript(sessionId, { after } = {}) {
     if (env.useMocks) {
       const session = sessionsStore.get().find((s) => s.id === sessionId);
-      return mockDelay(session ? mockTranscript(session) : [], 350);
+      return mockDelay(session && !after ? mockTranscript(session) : [], 350);
     }
-    return http(`/me/sessions/${sessionId}/transcript`);
+    return http(`/me/sessions/${sessionId}/transcript`, { query: { after } });
   },
 };

@@ -1,5 +1,5 @@
 import { env } from "@/config/site";
-import { ApiError, http, mockDelay } from "../http";
+import { ApiError, http, mockDelay, mockPage } from "../http";
 import { MOCK_ASTROLOGERS } from "../mock/astrologers";
 import {
   MOCK_BIRTH_PROFILES,
@@ -72,12 +72,19 @@ export const userService = {
 
   /* ------------------------ Followed astrologers ----------------------- */
 
-  async listFollowing() {
+  /** One page of followed astrologers (cards): { items, total, page, pageSize, hasMore }. */
+  async listFollowing({ page = 1, pageSize = 12 } = {}) {
     if (env.useMocks) {
       const ids = followingStore.get();
-      return mockDelay(MOCK_ASTROLOGERS.filter((a) => ids.includes(a.id)).map((a) => ({ ...a, isFollowing: true })));
+      return mockDelay(mockPage(MOCK_ASTROLOGERS.filter((a) => ids.includes(a.id)).map((a) => ({ ...a, isFollowing: true })), page, pageSize));
     }
-    return http("/me/following");
+    return http("/me/following", { query: { page, pageSize } });
+  },
+
+  /** Ids of every followed astrologer (for Follow buttons), without loading the cards. */
+  async listFollowingIds() {
+    if (env.useMocks) return mockDelay(followingStore.get());
+    return http("/me/following/ids", { cache: "no-store" });
   },
 
   async unfollow(astrologerId) {
@@ -90,9 +97,10 @@ export const userService = {
 
   /* ---------------------------- Saved kundlis -------------------------- */
 
-  async listSavedKundlis() {
-    if (env.useMocks) return mockDelay(kundlisStore.get());
-    return http("/me/kundlis");
+  /** One page of saved kundlis / matchings: { items, total, page, pageSize, hasMore }. */
+  async listSavedKundlis({ page = 1, pageSize = 12 } = {}) {
+    if (env.useMocks) return mockDelay(mockPage(kundlisStore.get(), page, pageSize));
+    return http("/me/kundlis", { query: { page, pageSize } });
   },
 
   async deleteSavedKundli(id) {

@@ -7,7 +7,7 @@ import { __mockWallet } from "@/lib/api/services/wallet.service";
  * Razorpay checkout integration point — the ONLY file that talks to Razorpay.
  *
  * Flow (backend contract):
- *   1. POST /user/wallet/quote    { packId | amount, couponCode } → GST breakdown + bonus (walletService.quote)
+ *   1. POST /user/wallet/quote    { packId | amount, couponCode } → amount payable + bonus (walletService.quote)
  *   2. POST /user/payments/order  { packId | amount, couponCode } → { orderId, keyId, amount, currency, breakdown, prefill }
  *   3. openCheckout(order)        → Razorpay Checkout; on success it hands back
  *                                   { razorpay_payment_id, razorpay_order_id, razorpay_signature }
@@ -90,6 +90,8 @@ async function openRealCheckout(order) {
       description: "Wallet recharge",
       prefill: order.prefill,
       theme: { color: "#c2410c" },
+      // We take UPI, cards and net banking only: Razorpay hides wallets and Pay Later in the checkout
+      config: { display: { hide: [{ method: "wallet" }, { method: "paylater" }], preferences: { show_default_blocks: true } } },
       handler: (payment) => resolve({ outcome: "success", payment }),
       modal: { ondismiss: () => resolve({ outcome: "closed" }) },
     });

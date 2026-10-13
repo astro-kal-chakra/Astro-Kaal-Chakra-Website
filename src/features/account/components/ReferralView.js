@@ -84,8 +84,8 @@ function ReferralCodeCard({ referral }) {
       <div className="mt-5">
         <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-white/90">Your referral code</p>
         <div className="flex items-center gap-2 rounded-2xl border border-dashed border-white/70 bg-white/10 p-2 pl-4">
-          <span className="flex-1 font-mono text-xl font-bold tracking-[0.2em] text-white">{referral.code}</span>
-          <Button size="sm" variant="light" onClick={copy} aria-live="polite">
+          <span className="min-w-0 flex-1 break-all tabular-nums text-lg font-bold tracking-[0.15em] text-white sm:text-xl sm:tracking-[0.2em]">{referral.code}</span>
+          <Button size="sm" variant="light" className="shrink-0" onClick={copy} aria-live="polite">
             {copied ? <Check className="size-4" aria-hidden /> : <Copy className="size-4" aria-hidden />}
             {copied ? "Copied!" : "Copy"}
           </Button>

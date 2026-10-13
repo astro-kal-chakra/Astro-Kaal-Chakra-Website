@@ -6,7 +6,10 @@ import { routes } from "@/config/routes";
 import { useAccountResource } from "@/features/account/hooks/useAccountResource";
 import { useAuth } from "@/features/auth/context/AuthProvider";
 import { NOTIFICATIONS_CHANGED_EVENT, notificationService } from "@/lib/api/services/notification.service";
+import { SOCKET_EVENTS } from "@/lib/socket/events";
 import { cn } from "@/lib/utils/cn";
+import { useSocket } from "@/providers/SocketProvider";
+import { useToast } from "@/providers/ToastProvider";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { NotificationItem } from "./NotificationItem";
@@ -21,12 +24,25 @@ function BellDropdown({ className }) {
   const panelId = useId();
   const { data, status, reload, refresh } = useAccountResource(() => notificationService.list({ locale, limit: LATEST }), locale);
   const unread = data?.unreadCount ?? 0;
+  const { socket } = useSocket();
+  const { toast } = useToast();
 
-  // Keep in sync with the notifications page / other tabs. TODO(socket): also refresh on a "notification:new" event.
+  // Keep in sync with the notifications page / other tabs
   useEffect(() => {
     window.addEventListener(NOTIFICATIONS_CHANGED_EVENT, refresh);
     return () => window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, refresh);
   }, [refresh]);
+
+  // New notification while the site is open: update the badge; followed astrologer online / live also shows a toast
+  useEffect(() => {
+    if (!socket) return;
+    const onNew = (n) => {
+      refresh();
+      if (n?.type === "live" && n.title) toast({ id: `follow-${n.data?.astrologerId || n.title}`, type: "info", title: n.title, message: n.body, duration: 8000 });
+    };
+    socket.on(SOCKET_EVENTS.NOTIFICATION, onNew);
+    return () => socket.off(SOCKET_EVENTS.NOTIFICATION, onNew);
+  }, [socket, refresh, toast]);
 
   useEffect(() => {
     if (!open) return;

@@ -1,14 +1,13 @@
 import { env } from "@/config/site";
-import { ApiError, http, mockDelay } from "../http";
+import { ApiError, http, mockDelay, mockPage } from "../http";
 import { __mockWallet } from "./wallet.service";
 
 /**
  * Paid astrology reports (PDF). Bought from the wallet balance; generated
  * asynchronously by the backend (status "generating" → "ready" | "failed").
  *
- * Report copy (title / description / included items) is localised in
- * dictionaries/<lang>/wallet.json under wallet.reports.catalog.<slug> and
- * wallet.reports.item.<key>. TODO(api): switch to localised copy from the API if the CMS owns it.
+ * The catalogue (title, descriptions, "what's included", prices) is managed in the admin dashboard
+ * (Content → Reports) and served by the backend; see features/reports/lib/copy.js for how it is shown.
  */
 
 const CATALOG = [
@@ -112,12 +111,12 @@ const withStatus = (r) => ({
 export const reportService = {
   async list() {
     if (env.useMocks) return CATALOG;
-    return http("/reports", { next: { revalidate: 3600 } });
+    return http("/reports", { next: { revalidate: 300 } });
   },
 
   async getBySlug(slug) {
     if (env.useMocks) return CATALOG.find((r) => r.slug === slug) || null;
-    return http(`/reports/${slug}`, { next: { revalidate: 3600 } }).catch((e) => {
+    return http(`/reports/${slug}`, { next: { revalidate: 300 } }).catch((e) => {
       if (e.status === 404) return null;
       throw e;
     });
@@ -125,7 +124,7 @@ export const reportService = {
 
   async listSlugs() {
     if (env.useMocks) return CATALOG.map((r) => r.slug);
-    return http("/reports/slugs", { next: { revalidate: 3600 } });
+    return http("/reports/slugs", { next: { revalidate: 300 } });
   },
 
   /**
@@ -171,15 +170,15 @@ export const reportService = {
     });
   },
 
-  /** @returns {Promise<object[]>} purchased reports, newest first, with status "generating" | "ready" | "failed". */
-  async getMyReports() {
+  /** One page of purchased reports, newest first ({ items, total, page, pageSize, hasMore }); status "generating" | "ready" | "failed". */
+  async getMyReports({ page = 1, pageSize = 10 } = {}) {
     if (env.useMocks) {
       const items = readReports()
         .items.map(withStatus)
         .sort((a, b) => b.purchasedAt - a.purchasedAt);
-      return mockDelay(items, 300);
+      return mockDelay(mockPage(items, page, pageSize), 300);
     }
-    return http("/me/reports", { cache: "no-store" });
+    return http("/me/reports", { query: { page, pageSize }, cache: "no-store" });
   },
 
   /** Short-lived signed URL to the PDF. */

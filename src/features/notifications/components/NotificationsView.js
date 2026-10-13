@@ -5,8 +5,8 @@ import { Bell, CheckCheck, Settings } from "lucide-react";
 import { routes } from "@/config/routes";
 import { AccountFilterChips } from "@/features/account/components/AccountControls";
 import { AccountShell } from "@/features/account/components/AccountShell";
-import { AccountEmptyCard, AccountErrorState, AccountListSkeleton } from "@/features/account/components/AccountStates";
-import { useAccountResource } from "@/features/account/hooks/useAccountResource";
+import { AccountEmptyCard, AccountErrorState, AccountListSkeleton, AccountLoadMore } from "@/features/account/components/AccountStates";
+import { usePagedResource } from "@/features/account/hooks/usePagedResource";
 import { NOTIFICATIONS_CHANGED_EVENT, NOTIFICATION_TYPES, notificationService } from "@/lib/api/services/notification.service";
 import { useToast } from "@/providers/ToastProvider";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -21,15 +21,18 @@ export function NotificationsView() {
   const { toast } = useToast();
   const [filter, setFilter] = useState("all");
   const [marking, setMarking] = useState(false);
-  const { data, status, reload, refresh, mutate } = useAccountResource(() => notificationService.list({ locale }), locale);
+  // "Unread" is filtered on the server (it can reach far back); the type chips filter what is loaded
+  const unreadOnly = filter === "unread";
+  const list = usePagedResource((page) => notificationService.list({ locale, page, unread: unreadOnly }), `${locale}:${unreadOnly}`);
+  const { status, reload, refresh, mutate, mutateMeta } = list;
 
   useEffect(() => {
     window.addEventListener(NOTIFICATIONS_CHANGED_EVENT, refresh);
     return () => window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, refresh);
   }, [refresh]);
 
-  const items = data?.items ?? [];
-  const unread = data?.unreadCount ?? 0;
+  const items = list.items;
+  const unread = list.meta.unreadCount ?? 0;
   const filtered = items.filter((n) => (filter === "all" ? true : filter === "unread" ? !n.read : n.type === filter));
 
   const options = [
@@ -42,7 +45,8 @@ export function NotificationsView() {
     setMarking(true);
     try {
       await notificationService.markAllRead();
-      mutate((d) => d && { ...d, unreadCount: 0, items: d.items.map((n) => ({ ...n, read: true })) });
+      mutate((all) => all.map((n) => ({ ...n, read: true })));
+      mutateMeta((m) => ({ ...m, unreadCount: 0 }));
       toast({ id: "notifications-read", type: "success", title: "All notifications marked as read" });
     } catch {
       toast({ type: "error", title: "Couldn't save. Please try again." });
@@ -53,7 +57,8 @@ export function NotificationsView() {
 
   const onOpen = (n) => {
     if (n.read) return;
-    mutate((d) => d && { ...d, unreadCount: Math.max(0, d.unreadCount - 1), items: d.items.map((x) => (x.id === n.id ? { ...x, read: true } : x)) });
+    mutate((all) => all.map((x) => (x.id === n.id ? { ...x, read: true } : x)));
+    mutateMeta((m) => ({ ...m, unreadCount: Math.max(0, (m.unreadCount ?? 0) - 1) }));
     notificationService.markRead(n.id).catch(() => {});
   };
 
@@ -94,6 +99,7 @@ export function NotificationsView() {
           ))}
         </Card>
       )}
+      {status === "success" && <AccountLoadMore list={list} label="Show older notifications" />}
     </AccountShell>
   );
 }

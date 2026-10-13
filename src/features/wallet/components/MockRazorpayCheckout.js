@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { CheckCircle2, ChevronRight, Clock, CreditCard, Landmark, QrCode, ShieldCheck, Wallet, XCircle } from "lucide-react";
+import { CheckCircle2, ChevronRight, Clock, CreditCard, Landmark, QrCode, ShieldCheck, XCircle } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { formatCurrency } from "@/lib/utils/format";
 import { Badge } from "@/components/ui/Badge";
@@ -24,7 +24,6 @@ export function MockRazorpayCheckout() {
     [QrCode, "UPI / QR", "Google Pay, PhonePe, Paytm & more"],
     [CreditCard, "Cards", "Visa, Mastercard, RuPay"],
     [Landmark, "Netbanking", "All major banks"],
-    [Wallet, "Wallet", "Paytm, Mobikwik & more"],
   ];
   const choices = [
     { outcome: "success", icon: CheckCircle2, variant: "success", label: "Simulate success" },
@@ -44,7 +43,7 @@ export function MockRazorpayCheckout() {
               </div>
               <div className="text-right">
                 <p className="text-xl font-bold tabular-nums">{formatCurrency(session.total, locale)}</p>
-                <p className="font-mono text-[10px] text-white/60">{session.orderId}</p>
+                <p className="tabular-nums text-[10px] text-white/60">{session.orderId}</p>
               </div>
             </div>
             <ul aria-label="Payment methods" className="divide-y divide-line">

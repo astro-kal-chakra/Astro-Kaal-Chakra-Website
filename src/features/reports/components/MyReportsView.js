@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePagedResource } from "@/features/account/hooks/usePagedResource";
+import { AccountLoadMore } from "@/features/account/components/AccountStates";
 import { Download, FileText, Loader2 } from "lucide-react";
 import { routes } from "@/config/routes";
 import { reportService } from "@/lib/api/services/report.service";
@@ -14,30 +16,22 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { ReportIcon } from "./ReportIcon";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
+import { reportCopy } from "../lib/copy";
 
 const POLL_MS = 5000;
 
 /** /account/reports — purchased reports; polls while any is still generating. */
 export function MyReportsView() {
-  const [items, setItems] = useState(null);
-  const [tick, setTick] = useState(0);
+  const list = usePagedResource((page) => reportService.getMyReports({ page }));
+  const items = list.status === "loading" ? null : list.items;
+  const { refresh } = list;
 
+  // While a report is being prepared, re-read the newest page every few seconds
   useEffect(() => {
-    let alive = true;
-    let timer;
-    reportService
-      .getMyReports()
-      .then((list) => {
-        if (!alive) return;
-        setItems(list);
-        if (list.some((r) => r.status === "generating")) timer = setTimeout(() => setTick((n) => n + 1), POLL_MS);
-      })
-      .catch(() => alive && setItems((cur) => cur ?? []));
-    return () => {
-      alive = false;
-      clearTimeout(timer);
-    };
-  }, [tick]);
+    if (!list.items.some((r) => r.status === "generating")) return;
+    const timer = setTimeout(refresh, POLL_MS);
+    return () => clearTimeout(timer);
+  }, [list.items, refresh]);
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
@@ -77,6 +71,7 @@ export function MyReportsView() {
           ))}
         </ul>
       )}
+      {items !== null && <AccountLoadMore list={list} />}
     </div>
   );
 }
@@ -109,7 +104,7 @@ function MyReportRow({ report: r }) {
       <div className="flex min-w-0 flex-1 items-center gap-4">
         <ReportIcon icon={r.icon} />
         <div className="min-w-0">
-          <p className="truncate font-semibold">{t(`wallet.reports.catalog.${r.slug}.title`)}</p>
+          <p className="truncate font-semibold">{reportCopy(r).title}</p>
           <p className="truncate text-sm text-muted">{`For ${r.profileNames.join(" & ")}`}</p>
           <p className="text-xs text-muted">
             {`Purchased ${formatDate(r.purchasedAt, locale)} · ${formatCurrency(r.price, locale)}`}

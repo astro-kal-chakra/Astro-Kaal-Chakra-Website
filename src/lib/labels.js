@@ -82,7 +82,7 @@ export const LABELS = {
         "sessions": "Sessions & queue"
       },
       "categoryDesc": {
-        "follows": "When an astrologer you follow comes online",
+        "follows": "When an astrologer you follow comes online or goes live",
         "horoscope": "Your daily prediction every morning",
         "offers": "Discounts and festive offers",
         "payments": "Recharge success, refunds and low balance",
@@ -146,7 +146,7 @@ export const LABELS = {
     "push": {
       "text": "Turn on notifications to know when your astrologer is ready or someone you follow comes online.",
       "textAfterSession": "Get notified about your session summary, replies and when your astrologer is next online.",
-      "textFollow": "We'll let you know the moment this astrologer comes online."
+      "textFollow": "Turn on notifications and we'll tell you the moment this astrologer comes online or goes live."
     },
     "referral": {
       "how1Text": "Send your code or link to friends and family.",
@@ -532,7 +532,7 @@ export const LABELS = {
         "title": "Wallet & payments",
         "intro": "One secure wallet for every consultation.",
         "s1Title": "Recharge",
-        "s1Text": "Choose a pack or any amount from ₹50 to ₹1,00,000. Pay securely via Razorpay with UPI, cards or net banking (18% GST added).",
+        "s1Text": "Choose a pack or any amount from ₹50 to ₹1,00,000. Pay securely via Razorpay with UPI, cards or net banking.",
         "s2Title": "Get bonus credit",
         "s2Text": "Many packs include extra credit, shown before you pay.",
         "s3Title": "Pay the astrologer's rate",
@@ -691,8 +691,8 @@ export const LABELS = {
       "astrologerTitle": "{name} ended the session",
       "balanceText": "The session ended because your wallet couldn't cover the next minute. Recharge to continue with this astrologer.",
       "balanceTitle": "Your balance ran out",
-      "free_overText": "Your free chat is over. Recharge to start a paid chat with this astrologer.",
-      "free_overTitle": "Your free chat has ended",
+      "free_overText": "Your free time is over. Recharge to continue with this astrologer.",
+      "free_overTitle": "Your free session has ended",
       "otherText": "This session has finished.",
       "otherTitle": "Session ended",
       "rechargeCta": "Recharge wallet",
@@ -723,7 +723,7 @@ export const LABELS = {
         "admin": "This session was ended by our support team.",
         "astrologer": "{name} ended the session.",
         "balance": "The session ended because your wallet balance ran out.",
-        "free_over": "Your free chat ended when the free time was over."
+        "free_over": "Your free session ended when the free time was over."
       }
     },
     "waiting": {
@@ -1468,4 +1468,9 @@ export function label(key, vars) {
     return key;
   }
   return vars ? value.replace(/\{(\w+)\}/g, (_, name) => vars[name] ?? `{${name}}`) : value;
+}
+
+/** True when `key` has text (used where data may carry either a label key or plain text). */
+export function hasLabel(key) {
+  return typeof key.split(".").reduce((acc, part) => acc?.[part], LABELS) === "string";
 }

@@ -13,7 +13,7 @@ export function PeriodTabs({ sign, active }) {
           href={routes.horoscopeSign(p, sign)}
           aria-current={active === p ? "page" : undefined}
           className={cn(
-            "flex-1 rounded-full px-3 py-2 text-center text-sm font-medium",
+            "min-w-0 flex-1 rounded-full px-1.5 py-2 text-center text-xs font-medium min-[360px]:px-3 min-[360px]:text-sm",
             active === p ? "bg-surface text-fg shadow-sm" : "text-muted hover:text-fg"
           )}
         >

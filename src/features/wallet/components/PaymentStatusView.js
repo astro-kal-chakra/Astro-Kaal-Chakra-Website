@@ -184,7 +184,7 @@ function Line({ label, value, positive, strong }) {
 function OrderRef({ orderId }) {
   return (
     <p className="mt-4 text-xs text-muted">
-      Order ID: <span className="font-mono">{orderId}</span>
+      Order ID: <span className="tabular-nums">{orderId}</span>
     </p>
   );
 }

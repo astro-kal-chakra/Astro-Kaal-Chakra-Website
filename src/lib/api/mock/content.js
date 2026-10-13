@@ -15,11 +15,11 @@ export const MOCK_FAQS = {
       { q: "Can I end a session anytime?", a: "Yes. Tap End at any moment. Billing stops immediately and you pay only for the exact time used — any unused prepaid time goes back to your wallet automatically." },
     ],
     payments: [
-      { q: "How do I add money to my wallet?", a: "Open Wallet, choose a recharge pack or enter any amount from ₹50 to ₹1,00,000, and pay securely via Razorpay with UPI, cards or net banking. 18% GST is added on top of the recharge amount." },
+      { q: "How do I add money to my wallet?", a: "Open Wallet, choose a recharge pack or enter any amount from ₹50 to ₹1,00,000, and pay securely via Razorpay with UPI, cards or net banking." },
       { q: "How am I charged during a session?", a: "You pay the astrologer's own per-minute rate, shown before you start. The amount is taken from your wallet during the session and any unused prepaid time is returned automatically when it ends." },
       { q: "How much balance do I need to start?", a: "At least ₹50 or 5 minutes of the astrologer's rate, whichever is more. The free first chat needs no balance." },
       { q: "Do recharge packs include bonus credit?", a: "Some packs include extra credit, shown clearly before you pay. Coupons can add more on top. Bonus credit can be used for consultations and may have an expiry date." },
-      { q: "Will I get an invoice?", a: "Yes. A GST invoice is available for every recharge in your wallet transaction history." },
+      { q: "Will I get an invoice?", a: "Yes. An invoice is available for every recharge in your wallet transaction history." },
     ],
     refunds: [
       { q: "What if I'm not satisfied with a session?", a: "Raise a support ticket from Help & Support within 7 days. Our support team reviews every request, and approved refunds are credited to your wallet as per our Refund Policy." },
@@ -47,11 +47,11 @@ export const MOCK_FAQS = {
       { q: "क्या मैं कभी भी सत्र समाप्त कर सकता हूँ?", a: "हाँ। किसी भी समय समाप्त करें पर टैप करें। बिलिंग तुरंत रुक जाती है और आप केवल उपयोग किए गए सटीक समय का भुगतान करते हैं — बचा हुआ अग्रिम समय अपने आप वॉलेट में लौट आता है।" },
     ],
     payments: [
-      { q: "वॉलेट में पैसे कैसे जोड़ें?", a: "वॉलेट खोलें, रिचार्ज पैक चुनें या ₹50 से ₹1,00,000 तक कोई भी राशि दर्ज करें, और Razorpay के ज़रिए UPI, कार्ड या नेट बैंकिंग से सुरक्षित भुगतान करें। रिचार्ज राशि पर 18% GST अलग से जुड़ता है।" },
+      { q: "वॉलेट में पैसे कैसे जोड़ें?", a: "वॉलेट खोलें, रिचार्ज पैक चुनें या ₹50 से ₹1,00,000 तक कोई भी राशि दर्ज करें, और Razorpay के ज़रिए UPI, कार्ड या नेट बैंकिंग से सुरक्षित भुगतान करें।" },
       { q: "सत्र के दौरान शुल्क कैसे लगता है?", a: "आप ज्योतिषी की अपनी प्रति मिनट दर चुकाते हैं, जो शुरू करने से पहले दिखती है। राशि सत्र के दौरान वॉलेट से कटती है और सत्र खत्म होने पर बचा हुआ प्रीपेड समय अपने आप लौट आता है।" },
       { q: "सत्र शुरू करने के लिए कितना बैलेंस चाहिए?", a: "कम से कम ₹50 या ज्योतिषी की दर के 5 मिनट, जो भी ज़्यादा हो। मुफ़्त पहली चैट के लिए बैलेंस नहीं चाहिए।" },
       { q: "क्या रिचार्ज पैक में बोनस मिलता है?", a: "कुछ पैक में अतिरिक्त राशि मिलती है, जो भुगतान से पहले साफ़ दिखाई जाती है। कूपन से और भी मिल सकता है। बोनस का उपयोग परामर्श में होता है और इसकी समय-सीमा हो सकती है।" },
-      { q: "क्या मुझे इनवॉइस मिलेगा?", a: "हाँ। हर रिचार्ज का GST इनवॉइस वॉलेट के लेन-देन इतिहास में उपलब्ध है।" },
+      { q: "क्या मुझे इनवॉइस मिलेगा?", a: "हाँ। हर रिचार्ज का इनवॉइस वॉलेट के लेन-देन इतिहास में उपलब्ध है।" },
     ],
     refunds: [
       { q: "अगर मैं सत्र से संतुष्ट नहीं हूँ तो?", a: "7 दिनों के भीतर हेल्प और सपोर्ट से टिकट दर्ज करें। हमारी सपोर्ट टीम हर अनुरोध की समीक्षा करती है, और स्वीकृत रिफ़ंड रिफ़ंड नीति के अनुसार वॉलेट में जमा होते हैं।" },

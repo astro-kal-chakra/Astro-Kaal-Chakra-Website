@@ -9,12 +9,14 @@ import { ReportCard } from "./ReportCard";
 import { ReportIcon } from "./ReportIcon";
 import { ReportPurchasePanel } from "./ReportPurchasePanel";
 import { reportFaqs } from "./ReportsLanding";
+import { reportCopy } from "../lib/copy";
 
 /** Server component: public report detail page (SEO) with a client purchase panel. */
 export function ReportDetail({ report: r, others, t, locale }) {
-  const title = t(`wallet.reports.catalog.${r.slug}.title`);
+  const copy = reportCopy(r);
+  const title = copy.title;
   const facts = [
-    { icon: FileText, label: `${r.pages}+ pages` },
+    ...(r.pages > 0 ? [{ icon: FileText, label: `${r.pages}+ pages` }] : []),
     { icon: Clock, label: `Ready in about ${r.deliveryHours} hours` },
     { icon: Users, label: (r.profilesRequired === 2 ? "For a couple" : "For one person") },
   ];
@@ -52,12 +54,19 @@ export function ReportDetail({ report: r, others, t, locale }) {
               <ReportIcon icon={r.icon} size="lg" />
               <div>
                 <h1 className="font-display text-2xl font-semibold sm:text-4xl">{title}</h1>
-                <p className="mt-2 text-white/95">{t(`wallet.reports.catalog.${r.slug}.short`)}</p>
-                <p className="mt-3 flex items-center gap-1.5 text-sm text-white/90">
-                  <Star className="size-4 fill-white text-white" aria-hidden />
-                  <strong className="text-white">{r.rating.toFixed(1)}</strong>
-                  <span>· {`${formatCompact(r.sold, locale)} sold`}</span>
-                </p>
+                {copy.short && <p className="mt-2 text-white/95">{copy.short}</p>}
+                {/* Rating and "sold" are optional in the dashboard */}
+                {(r.rating > 0 || r.sold > 0) && (
+                  <p className="mt-3 flex items-center gap-1.5 text-sm text-white/90">
+                    {r.rating > 0 && (
+                      <>
+                        <Star className="size-4 fill-white text-white" aria-hidden />
+                        <strong className="text-white">{r.rating.toFixed(1)}</strong>
+                      </>
+                    )}
+                    {r.sold > 0 && <span>{`${r.rating > 0 ? "· " : ""}${formatCompact(r.sold, locale)} sold`}</span>}
+                  </p>
+                )}
               </div>
             </div>
             <ul className="mt-6 flex flex-wrap gap-2">
@@ -71,17 +80,17 @@ export function ReportDetail({ report: r, others, t, locale }) {
 
           <Card className="p-5 sm:p-6">
             <h2 className="font-display text-xl font-semibold">About this report</h2>
-            <p className="mt-2 leading-relaxed text-muted">{t(`wallet.reports.catalog.${r.slug}.description`)}</p>
-            <h2 className="mt-6 font-display text-xl font-semibold">{"What's included"}</h2>
+            <p className="mt-2 whitespace-pre-line leading-relaxed text-muted">{copy.description || copy.short}</p>
+            {copy.items.length > 0 && <h2 className="mt-6 font-display text-xl font-semibold">{"What's included"}</h2>}
             <ul className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {r.includes.map((k) => (
-                <li key={k} className="flex items-start gap-3 rounded-xl bg-surface-muted p-3">
+              {copy.items.map((item) => (
+                <li key={item.key} className="flex items-start gap-3 rounded-xl bg-surface-muted p-3">
                   <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-green-600 text-white">
                     <Check className="size-3.5" aria-hidden />
                   </span>
                   <span>
-                    <span className="block text-sm font-medium">{t(`wallet.reports.item.${k}`)}</span>
-                    <span className="block text-xs text-muted">{t(`wallet.reports.itemDesc.${k}`)}</span>
+                    <span className="block text-sm font-medium">{item.title}</span>
+                    {item.detail && <span className="block text-xs text-muted">{item.detail}</span>}
                   </span>
                 </li>
               ))}

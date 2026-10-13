@@ -33,6 +33,9 @@ const SEND_TIMEOUT_MS = 10000;
 const STATUS_RANK = { failed: -1, sending: 0, sent: 1, delivered: 2, read: 3 };
 
 /** Merge server messages into local state without duplicates (by id or clientId). */
+/** Messages per history request (the API's page size). */
+const HISTORY_PAGE = 200;
+
 function mergeMessages(current, incoming) {
   const next = [...current];
   for (const msg of incoming) {
@@ -64,6 +67,13 @@ export function ChatScreen({ sessionId }) {
   const { transport, connected, ended } = live;
   const isLive = !ended && session?.status === "active";
   const sendTimers = useRef(new Map());
+  // Earlier history loads on demand ("idle" → more may exist)
+  const [older, setOlder] = useState("idle");
+  // Latest messages for the reconnect catch-up, without re-running it on every message
+  const messagesRef = useRef(messages);
+  useEffect(() => {
+    messagesRef.current = messages;
+  });
   useLeaveWarning(isLive);
 
   useEffect(() => {
@@ -73,6 +83,8 @@ export function ChatScreen({ sessionId }) {
         if (!alive) return;
         setSession(s);
         setMessages(mergeMessages([], msgs));
+        // The server sends the latest HISTORY_PAGE messages; fewer means this is the whole chat
+        setOlder(msgs.length < HISTORY_PAGE ? "done" : "idle");
       })
       .catch(() => alive && setSession(null));
     return () => {
@@ -103,8 +115,10 @@ export function ChatScreen({ sessionId }) {
   useEffect(() => {
     if (!connected || !wasDisconnected || !session) return;
     let alive = true;
+    // Only what arrived while offline (a minute of overlap; merging drops duplicates)
+    const newest = messagesRef.current.reduce((t, m) => (m.status !== "sending" && m.createdAt > t ? m.createdAt : t), 0);
     sessionService
-      .getMessages(sessionId)
+      .getMessages(sessionId, newest ? { after: newest - 60000 } : {})
       .then((msgs) => {
         if (!alive) return;
         setMessages((cur) => mergeMessages(cur, msgs));
@@ -115,6 +129,21 @@ export function ChatScreen({ sessionId }) {
       alive = false;
     };
   }, [connected, wasDisconnected, session, sessionId]);
+
+  /* ---------------------------- earlier messages ---------------------------- */
+
+  const loadOlder = () => {
+    const first = messages.find((m) => m.status !== "sending");
+    if (!first || older !== "idle") return;
+    setOlder("loading");
+    sessionService
+      .getMessages(sessionId, { before: first.createdAt })
+      .then((msgs) => {
+        setMessages((cur) => mergeMessages(cur, msgs));
+        setOlder(msgs.length < HISTORY_PAGE ? "done" : "idle");
+      })
+      .catch(() => setOlder("idle"));
+  };
 
   /* -------------------------------- live events -------------------------------- */
 
@@ -256,10 +285,24 @@ export function ChatScreen({ sessionId }) {
         typing={typing && isLive}
         onRetry={retry}
         header={
+          <>
+          {older !== "done" && messages.length > 0 && (
+            <div className="mb-3 flex justify-center">
+              <button
+                type="button"
+                onClick={loadOlder}
+                disabled={older === "loading"}
+                className="rounded-full border border-border px-3 py-1 text-xs font-medium text-muted hover:text-text disabled:opacity-60"
+              >
+                {older === "loading" ? "Loading earlier messages…" : "Load earlier messages"}
+              </button>
+            </div>
+          )}
           <p className="mx-auto mb-4 flex max-w-xs items-center justify-center gap-1.5 px-4 text-center text-xs text-muted">
             <ShieldCheck className="size-3.5 shrink-0" aria-hidden />
             Messages are private. Never share phone numbers, payment or personal contact details.
           </p>
+          </>
         }
       />
 

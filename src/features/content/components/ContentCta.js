@@ -15,7 +15,8 @@ export function ContentCta({ title, text, cta, href = routes.astrologers, classN
           <h2 className="font-display text-2xl font-semibold text-white sm:text-3xl">{title}</h2>
           {text && <p className="mt-2 max-w-xl text-white/95">{text}</p>}
         </div>
-        <ButtonLink href={href} variant="light" size="lg" className="shrink-0">
+        {/* Full width + wrapping on phones so a long label never runs past the banner */}
+        <ButtonLink href={href} variant="light" size="lg" className="h-auto min-h-12 w-full shrink-0 whitespace-normal py-3 text-center leading-snug sm:w-auto">
           <MessageCircle className="size-5" aria-hidden /> {cta}
         </ButtonLink>
       </div>

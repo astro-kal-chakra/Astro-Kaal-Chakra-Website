@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useRef, useState } from "react";
 import { CheckCircle2, Info, TriangleAlert, X, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { LocaleLink } from "@/components/ui/LocaleLink";
 
 const ToastContext = createContext(null);
 
@@ -22,10 +23,11 @@ export function ToastProvider({ children }) {
   const dismiss = useCallback((id) => setToasts((t) => t.filter((x) => x.id !== id)), []);
 
   const toast = useCallback(
-    ({ id = crypto.randomUUID(), type = "info", title, message, duration = 4000 }) => {
+    /** `action` (optional): { label, href } — a link button inside the toast; clicking it closes the toast. */
+    ({ id = crypto.randomUUID(), type = "info", title, message, action, duration = 4000 }) => {
       if (seen.current.has(id)) return;
       seen.current.add(id);
-      setToasts((t) => [...t.slice(-3), { id, type, title, message }]);
+      setToasts((t) => [...t.slice(-3), { id, type, title, message, action }]);
       if (duration) setTimeout(() => dismiss(id), duration);
     },
     [dismiss]
@@ -38,7 +40,7 @@ export function ToastProvider({ children }) {
         aria-live="polite"
         className="pointer-events-none fixed inset-x-0 bottom-4 z-[100] flex flex-col items-center gap-2 px-4 sm:bottom-auto sm:top-20 sm:items-end"
       >
-        {toasts.map(({ id, type, title, message }) => {
+        {toasts.map(({ id, type, title, message, action }) => {
           const Icon = ICONS[type];
           return (
             <div
@@ -53,6 +55,15 @@ export function ToastProvider({ children }) {
               <div className="min-w-0 flex-1 text-fg">
                 {title && <p className="text-sm font-semibold">{title}</p>}
                 {message && <p className="text-sm text-muted">{message}</p>}
+                {action && (
+                  <LocaleLink
+                    href={action.href}
+                    onClick={() => dismiss(id)}
+                    className="mt-1.5 inline-block text-sm font-semibold text-brand-600 hover:underline dark:text-gold-400"
+                  >
+                    {action.label} →
+                  </LocaleLink>
+                )}
               </div>
               <button onClick={() => dismiss(id)} className="text-muted hover:text-fg" aria-label="Dismiss">
                 <X className="size-4" />

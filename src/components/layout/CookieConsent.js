@@ -28,11 +28,11 @@ export function CookieConsent() {
             Privacy Policy
           </LocaleLink>
         </p>
-        <div className="flex shrink-0 gap-2">
-          <Button variant="outline" size="sm" onClick={() => choose("essential")}>
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <Button variant="outline" size="sm" className="flex-1 sm:flex-none" onClick={() => choose("essential")}>
             Essential only
           </Button>
-          <Button size="sm" onClick={() => choose("all")}>
+          <Button size="sm" className="flex-1 sm:flex-none" onClick={() => choose("all")}>
             Accept all
           </Button>
         </div>

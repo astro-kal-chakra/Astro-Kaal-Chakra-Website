@@ -18,9 +18,9 @@ export function HowItWorks({ freeChat }) {
     { icon: Sparkles, title: "Get guidance", text: "Share birth details once, save the chat, rate the session and come back anytime." },
   ];
   return (
-    <section className="container-page py-14">
+    <section className="container-page py-4 sm:py-6">
       <SectionHeading eyebrow="Simple" title="How it works" align="center" />
-      <ol className="relative grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-5">
+      <ol className="reveal-stagger relative grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-5">
         {/* Thread joining the three steps */}
         <span className="hairline absolute inset-x-[16%] top-8 hidden md:block" aria-hidden />
         {steps.map((s, i) => (
@@ -48,9 +48,9 @@ export function TrustSection() {
     { icon: BadgeCheck, title: "Clear pricing", text: "Per-minute rates shown upfront, with a receipt for every recharge and session." },
   ];
   return (
-    <section className="container-page py-14">
+    <section className="container-page py-4 sm:py-6">
       <SectionHeading eyebrow="Trust" title="Why people choose us" />
-      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <ul className="reveal-stagger grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {items.map((it) => (
           <Card as="li" key={it.title} className="p-5">
             <it.icon className="size-6 text-brand-600 dark:text-brand-300" aria-hidden />
@@ -67,14 +67,14 @@ export function TrustSection() {
 export function OffersBanner({ freeChat, minRecharge = 50 }) {
   if (!freeChat?.enabled) return null;
   return (
-    <section className="container-page py-6">
-      <div className="bg-cosmic flex flex-col items-start justify-between gap-5 overflow-hidden rounded-3xl p-7 text-white sm:flex-row sm:items-center sm:p-10">
+    <section className="container-page py-4 sm:py-6">
+      <div className="bg-cosmic shine relative flex flex-col items-start justify-between gap-5 overflow-hidden rounded-3xl p-7 text-white sm:flex-row sm:items-center sm:p-10">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/85">New here?</p>
           <h2 className="mt-2 font-display text-3xl sm:text-4xl">{`Your first ${freeChat.minutes}-minute chat is free`}</h2>
           <p className="mt-2 max-w-xl text-white/90">{`One free chat per account. After that, recharge from ₹${minRecharge} and pay the astrologer's per-minute rate.`}</p>
         </div>
-        <ButtonLink href={routes.astrologers} size="lg" variant="light">
+        <ButtonLink href={routes.astrologers} size="lg" variant="light" className="relative z-10 motion-safe:animate-glow">
           Start free chat
         </ButtonLink>
       </div>
@@ -92,9 +92,9 @@ export function FreeTools() {
     { icon: Sparkles, title: "Zodiac Finder", text: "Find your sun and moon sign", href: routes.zodiacFinder },
   ];
   return (
-    <section className="container-page py-14">
+    <section className="container-page py-4 sm:py-6">
       <SectionHeading eyebrow="Free tools" title="Start with your own chart" subtitle="Free, no login needed. Save them to your account any time." />
-      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <ul className="reveal-stagger grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {tools.map((tool) => (
           <li key={tool.title}>
             <LocaleLink href={tool.href} className="group block h-full">
@@ -117,10 +117,10 @@ export function FreeTools() {
 
 export function Reviews({ locale, reviews }) {
   return (
-    <section className="border-y border-line bg-surface-muted/60 py-14">
+    <section className="border-y border-line bg-surface-muted/60 py-8 sm:py-10">
       <div className="container-page">
         <SectionHeading eyebrow="Reviews" title="What our users say" subtitle="From users who completed a session." />
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="reveal-stagger grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {reviews.map((r) => (
             <ReviewCard key={r.id} review={r} locale={locale} />
           ))}
@@ -143,7 +143,7 @@ export function ReviewCard({ review: r, locale, as = "li" }) {
 
 export function FaqSection({ faqs }) {
   return (
-    <section className="container-page grid grid-cols-1 gap-6 py-14 lg:grid-cols-[1fr_2fr] lg:gap-10">
+    <section className="container-page grid grid-cols-1 gap-6 py-4 sm:py-6 lg:grid-cols-[1fr_2fr] lg:gap-10">
       <SectionHeading
         eyebrow="FAQ"
         title="Questions, answered"
@@ -159,7 +159,7 @@ export function FaqSection({ faqs }) {
 /** Closing band: the app. */
 export function AppBand({ appLinks }) {
   return (
-    <section className="container-page pb-4 pt-8">
+    <section className="container-page pb-8 pt-4 sm:pt-6">
       <div className="relative overflow-hidden rounded-3xl border border-line bg-surface-muted/70 p-7 sm:p-10">
         <ChakraGlyph className="pointer-events-none absolute -right-10 -top-10 size-56 text-brand-200 dark:text-brand-900" />
         <div className="relative flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">

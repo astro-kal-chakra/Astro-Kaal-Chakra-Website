@@ -16,7 +16,8 @@ import { useAccountResource } from "../hooks/useAccountResource";
 import { formatShortDate } from "../lib/format";
 import { AccountTextarea } from "./AccountControls";
 import { AccountShell } from "./AccountShell";
-import { AccountEmptyCard, AccountErrorState, AccountListSkeleton } from "./AccountStates";
+import { AccountEmptyCard, AccountErrorState, AccountListSkeleton, AccountLoadMore } from "./AccountStates";
+import { usePagedResource } from "../hooks/usePagedResource";
 import { AttachmentPicker } from "./SupportAttachments";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
@@ -145,7 +146,7 @@ function TicketList({ tickets }) {
           <LocaleLink href={routes.supportTicket(tk.id)} className="flex items-center gap-3 p-4 hover:bg-surface-muted">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-mono text-muted">{tk.id}</span>
+                <span className="text-xs tabular-nums text-muted">{tk.id}</span>
                 <Badge tone={TICKET_TONE[tk.status]}>{t(`account.support.status.${tk.status}`)}</Badge>
               </div>
               <p className="mt-1 truncate font-medium">{tk.subject}</p>
@@ -164,7 +165,8 @@ function TicketList({ tickets }) {
 
 export function SupportView() {
   const [formOpen, setFormOpen] = useState(false);
-  const { data, status, reload, mutate } = useAccountResource(() => supportService.listTickets());
+  const tickets = usePagedResource((page) => supportService.listTickets({ page }));
+  const { items: data, status, reload, mutate } = tickets;
   const site = useAccountResource(() => contentService.getSiteConfig(), "site-config"); // support email from the dashboard
 
   const onCreated = (ticket) => {
@@ -228,6 +230,7 @@ export function SupportView() {
             />
           )}
           {status === "success" && data.length > 0 && <TicketList tickets={data} />}
+          {status === "success" && <AccountLoadMore list={tickets} />}
         </section>
       </div>
     </AccountShell>

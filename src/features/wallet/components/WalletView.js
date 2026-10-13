@@ -13,7 +13,7 @@ import { RecentTransactions } from "./RecentTransactions";
 import { SITE_LOCALE } from "@/config/locale";
 
 /**
- * Wallet screen: balance, recharge (packs / custom / coupon / GST summary),
+ * Wallet screen: balance, recharge (packs / custom / coupon / order summary),
  * Razorpay checkout and recent transactions. The wallet is only ever credited by
  * the backend (after payment verify or the Razorpay webhook) — the UI polls order status.
  */
@@ -40,15 +40,15 @@ export function WalletView() {
               </p>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <ButtonLink
               href={routes.walletTransactions}
               variant="outline"
-              className="border-white/20 bg-white/10 text-white hover:bg-white/20"
+              className="flex-1 border-white/20 bg-white/10 text-white hover:bg-white/20 sm:flex-none"
             >
               <History className="size-4" aria-hidden /> Transaction history
             </ButtonLink>
-            <ButtonLink href={routes.astrologers} variant="gold">
+            <ButtonLink href={routes.astrologers} variant="gold" className="flex-1 sm:flex-none">
               Consult now
             </ButtonLink>
           </div>

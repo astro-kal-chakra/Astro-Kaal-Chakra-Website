@@ -150,6 +150,6 @@ const MOCK_SITE_CONFIG = {
   appLinks: { playStore: siteConfig.appLinks.playStore, appStore: siteConfig.appLinks.appStore },
   freeChat: { enabled: true, minutes: 3, modes: ["chat"] },
   minWalletBalance: 50,
-  recharge: { minAmount: 50, maxAmount: 100000, gstPercent: 18 },
+  recharge: { minAmount: 50, maxAmount: 100000 },
   referral: { enabled: true, referrerReward: 50, refereeReward: 30, trigger: "first_recharge", minRecharge: 100, expiryDays: 30 },
 };

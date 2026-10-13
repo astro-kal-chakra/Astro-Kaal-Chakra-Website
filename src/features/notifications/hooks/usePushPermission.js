@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
+import { enableWebPush } from "@/lib/push/webPush";
 
 const EVENT = "push-permission:change";
 
@@ -52,8 +53,8 @@ export function usePushPermission() {
       result = Notification.permission;
     }
     window.dispatchEvent(new Event(EVENT));
-    // TODO(push): obtain an FCM token (getToken with the VAPID key) and register it with
-    // notificationService.registerPushToken(token). Nothing is sent until there is a real token.
+    // Allowed: subscribe this browser and save it for the account (no-op when signed out)
+    if (result === "granted") await enableWebPush().catch(() => {});
     return result;
   }, []);
 

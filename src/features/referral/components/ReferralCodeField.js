@@ -41,7 +41,7 @@ export function ReferralCodeField({ referral }) {
         autoCapitalize="characters"
         spellCheck={false}
         maxLength={24}
-        className="font-mono tracking-widest"
+        className="tabular-nums tracking-widest"
         aria-invalid={status === "invalid" || undefined}
         aria-describedby="referral-status"
       />

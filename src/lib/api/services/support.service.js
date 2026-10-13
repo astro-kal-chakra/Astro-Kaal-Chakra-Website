@@ -1,5 +1,5 @@
 import { env } from "@/config/site";
-import { http, mockDelay } from "../http";
+import { http, mockDelay, mockPage } from "../http";
 import { mockId, mockStore } from "../mock/account";
 import { MOCK_TICKETS } from "../mock/account-support";
 
@@ -14,13 +14,14 @@ export const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024;
 const toMeta = (files = []) => files.map((f) => ({ name: f.name, size: f.size }));
 
 export const supportService = {
-  async listTickets() {
+  /** One page of the user's tickets, most recently updated first: { items, total, page, pageSize, hasMore }. */
+  async listTickets({ page = 1, pageSize = 10 } = {}) {
     if (env.useMocks) {
       const list = ticketsStore.get().sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
       // List endpoint returns a summary without the full thread.
-      return mockDelay(list.map(({ messages, ...t }) => ({ ...t, messageCount: messages.length })));
+      return mockDelay(mockPage(list.map(({ messages, ...t }) => ({ ...t, messageCount: messages.length })), page, pageSize));
     }
-    return http("/support/tickets");
+    return http("/support/tickets", { query: { page, pageSize } });
   },
 
   async getTicket(id) {

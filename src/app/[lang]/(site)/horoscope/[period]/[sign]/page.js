@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { Briefcase, Hash, Heart, HeartPulse, IndianRupee, Palette } from "lucide-react";
+import { BookOpen, Briefcase, Hash, Heart, HeartPulse, Home, IndianRupee, Palette, Plane, Sparkles } from "lucide-react";
 import { routes } from "@/config/routes";
 import { HOROSCOPE_PERIODS, ZODIAC_SIGNS, getSign, isValidPeriod } from "@/constants/zodiac";
 import { locales } from "@/config/locale";
@@ -14,8 +14,20 @@ import { HoroscopeCta } from "@/features/horoscope/components/HoroscopeCta";
 import { PeriodTabs } from "@/features/horoscope/components/PeriodTabs";
 import { ZodiacGrid } from "@/features/horoscope/components/ZodiacGrid";
 
-// Regenerate hourly so the daily horoscope rolls over without a redeploy.
-export const revalidate = 3600;
+// Re-render every 5 minutes: dashboard edits and the daily roll-over show up without a redeploy.
+export const revalidate = 300;
+
+/** Icon for a section by its title (sections are written in the dashboard; any title works). */
+const SECTION_ICONS = [
+  [/love|relationship|romance|marriage/i, Heart],
+  [/career|work|job|business/i, Briefcase],
+  [/money|finance|wealth/i, IndianRupee],
+  [/health|wellness|wellbeing/i, HeartPulse],
+  [/family|home/i, Home],
+  [/travel/i, Plane],
+  [/education|study|exam/i, BookOpen],
+];
+const iconFor = (title) => SECTION_ICONS.find(([re]) => re.test(title))?.[1] || Sparkles;
 export const dynamicParams = false;
 
 /** 4 periods × 12 signs per locale — the main SEO surface. */
@@ -47,12 +59,8 @@ export default async function SignHoroscopePage({ params }) {
   const h = await horoscopeService.get({ sign, period, locale: lang });
   const title = `${signInfo[lang]} ${t(`horoscope.${period}`)} ${"Horoscope"}`;
 
-  const sections = [
-    { key: "love", icon: Heart },
-    { key: "career", icon: Briefcase },
-    { key: "money", icon: IndianRupee },
-    { key: "health", icon: HeartPulse },
-  ];
+  // Dashboard sections in their order; older responses only have the classic four
+  const sections = h.sectionList ?? ["love", "career", "money", "health"].map((key) => ({ title: t(`horoscope.${key}`), text: h.sections?.[key] }));
 
   return (
     <div className="container-page grid grid-cols-1 gap-8 py-8 lg:grid-cols-[1fr_320px]">
@@ -64,7 +72,7 @@ export default async function SignHoroscopePage({ params }) {
           <div>
             <h1 className="font-display text-2xl font-semibold sm:text-3xl">{title}</h1>
             <p className="text-sm text-muted">
-              {signInfo.dates} · {formatDate(new Date(), lang)}
+              {signInfo.dates} · {h.label || formatDate(new Date(), lang)}
             </p>
           </div>
         </header>
@@ -73,16 +81,21 @@ export default async function SignHoroscopePage({ params }) {
 
         <p className="text-lg leading-relaxed">{h.summary}</p>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {sections.map(({ key, icon: Icon }) => (
-            <Card key={key} className="p-4">
-              <h2 className="flex items-center gap-2 font-semibold">
-                <Icon className="size-4 text-gold-500" aria-hidden /> {t(`horoscope.${key}`)}
-              </h2>
-              <p className="mt-1 text-sm text-muted">{h.sections[key]}</p>
-            </Card>
-          ))}
-        </div>
+        {sections.length > 0 && (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {sections.map(({ title: heading, text }, i) => {
+              const Icon = iconFor(heading);
+              return (
+                <Card key={`${i}-${heading}`} className={sections.length % 2 === 1 && i === sections.length - 1 ? "p-4 sm:col-span-2" : "p-4"}>
+                  <h2 className="flex items-center gap-2 font-semibold">
+                    <Icon className="size-4 text-gold-500" aria-hidden /> {heading}
+                  </h2>
+                  <p className="mt-1 whitespace-pre-line text-sm text-muted">{text}</p>
+                </Card>
+              );
+            })}
+          </div>
+        )}
 
         <div className="flex flex-wrap gap-3 text-sm">
           <span className="flex items-center gap-1.5 rounded-full bg-surface-muted px-3 py-1.5">

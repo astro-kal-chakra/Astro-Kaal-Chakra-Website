@@ -2,12 +2,39 @@ import { siteConfig } from "@/config/site";
 
 const abs = (path) => new URL(path, siteConfig.url).toString();
 
+const ORG_ID = abs("/#organization");
+
+/** Brand identity: lets Google show the logo and link official profiles in the knowledge panel. */
 export const organizationJsonLd = () => ({
   "@context": "https://schema.org",
   "@type": "Organization",
+  "@id": ORG_ID,
   name: siteConfig.name,
+  alternateName: siteConfig.name.replace(/-/g, " "),
   url: siteConfig.url,
-  logo: abs("/icon.png"),
+  logo: { "@type": "ImageObject", url: abs(siteConfig.logo), width: 512, height: 512 },
+  image: abs(siteConfig.ogImage),
+  description: siteConfig.description,
+  email: siteConfig.supportEmail,
+  contactPoint: [{ "@type": "ContactPoint", contactType: "customer support", email: siteConfig.supportEmail, availableLanguage: ["English", "Hindi"] }],
+  ...(siteConfig.socialLinks.length ? { sameAs: siteConfig.socialLinks } : {}),
+});
+
+/** Site name in Google results, plus the site search (astrologer search). */
+export const websiteJsonLd = () => ({
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": abs("/#website"),
+  name: siteConfig.name,
+  alternateName: siteConfig.name.replace(/-/g, " "),
+  url: siteConfig.url,
+  inLanguage: "en-IN",
+  publisher: { "@id": ORG_ID },
+  potentialAction: {
+    "@type": "SearchAction",
+    target: { "@type": "EntryPoint", urlTemplate: `${abs("/astrologers")}?q={search_term_string}` },
+    "query-input": "required name=search_term_string",
+  },
 });
 
 export const astrologerJsonLd = (a, locale) => ({
@@ -50,5 +77,7 @@ export const articleJsonLd = ({ title, description, path, datePublished, dateMod
   url: abs(path),
   datePublished,
   dateModified: dateModified || datePublished,
-  publisher: { "@type": "Organization", name: siteConfig.name },
+  image: abs(siteConfig.ogImage),
+  author: { "@id": ORG_ID },
+  publisher: { "@type": "Organization", "@id": ORG_ID, name: siteConfig.name, logo: { "@type": "ImageObject", url: abs(siteConfig.logo) } },
 });

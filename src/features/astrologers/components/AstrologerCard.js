@@ -54,7 +54,11 @@ export function AstrologerCard({ astrologer: a, priority = false }) {
       {/* Price per mode */}
       <ul className="mt-4 grid gap-1.5" style={{ gridTemplateColumns: `repeat(${modes.length}, minmax(0, 1fr))` }}>
         {modes.map((m) => (
-          <li key={m.key} className="rounded-xl border border-line bg-surface-muted/60 px-2 py-1.5 text-center">
+          <li
+            key={m.key}
+            className={cn("rounded-xl border border-line bg-surface-muted/60 px-2 py-1.5 text-center", a.status === "online" && !m.available && "opacity-45")}
+            title={a.status === "online" && !m.available ? "Not available right now" : undefined}
+          >
             <span className="flex items-center justify-center gap-1 text-[11px] text-muted">
               <m.icon className="size-3" aria-hidden /> {m.label}
             </span>
@@ -66,11 +70,12 @@ export function AstrologerCard({ astrologer: a, priority = false }) {
         ))}
       </ul>
 
-      {((a.freeChatEligible && a.status === "online") || a.queueCount > 0) && (
+      {((a.freeChatOnly && a.status !== "offline") || a.queueCount > 0) && (
         <div className="mt-2.5 flex flex-wrap gap-1.5 text-xs font-medium">
-          {a.freeChatEligible && a.status === "online" && (
+          {/* Free chat mode: free first chats for new users (paid sessions paused) */}
+          {a.freeChatOnly && a.status !== "offline" && (
             <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 text-brand-700 dark:bg-brand-950/50 dark:text-brand-200">
-              <Gift className="size-3" aria-hidden /> Free first chat
+              <Gift className="size-3" aria-hidden /> Free for new users
             </span>
           )}
           {a.queueCount > 0 && (

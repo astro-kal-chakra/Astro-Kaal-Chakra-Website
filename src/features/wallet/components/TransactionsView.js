@@ -165,7 +165,7 @@ function InvoiceButton({ txnId }) {
   const open = () => {
     const win = openInvoiceWindow("Loading…");
     if (!win) {
-      toast({ type: "warning", title: "Please allow pop-ups to view the invoice" });
+      toast({ type: "warning", title: "Please allow pop-ups to view the receipt" });
       return;
     }
     setBusy(true);
@@ -174,7 +174,7 @@ function InvoiceButton({ txnId }) {
       .then((inv) => win.fill(inv, t, locale))
       .catch(() => {
         win.fail();
-        toast({ type: "error", title: "Couldn't load the invoice" });
+        toast({ type: "error", title: "Couldn't load the receipt" });
       })
       .finally(() => setBusy(false));
   };
@@ -186,7 +186,7 @@ function InvoiceButton({ txnId }) {
       disabled={busy}
       className="inline-flex items-center gap-1 text-xs font-semibold text-brand-600 hover:underline disabled:opacity-50 dark:text-gold-400"
     >
-      <Download className="size-3.5" aria-hidden /> Invoice
+      <Download className="size-3.5" aria-hidden /> Receipt
     </button>
   );
 }

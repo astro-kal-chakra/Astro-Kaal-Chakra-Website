@@ -30,14 +30,14 @@ function Limb({ label, value, sub, until }) {
 
 function TimeRow({ label, desc, range, tone }) {
   return (
-    <li className="flex items-start justify-between gap-4 py-3">
-      <div>
+    <li className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1 py-3">
+      <div className="min-w-0">
         <p className={cn("font-semibold", tone === "bad" ? "text-red-700 dark:text-red-400" : "text-green-700 dark:text-green-400")}>
           {label}
         </p>
         <p className="text-xs text-muted">{desc}</p>
       </div>
-      <p className="shrink-0 text-right font-medium tabular-nums">{range}</p>
+      <p className="ml-auto shrink-0 text-right font-medium tabular-nums">{range}</p>
     </li>
   );
 }
@@ -98,7 +98,7 @@ export function PanchangTool({ initialData, initialDate, defaultCity }) {
     <div className="space-y-6">
       <Card className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-[auto_1fr] sm:items-end sm:p-5">
         <Field label="Date" htmlFor="panchang-date">
-          <div className="flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1.5">
             <Button variant="outline" size="icon" onClick={() => changeDate(addDays(date, -1))} aria-label="Previous day">
               <ChevronLeft className="size-4" aria-hidden />
             </Button>
@@ -107,7 +107,7 @@ export function PanchangTool({ initialData, initialDate, defaultCity }) {
               type="date"
               value={date}
               onChange={(e) => changeDate(e.target.value)}
-              className="w-auto min-w-40"
+              className="w-auto min-w-0 flex-1 sm:min-w-40 sm:flex-none"
             />
             <Button variant="outline" size="icon" onClick={() => changeDate(addDays(date, 1))} aria-label="Next day">
               <ChevronRight className="size-4" aria-hidden />

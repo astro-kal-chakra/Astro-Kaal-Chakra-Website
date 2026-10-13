@@ -103,7 +103,7 @@ export function NumerologyTool() {
                             <p className="mt-1 text-sm text-muted">{t(`tools.numerology.meanings.${value}.text`)}</p>
                           </>
                         )}
-                        <p className="mt-2 break-words font-mono text-[11px] text-muted/80">
+                        <p className="mt-2 break-words tabular-nums text-[11px] text-muted/80">
                           {`Calculation: ${steps}`}
                         </p>
                       </div>

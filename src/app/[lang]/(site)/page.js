@@ -2,19 +2,22 @@ import { routes } from "@/config/routes";
 import { astrologerService } from "@/lib/api/services/astrologer.service";
 import { astroToolsService } from "@/lib/api/services/astro-tools.service";
 import { contentService } from "@/lib/api/services/content.service";
+import { liveService } from "@/lib/api/services/live.service";
 import { faqJsonLd } from "@/lib/seo/jsonld";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { isoDateIn } from "@/features/tools/lib/format";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { AstrologerLiveRow } from "@/features/astrologers/components/AstrologerLiveRow";
 import { Categories } from "@/features/home/components/Categories";
 import { Hero } from "@/features/home/components/Hero";
+import { HomeAstrologers } from "@/features/home/components/HomeAstrologers";
+import { LiveNowSection } from "@/features/home/components/LiveNowSection";
 import { AppBand, FaqSection, FreeTools, HowItWorks, OffersBanner, Reviews, TrustSection } from "@/features/home/components/InfoSections";
 import { ZodiacGrid } from "@/features/horoscope/components/ZodiacGrid";
 
-// Live data (who is online, today's panchang): re-render at most every minute
-export const revalidate = 60;
+// Live data (who is live / online, today's panchang): re-render at most every 30 s; online status then updates live over the socket
+export const revalidate = 30;
 
 const DELHI = { name: "New Delhi", region: "Delhi, India", lat: 28.61, lng: 77.21, timezone: "Asia/Kolkata" };
 
@@ -28,48 +31,68 @@ const homeFaqs = (byCategory = {}) => [...(byCategory.consultations || []).slice
 
 export default async function HomePage({ params }) {
   const { lang } = await params;
-  const [onlineRes, config, meta, reviews, faqGroups, panchang] = await Promise.all([
+  const [onlineRes, topRes, liveRes, config, meta, reviews, faqGroups, panchang] = await Promise.all([
     astrologerService.list({ online: "1" }, { pageSize: 6 }),
+    astrologerService.list({}, { pageSize: 6 }),
+    liveService.list(lang, { revalidate: 15 }).catch(() => ({ live: [] })),
     contentService.getSiteConfig(),
     contentService.getMeta().catch(() => null),
     contentService.getRecentReviews(4).catch(() => []),
     contentService.getFaqs(lang).catch(() => ({})),
     astroToolsService.getPanchang({ date: isoDateIn(new Date()), place: DELHI }).catch(() => null),
   ]);
-  // Nobody online right now: show the top astrologers instead of an empty row
-  const online = onlineRes.items;
-  const featured = online.length ? online : (await astrologerService.list({}, { pageSize: 6 })).items;
   const faqs = homeFaqs(faqGroups);
 
   return (
     <>
       <Hero panchang={panchang} freeChat={config.freeChat} />
 
-      {/* Short bottom padding: the next section's own top padding provides the gap */}
-      <section className="container-page pb-2 pt-14">
-        <SectionHeading
-          eyebrow={online.length ? "Live now" : "Top rated"}
-          title={online.length ? "Astrologers online now" : "Our astrologers"}
-          subtitle={online.length ? "Start in seconds. Busy? Join the waitlist and we'll offer you the next slot." : "No one is online this minute. Follow your favourites to know when they're back."}
-          action={{ href: `${routes.astrologers}${online.length ? "?online=1" : ""}`, label: "View all" }}
-        />
-        <AstrologerLiveRow astrologers={featured} />
-      </section>
+      {/* Live broadcasts only while someone is streaming; "online now" only when someone is online; all astrologers always */}
+      {liveRes.live?.length > 0 && (
+        <Reveal>
+          <LiveNowSection sessions={liveRes.live} />
+        </Reveal>
+      )}
+      <Reveal>
+        <HomeAstrologers online={onlineRes.items} all={topRes.items} />
+      </Reveal>
 
-      <Categories categories={meta?.categories} />
+      <Reveal>
+        <Categories categories={meta?.categories} />
+      </Reveal>
 
-      <section className="container-page pb-6">
-        <SectionHeading eyebrow="Today" title="Your horoscope for today" action={{ href: routes.horoscope, label: "All horoscopes" }} />
-        <ZodiacGrid locale={lang} variant="strip" />
-      </section>
+      <Reveal>
+        <section className="container-page py-4 sm:py-6">
+          <SectionHeading eyebrow="Today" title="Your horoscope for today" action={{ href: routes.horoscope, label: "All horoscopes" }} />
+          <ZodiacGrid locale={lang} variant="strip" />
+        </section>
+      </Reveal>
 
-      <FreeTools />
-      <OffersBanner freeChat={config.freeChat} minRecharge={config.recharge?.minAmount} />
-      <HowItWorks freeChat={config.freeChat} />
-      {reviews.length > 0 && <Reviews locale={lang} reviews={reviews} />}
-      <TrustSection />
-      {faqs.length > 0 && <FaqSection faqs={faqs} />}
-      <AppBand appLinks={config.appLinks} />
+      <Reveal>
+        <FreeTools />
+      </Reveal>
+      <Reveal>
+        <OffersBanner freeChat={config.freeChat} minRecharge={config.recharge?.minAmount} />
+      </Reveal>
+      <Reveal>
+        <HowItWorks freeChat={config.freeChat} />
+      </Reveal>
+      {reviews.length > 0 && (
+        <Reveal>
+          <Reviews locale={lang} reviews={reviews} />
+        </Reveal>
+      )}
+      <Reveal>
+        <TrustSection />
+      </Reveal>
+      {faqs.length > 0 && (
+        <Reveal>
+          <FaqSection faqs={faqs} />
+        </Reveal>
+      )}
+      <Reveal>
+        <AppBand appLinks={config.appLinks} />
+      </Reveal>
       {faqs.length > 0 && <JsonLd data={faqJsonLd(faqs)} />}
     </>
   );

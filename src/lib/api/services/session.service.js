@@ -26,7 +26,7 @@ const pick = (a) => ({
 export const priceFor = (astrologer, mode) =>
   mode === "chat" ? astrologer.chatPrice : mode === "call" ? astrologer.callPrice : astrologer.videoPrice;
 
-/** Modes this astrologer offers (chat always; call / video when enabled). */
+/** Modes this astrologer offers (chat always; call / video when priced). Which can start now: isModeAvailable(). */
 export const modesFor = (astrologer) => [
   "chat",
   ...(astrologer.supportsCall !== false ? ["call"] : []),
@@ -111,9 +111,13 @@ export const sessionService = {
     return http(`/sessions/${sessionId}`, { cache: "no-store" });
   },
 
-  async getMessages(sessionId) {
-    if (env.useMocks) return mockDelay(getMockMessages(sessionId), 150);
-    return http(`/sessions/${sessionId}/messages`, { cache: "no-store" });
+  /**
+   * Chat history, oldest first: the latest 200, or with `before` (ISO) the 200 just older,
+   * or with `after` (ISO) only what arrived since (after a reconnect).
+   */
+  async getMessages(sessionId, { before, after } = {}) {
+    if (env.useMocks) return mockDelay(before ? [] : getMockMessages(sessionId).filter((m) => !after || m.createdAt > after), 150);
+    return http(`/sessions/${sessionId}/messages`, { query: { before, after }, cache: "no-store" });
   },
 
   async end(sessionId) {

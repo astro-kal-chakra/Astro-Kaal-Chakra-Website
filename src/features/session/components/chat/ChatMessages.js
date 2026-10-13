@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AlertCircle, ArrowDown, Check, CheckCheck, Clock } from "lucide-react";
 import { localeTags } from "@/config/locale";
 import { cn } from "@/lib/utils/cn";
@@ -106,10 +106,22 @@ export function MessageList({ messages, astrologer, typing, onRetry, header }) {
   const [showJump, setShowJump] = useState(false);
   const fmt = timeFormat(locale);
   const last = messages[messages.length - 1];
+  // Earlier messages loaded at the top: keep the view where it was instead of jumping
+  const prev = useRef({ lastId: null, height: 0, count: 0 });
+  const prepended = useRef(false);
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const p = prev.current;
+    prepended.current = Boolean(p.lastId) && p.lastId === last?.id && messages.length > p.count;
+    if (prepended.current) el.scrollTop += el.scrollHeight - p.height;
+    prev.current = { lastId: last?.id ?? null, height: el.scrollHeight, count: messages.length };
+  }, [messages.length, last?.id]);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || prepended.current) return;
     // Always follow your own messages; follow others only when already at the bottom.
     if (atBottom.current || last?.from === "user") {
       el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });

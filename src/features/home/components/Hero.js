@@ -5,6 +5,7 @@ import { formatTime } from "@/features/tools/lib/format";
 import { ButtonLink } from "@/components/ui/Button";
 import { ChakraDial } from "@/components/ui/ChakraDial";
 import { LocaleLink } from "@/components/ui/LocaleLink";
+import { ParticleField } from "@/components/ui/ParticleField";
 import { HeroBackdrop } from "./HeroBackdrop";
 
 /** Free-chat line follows the admin setting (hidden when free chats are off). */
@@ -44,6 +45,8 @@ export function Hero({ panchang, freeChat }) {
   return (
     <section className="bg-aura relative overflow-hidden border-b border-line">
       <HeroBackdrop />
+      {/* Twinkling, pointer-reactive stars behind the headline and dial (lighter than the horoscope pages) */}
+      <ParticleField contained density={0.55} />
       <div className="container-page relative grid grid-cols-1 items-center gap-12 py-12 md:grid-cols-[1.15fr_1fr] md:py-20">
         <div>
           <p className="eyebrow">Kaal Chakra · the wheel of time</p>

@@ -2,6 +2,8 @@ import { CookieConsent } from "@/components/layout/CookieConsent";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { SmartAppBanner } from "@/components/layout/SmartAppBanner";
+import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
+import { ProfileReminder } from "@/features/auth/components/ProfileReminder";
 import { contentService } from "@/lib/api/services/content.service";
 
 /** Standard chrome for all browseable pages: header, footer, app banner. */
@@ -16,6 +18,9 @@ export default async function SiteLayout({ children, params }) {
         {children}
       </main>
       <Footer locale={lang} config={config} />
+      <WhatsAppButton whatsapp={config.support?.whatsapp} />
+      {/* "Please complete your profile" nudge every 20–30 min for users who skipped onboarding */}
+      <ProfileReminder />
       <CookieConsent />
     </>
   );
