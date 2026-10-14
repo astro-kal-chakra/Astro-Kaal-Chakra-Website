@@ -21,6 +21,8 @@ import { AstrologerLiveRow } from "@/features/astrologers/components/AstrologerL
 import { ContentBreadcrumbs } from "@/features/content/components/ContentBreadcrumbs";
 import { ContentCta } from "@/features/content/components/ContentCta";
 import { ArticleBody } from "@/features/content/blog/ArticleBody";
+import { ArticleHtml } from "@/features/content/blog/ArticleHtml";
+import { PostMedia } from "@/features/content/blog/PostMedia";
 import { BlogCover } from "@/features/content/blog/BlogCover";
 import { PostCard } from "@/features/content/blog/PostCard";
 import { PostMeta } from "@/features/content/blog/PostMeta";
@@ -64,6 +66,10 @@ export default async function BlogPostPage({ params }) {
   const categoryLabel = blogCategoryLabel(post.category);
   const signs = post.signs.map(getSign).filter(Boolean);
   const author = post.author;
+  // Rich-text articles (dashboard editor) come as HTML with their headings in `toc`; older ones as sections
+  const tocItems = post.html ? (post.toc ?? []).filter((x) => x.level === 2) : post.sections;
+  // Cover image / video set in the dashboard (PostMedia is a client component, so only render it)
+  const hasMedia = Boolean(post.coverImage || post.video || post.videoUrl || post.coverVideo);
 
   return (
     <div className="container-page py-8">
@@ -104,12 +110,16 @@ export default async function BlogPostPage({ params }) {
           )}
         </header>
 
-        <BlogCover cover={post.cover} size="lg" className="mx-auto mt-8 max-w-5xl rounded-3xl sm:aspect-[21/9]" />
+        {hasMedia ? (
+          <PostMedia post={post} size="lg" interactive priority className="mx-auto mt-8 max-w-5xl rounded-3xl" />
+        ) : (
+          <BlogCover cover={post.cover} size="lg" className="mx-auto mt-8 max-w-5xl rounded-3xl sm:aspect-[21/9]" />
+        )}
 
         <div className="mx-auto mt-10 grid grid-cols-1 max-w-6xl gap-10 lg:grid-cols-[minmax(0,1fr)_280px]">
           <div className="min-w-0">
-            <TableOfContents id="toc-mobile" title="In this article" sections={post.sections} className="mb-8 lg:hidden" />
-            <ArticleBody sections={post.sections} tipLabel="Astrologer's tip" />
+            {tocItems.length > 1 && <TableOfContents id="toc-mobile" title="In this article" sections={tocItems} className="mb-8 lg:hidden" />}
+            {post.html ? <ArticleHtml html={post.html} /> : <ArticleBody sections={post.sections} tipLabel="Astrologer's tip" />}
 
             <p className="mt-10 text-xs text-muted">
               {`Updated ${formatDate(post.updatedAt, lang)}`}
@@ -144,7 +154,7 @@ export default async function BlogPostPage({ params }) {
 
           <aside className="space-y-6">
             <div className="hidden lg:sticky lg:top-20 lg:block lg:space-y-6">
-              <TableOfContents id="toc-desktop" title="In this article" sections={post.sections} />
+              {tocItems.length > 1 && <TableOfContents id="toc-desktop" title="In this article" sections={tocItems} />}
               {signs.length > 0 && <SignLinks t={t} signs={signs} lang={lang} id="signs-desktop" />}
             </div>
             {signs.length > 0 && <SignLinks t={t} signs={signs} lang={lang} id="signs-mobile" className="lg:hidden" />}
