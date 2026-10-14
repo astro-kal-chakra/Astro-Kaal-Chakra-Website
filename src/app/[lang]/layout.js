@@ -10,16 +10,16 @@ import { OfflineBanner } from "@/components/layout/OfflineBanner";
 import { GoogleTranslate } from "@/features/translate/components/GoogleTranslate";
 import "../globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-poppins", display: "swap" });
-const devanagari = Noto_Sans_Devanagari({ subsets: ["devanagari"], variable: "--font-devanagari", display: "swap" });
-const marcellus = Marcellus({ subsets: ["latin"], weight: "400", variable: "--font-marcellus", display: "swap" });
+const inter = Inter( { subsets: [ "latin" ], variable: "--font-inter", display: "swap" } );
+const poppins = Poppins( { subsets: [ "latin" ], weight: [ "400", "500", "600", "700" ], variable: "--font-poppins", display: "swap" } );
+const devanagari = Noto_Sans_Devanagari( { subsets: [ "devanagari" ], variable: "--font-devanagari", display: "swap" } );
+const marcellus = Marcellus( { subsets: [ "latin" ], weight: "400", variable: "--font-marcellus", display: "swap" } );
 
 // No `dynamicParams = false` here: it would 404 astrologers / posts / reports created after a build.
 // Unknown languages are rejected below with hasLocale().
 
 export function generateStaticParams() {
-  return locales.map((lang) => ({ lang }));
+  return locales.map( ( lang ) => ( { lang } ) );
 }
 
 export const viewport = {
@@ -38,12 +38,15 @@ export const viewport = {
 export async function generateMetadata() {
   const { verification } = siteConfig;
   return {
-    metadataBase: new URL(siteConfig.url),
-    title: { default: `${siteConfig.name} – ${"Talk to Verified Astrologers Online – Chat & Video Call"}`, template: `%s | ${siteConfig.name}` },
+    metadataBase: new URL( siteConfig.url ),
+    title: {
+      default: "Astro Kaal Chakra | Online Astrology, Kundli & Horoscope",
+      template: `%s | ${siteConfig.name}`,
+    },
     description: siteConfig.description,
     keywords: siteConfig.keywords,
     applicationName: siteConfig.name,
-    authors: [{ name: siteConfig.name, url: siteConfig.url }],
+    authors: [ { name: siteConfig.name, url: siteConfig.url } ],
     creator: siteConfig.name,
     publisher: siteConfig.name,
     category: "astrology",
@@ -53,9 +56,9 @@ export async function generateMetadata() {
       type: "website",
       siteName: siteConfig.name,
       locale: "en_IN",
-      images: [{ url: siteConfig.ogImage, width: 1200, height: 630, alt: siteConfig.name }],
+      images: [ { url: siteConfig.ogImage, width: 1200, height: 630, alt: siteConfig.name } ],
     },
-    twitter: { card: "summary_large_image", images: [siteConfig.ogImage] },
+    twitter: { card: "summary_large_image", images: [ siteConfig.ogImage ] },
     // Large image previews and full snippets in Google results.
     robots: {
       index: true,
@@ -63,15 +66,15 @@ export async function generateMetadata() {
       googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
     },
     verification: {
-      ...(verification.google ? { google: verification.google } : {}),
-      ...(verification.bing ? { other: { "msvalidate.01": verification.bing } } : {}),
+      ...( verification.google ? { google: verification.google } : {} ),
+      ...( verification.bing ? { other: { "msvalidate.01": verification.bing } } : {} ),
     },
   };
 }
 
-export default async function RootLayout({ children, params }) {
+export default async function RootLayout( { children, params } ) {
   const { lang } = await params;
-  if (!hasLocale(lang)) notFound();
+  if ( !hasLocale( lang ) ) notFound();
 
   return (
     <html lang={lang} suppressHydrationWarning className={`${inter.variable} ${poppins.variable} ${devanagari.variable} ${marcellus.variable}`}>
@@ -84,7 +87,7 @@ export default async function RootLayout({ children, params }) {
           {children}
         </AppProviders>
         <GoogleTranslate />
-        <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
+        <JsonLd data={[ organizationJsonLd(), websiteJsonLd() ]} />
       </body>
     </html>
   );

@@ -1,6 +1,5 @@
-/* Astro-Kaal-Chakra service worker: browser push notifications only (no offline caching). */
 
-const DEFAULT_TITLE = "Astro-Kaal-Chakra";
+const DEFAULT_TITLE = "Astro Kaal Chakra";
 
 // Payload from the backend (services/webPush.service.js): { title, body, url, tag, image }
 self.addEventListener("push", (event) => {

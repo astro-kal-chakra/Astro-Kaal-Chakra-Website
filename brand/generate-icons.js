@@ -79,7 +79,7 @@ function ico(entries) {
     <radialGradient id="glow" cx="0.27" cy="0.5" r="0.45"><stop offset="0" stop-color="#fb8a3c" stop-opacity="0.28"/><stop offset="1" stop-color="#fb8a3c" stop-opacity="0"/></radialGradient></defs>
     <rect width="1200" height="630" fill="${DARK}"/>
     <rect width="1200" height="630" fill="url(#glow)"/>
-    <text x="580" y="270" font-family="Segoe UI, Arial, sans-serif" font-size="62" font-weight="700" fill="url(#w)">Astro-Kaal-Chakra</text>
+    <text x="580" y="270" font-family="Segoe UI, Arial, sans-serif" font-size="62" font-weight="700" fill="url(#w)">Astro Kaal Chakra</text>
     <text x="580" y="332" font-family="Segoe UI, Arial, sans-serif" font-size="30" fill="#fde7d4">Talk to verified astrologers</text>
     <text x="580" y="372" font-family="Segoe UI, Arial, sans-serif" font-size="30" fill="#fde7d4">Chat, call or video</text>
     <text x="580" y="440" font-family="Segoe UI, Arial, sans-serif" font-size="24" fill="#fdba74">Free Kundli · Matching · Horoscope · Panchang</text>

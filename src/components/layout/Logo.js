@@ -21,10 +21,7 @@ export function LogoMark({ className, priority = false }) {
   );
 }
 
-/**
- * Header/footer logo. `onDark` uses the bright wordmark gradient; `priority` for above-the-fold use (header).
- * `wordmarkClassName` controls when the "Astro-Kaal-Chakra" text shows (the emblem alone carries the name).
- */
+
 export function Logo({ className, onDark = false, priority = false, wordmarkClassName }) {
   return (
     <LocaleLink

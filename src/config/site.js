@@ -12,19 +12,29 @@ const PRODUCTION_URL = "https://www.astrokaalchakra.com";
 const isProd = process.env.NODE_ENV === "production";
 const envUrl = process.env.NEXT_PUBLIC_SITE_URL;
 // A localhost value copied from .env.example must never reach the live site's canonical URLs / sitemap.
-const usableEnvUrl = envUrl && !(isProd && /localhost|127\.0\.0\.1/.test(envUrl)) ? envUrl : "";
+const usableEnvUrl = envUrl && !( isProd && /localhost|127\.0\.0\.1/.test( envUrl ) ) ? envUrl : "";
 // Local dev follows whatever port the server actually started on (3000, 3001, …).
 const devUrl = typeof window !== "undefined" ? window.location.origin : `http://localhost:${process.env.PORT || 3000}`;
-const siteUrl = (usableEnvUrl || (isProd ? PRODUCTION_URL : devUrl)).replace(/\/$/, "");
+const siteUrl = ( usableEnvUrl || ( isProd ? PRODUCTION_URL : devUrl ) ).replace( /\/$/, "" );
 
 export const siteConfig = {
-  name: "Astro-Kaal-Chakra",
+  name: "Astro Kaal Chakra",
   tagline: "Talk to verified astrologers, anytime",
   description:
     "Chat, call or video with verified Vedic astrologers for love, career, marriage, finance and health. First 3-minute chat free. Daily horoscope, free Kundli, Kundli matching and Panchang.",
   keywords: [
-    "talk to astrologer", "online astrologer", "astrology consultation", "free kundli", "kundli matching",
-    "guna milan", "daily horoscope", "panchang", "vedic astrology", "numerology", "jyotish",
+    "Astro Kaal Chakra",
+    "Astro Kaal Chakra astrology",
+    "online astrologer",
+    "talk to astrologer",
+    "astrology consultation",
+    "free kundli",
+    "kundli matching",
+    "daily horoscope",
+    "Panchang",
+    "Vedic astrology",
+    "numerology",
+    "Jyotish",
   ],
   url: siteUrl,
   supportEmail: "support@astrokaalchakra.com",

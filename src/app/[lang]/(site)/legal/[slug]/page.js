@@ -11,10 +11,10 @@ const LEGAL_SLUGS = ["privacy-policy", "terms", "refund-policy", "disclaimer"];
 
 /** Search-result descriptions, used when the dashboard page has no SEO description of its own. */
 const DEFAULT_DESCRIPTIONS = {
-  "privacy-policy": "How Astro-Kaal-Chakra collects, uses and protects your personal and birth details, and your rights under India's DPDP Act.",
-  terms: "Terms of use for Astro-Kaal-Chakra: eligibility, account and devices, wallet and billing, free first chat, recharges and conduct.",
-  "refund-policy": "Refund and cancellation policy for Astro-Kaal-Chakra wallet recharges and astrology consultations.",
-  disclaimer: "Astrology on Astro-Kaal-Chakra offers guidance, not guarantees. Read our disclaimer before your consultation.",
+  "privacy-policy": "How Astro Kaal Chakra collects, uses and protects your personal and birth details, and your rights under India's DPDP Act.",
+  terms: "Terms of use for Astro Kaal Chakra: eligibility, account and devices, wallet and billing, free first chat, recharges and conduct.",
+  "refund-policy": "Refund and cancellation policy for Astro Kaal Chakra wallet recharges and astrology consultations.",
+  disclaimer: "Astrology on Astro Kaal Chakra offers guidance, not guarantees. Read our disclaimer before your consultation.",
 };
 export const revalidate = 600;
 export const dynamicParams = false;
