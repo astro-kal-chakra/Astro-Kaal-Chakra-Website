@@ -8,6 +8,8 @@ import { Card } from "@/components/ui/Card";
 import { Field, Input } from "@/components/ui/Input";
 import { isoDateIn } from "../lib/format";
 import { calculateNumerology, isMaster, normalizeName } from "../lib/numerology";
+import { numerologyReading } from "../lib/readings";
+import { ReadingCard } from "./ReadingCard";
 import { label as t } from "@/lib/labels";
 
 const NUMBERS = ["lifePath", "destiny", "soulUrge", "personality"];
@@ -112,6 +114,9 @@ export function NumerologyTool() {
                 );
               })}
             </ul>
+            <div className="mt-4">
+              <ReadingCard reading={numerologyReading(result, name)} cta="Ask a numerology expert" />
+            </div>
           </>
         )}
       </section>

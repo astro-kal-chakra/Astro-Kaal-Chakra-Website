@@ -16,12 +16,16 @@ import { KundliDasha } from "./KundliDasha";
 import { KundliBasic, KundliPlanets } from "./KundliDetails";
 import { KundliSaveActions } from "./KundliSaveActions";
 import { MockNotice } from "./MockNotice";
+import { ReadingCard } from "./ReadingCard";
+import { kundliReading } from "../lib/readings";
+import { useAstroNames } from "../lib/useAstroNames";
 import { ToolTabs, useToolTabs } from "./ToolTabs";
 import { label as t } from "@/lib/labels";
 
 const TABS = ["basic", "charts", "planets", "dasha"];
 
 export function KundliTool() {
+  const names = useAstroNames();
   const { toast } = useToast();
   const [form, setForm] = useState(EMPTY_BIRTH);
   const [errors, setErrors] = useState({});
@@ -114,6 +118,7 @@ export function KundliTool() {
                 {tab === id && panels[id]()}
               </div>
             ))}
+            <ReadingCard reading={kundliReading(kundli, names)} />
             <KundliSaveActions input={kundli.input} />
           </>
         )}

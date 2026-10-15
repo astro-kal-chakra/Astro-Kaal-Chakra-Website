@@ -16,6 +16,8 @@ import { validateBirth } from "../lib/validate";
 import { BirthFields } from "./BirthFields";
 import { MockNotice } from "./MockNotice";
 import { ScoreRing } from "./ScoreRing";
+import { ReadingCard } from "./ReadingCard";
+import { matchingReading } from "../lib/readings";
 import { label as t } from "@/lib/labels";
 
 const verdictFor = (score) => (score > 32 ? "excellent" : score >= 25 ? "good" : score >= 18 ? "average" : "low");
@@ -214,6 +216,7 @@ export function MatchingTool() {
                 </ButtonLink>
               </div>
             </Card>
+            <ReadingCard reading={matchingReading(result)} cta="Get a detailed match analysis" />
             <KootaTable result={result} />
             <ManglikCard result={result} />
           </div>

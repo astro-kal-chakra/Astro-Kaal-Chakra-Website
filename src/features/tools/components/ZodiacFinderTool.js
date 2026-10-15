@@ -9,6 +9,8 @@ import { Field, Input } from "@/components/ui/Input";
 import { isoDateIn } from "../lib/format";
 import { useAstroNames } from "../lib/useAstroNames";
 import { findSunSign } from "../lib/zodiac";
+import { zodiacReading } from "../lib/readings";
+import { ReadingCard } from "./ReadingCard";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
 
@@ -82,6 +84,8 @@ export function ZodiacFinderTool() {
                 {`Read today's ${sign[locale]} horoscope`} <ArrowRight className="size-4" aria-hidden />
               </ButtonLink>
             </Card>
+
+            <ReadingCard reading={zodiacReading(sign.slug)} cta="Talk to an astrologer" />
 
             <Card className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
               <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-brand-100 text-brand-600 dark:bg-brand-800 dark:text-gold-300">
