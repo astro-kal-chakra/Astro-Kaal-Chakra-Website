@@ -46,6 +46,27 @@ export async function generateMetadata() {
     description: siteConfig.description,
     keywords: siteConfig.keywords,
     applicationName: siteConfig.name,
+    icons: {
+      icon: [
+        {
+          url: "/favicon.ico",
+          type: "image/x-icon",
+          sizes: "48x48",
+        },
+        {
+          url: "/icon.png",
+          type: "image/png",
+        },
+      ],
+      shortcut: "/favicon.ico",
+      apple: [
+        {
+          url: "/apple-icon.png",
+          type: "image/png",
+          sizes: "180x180",
+        },
+      ],
+    },
     authors: [ { name: siteConfig.name, url: siteConfig.url } ],
     creator: siteConfig.name,
     publisher: siteConfig.name,
