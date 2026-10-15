@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CreditCard, MessageCircle, RotateCcw, Search, ShieldCheck, UserRound } from "lucide-react";
+import { CircleHelp, CreditCard, MessageCircle, RotateCcw, Search, ShieldCheck, UserRound } from "lucide-react";
 import { routes } from "@/config/routes";
 import { Accordion } from "@/components/ui/Accordion";
 import { ButtonLink } from "@/components/ui/Button";
@@ -10,7 +10,7 @@ import { inputClasses } from "@/components/ui/Input";
 import { cn } from "@/lib/utils/cn";
 import { label as t } from "@/lib/labels";
 
-const ICONS = { consultations: MessageCircle, payments: CreditCard, refunds: RotateCcw, privacy: ShieldCheck, account: UserRound };
+const ICONS = { consultations: MessageCircle, payments: CreditCard, refunds: RotateCcw, privacy: ShieldCheck, account: UserRound, general: CircleHelp };
 
 /**
  * Categorised FAQs with instant search. All answers are server-rendered in the

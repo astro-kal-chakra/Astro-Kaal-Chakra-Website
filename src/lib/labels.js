@@ -464,6 +464,7 @@ export const LABELS = {
       "categories": {
         "account": "Account",
         "consultations": "Consultations",
+        "general": "General",
         "payments": "Payments & Wallet",
         "privacy": "Privacy & Safety",
         "refunds": "Refunds"

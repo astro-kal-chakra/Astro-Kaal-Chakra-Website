@@ -3,7 +3,7 @@
  * Move to the CMS once it exists. Category labels live in content.json → content.faq.categories.<id>.
  */
 
-export const FAQ_CATEGORIES = ["consultations", "payments", "refunds", "privacy", "account"];
+export const FAQ_CATEGORIES = ["consultations", "payments", "refunds", "privacy", "account", "general"];
 
 export const MOCK_FAQS = {
   en: {
