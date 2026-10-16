@@ -36,6 +36,9 @@ export const authService = {
     if (env.useMocks) return mockDelay({ requestId: "mock", resendAfter: 30, maxAttempts: 3 });
     const fb = await firebaseMode();
     if (fb) {
+      // One number, one role: no SMS for an astrologer's number (the backend refuses it at login anyway)
+      const check = await http("/auth/phone-check", { method: "POST", body: { phone } }).catch(() => null);
+      if (check && check.allowed === false) throw new ApiError(check.message || "This number is registered as an astrologer.", { status: 409, code: check.code });
       const { sendPhoneCode } = await import("@/lib/firebase/phoneAuth");
       try {
         await sendPhoneCode(phone, { testing: !fb.firebaseProd });
