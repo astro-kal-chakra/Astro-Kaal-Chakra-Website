@@ -25,8 +25,8 @@ export function Footer({ locale, config }) {
         [routes.about, "About us"],
         [routes.howItWorks, "How it works"],
         [routes.becomeAstrologer, "Become an astrologer"],
-        [routes.blog, "Blog"],
-        [routes.live, "Live Now"],
+        [routes.blog, "Astrology Blog"],
+        [routes.live, "Live Sessions"],
         [routes.contact, "Contact us"],
         [routes.faqs, "FAQs"],
       ],
@@ -34,12 +34,12 @@ export function Footer({ locale, config }) {
     {
       title: "Free tools",
       links: [
-        [routes.kundli, "Free Kundli"],
-        [routes.kundliMatching, "Kundli Matching"],
-        [routes.panchang, "Panchang"],
-        [routes.horoscope, "Horoscope"],
+        [routes.kundli, "Janam Kundli"],
+        [routes.kundliMatching, "Kundli Milan (Guna Matching)"],
+        [routes.panchang, "Today's Panchang"],
+        [routes.horoscope, "Daily Horoscope"],
         [routes.zodiacFinder, "Zodiac Sign Finder"],
-        [routes.numerology, "Numerology"],
+        [routes.numerology, "Numerology Calculator"],
         [routes.reports, "Reports"],
       ],
     },
@@ -79,7 +79,8 @@ export function Footer({ locale, config }) {
       </div>
       <div className="container-page grid grid-cols-2 gap-x-6 gap-y-10 py-12 md:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div className="col-span-2 space-y-4 md:col-span-1">
-          <Logo />
+          {/* Plain branding here; the header logo is the link home (avoids a duplicate link text) */}
+          <Logo asLink={false} />
           <p className="max-w-xs text-sm text-muted">{siteConfig.tagline}. Chat, call or video.</p>
           <AppStoreButtons label="Download the app" tone="light" links={config?.appLinks} />
           {config?.support?.email && (

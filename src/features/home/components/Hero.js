@@ -65,7 +65,7 @@ export function Hero({ panchang, freeChat }) {
               <MessageCircle className="size-5" aria-hidden /> Talk to an astrologer
             </ButtonLink>
             <ButtonLink href={routes.kundli} size="lg" variant="soft">
-              Free Kundli
+              Get your Free Kundli
             </ButtonLink>
           </div>
 

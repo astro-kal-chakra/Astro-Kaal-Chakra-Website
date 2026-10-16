@@ -1,11 +1,10 @@
 import { blogCategoryLabel } from "@/features/content/blog/categoryLabel";
 import Form from "next/form";
-import { Search } from "lucide-react";
 import { routes } from "@/config/routes";
 import { buttonClasses } from "@/components/ui/Button";
-import { inputClasses } from "@/components/ui/Input";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { cn } from "@/lib/utils/cn";
+import { BlogSearchInput } from "./BlogSearchInput";
 import { LinkPending } from "./LinkPending";
 
 /** Build a blog listing URL from filters (locale-less, for LocaleLink). */
@@ -39,18 +38,7 @@ export function BlogFilters({ lang, categories, category, q }) {
         <label htmlFor="blog-search" className="sr-only">
           Search articles
         </label>
-        <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted" aria-hidden />
-          <input
-            id="blog-search"
-            name="q"
-            type="search"
-            defaultValue={q}
-            placeholder="Search articles, e.g. Sade Sati"
-            className={cn(inputClasses, "pl-9")}
-            maxLength={80}
-          />
-        </div>
+        <BlogSearchInput key={category || "all"} q={q} category={category} />
         <button type="submit" className={buttonClasses({ className: "h-11" })}>
           Search
         </button>
