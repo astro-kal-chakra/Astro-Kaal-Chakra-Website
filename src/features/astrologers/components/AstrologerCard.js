@@ -62,20 +62,24 @@ export function AstrologerCard({ astrologer: a, priority = false }) {
             <span className="flex items-center justify-center gap-1 text-[11px] text-muted">
               <m.icon className="size-3" aria-hidden /> {m.label}
             </span>
-            <span className="text-sm font-semibold text-fg">
-              {formatCurrency(m.price, locale)}
-              <span className="text-[11px] font-normal text-muted">/min</span>
-            </span>
+            {m.free ? (
+              <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">FREE</span>
+            ) : (
+              <span className="text-sm font-semibold text-fg">
+                {formatCurrency(m.price, locale)}
+                <span className="text-[11px] font-normal text-muted">/min</span>
+              </span>
+            )}
           </li>
         ))}
       </ul>
 
-      {((a.freeChatOnly && a.status !== "offline") || a.queueCount > 0) && (
+      {((a.freeModes?.length > 0 && a.status !== "offline") || a.queueCount > 0) && (
         <div className="mt-2.5 flex flex-wrap gap-1.5 text-xs font-medium">
-          {/* Free chat mode: free first chats for new users (paid sessions paused) */}
-          {a.freeChatOnly && a.status !== "offline" && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 text-brand-700 dark:bg-brand-950/50 dark:text-brand-200">
-              <Gift className="size-3" aria-hidden /> Free for new users
+          {/* Free session for users who haven't had theirs: no charge at all */}
+          {a.freeModes?.length > 0 && a.status !== "offline" && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
+              <Gift className="size-3" aria-hidden /> Free session for you · ₹0
             </span>
           )}
           {a.queueCount > 0 && (

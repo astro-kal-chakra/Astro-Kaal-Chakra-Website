@@ -45,7 +45,7 @@ export const liveSessionPath = (sessionId, mode) =>
  * phase: select → waiting (30s) → (session:start → redirect) | rejected | timeout (session:missed)
  *        select → queue → queue:offer (60s, accept / decline) → (accepted → redirect) | queueExpired
  */
-export function ConsultView({ slug, initialMode, waitlist, simulate }) {
+export function ConsultView({ slug, initialMode, waitlist, simulate, autoStartFree = false }) {
   const { user, setUser } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
@@ -138,6 +138,18 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
   useTransportEvent(transport, SOCKET_EVENTS.QUEUE_SKIPPED, endQueue);
   useTransportEvent(transport, SOCKET_EVENTS.QUEUE_CLEARED, (p) => endQueue({ ...p, reason: "cleared" }));
 
+  // "Free chat" / "Free call" from a card: start right away (once) when it really is free and can start now.
+  // `startRef` is set below, after the early returns, to the current start handler.
+  const startRef = useRef(null);
+  const autoStarted = useRef(false);
+  useEffect(() => {
+    if (!autoStartFree || autoStarted.current || !astrologer || !pre || phase !== "select") return;
+    const freeNow = (astrologer.freeModes ?? []).includes(mode) && pre.freeChatAvailable && user?.freeChatAvailable !== false;
+    if (!freeNow || astrologer.status !== "online" || !isModeAvailable(astrologer, mode)) return;
+    autoStarted.current = true;
+    startRef.current?.();
+  }, [autoStartFree, astrologer, pre, phase, mode, user]);
+
   /* ---------------------------------- render ---------------------------------- */
 
   if (loadError) return <SessionScreenState title="Something went wrong" text="Please try again. If the problem continues, contact support." />;
@@ -152,11 +164,11 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
   const price = priceFor(a, activeMode);
   const freeChatAvailable = user?.freeChatAvailable !== false && pre.freeChatAvailable;
   const astrologerAllowsFree = a.freeChatEligible !== false;
-  // An astrologer in free mode has exactly their free modes switched on (chosen per astrologer in the dashboard)
-  const freeModes = a.freeChatOnly ? openModes : pre.freeModes?.length ? pre.freeModes : [SESSION_MODES.CHAT];
-  const useFreeChat = freeModes.includes(activeMode) && freeChatAvailable && astrologerAllowsFree;
-  // Astrologer in "free chat" mode takes only new users' free chats
-  const freeOnlyBlocked = Boolean(a.freeChatOnly) && !useFreeChat;
+  // The server decides: modes this astrologer gives free right now, sent only to users who haven't had their free session
+  const freeModes = a.freeModes ?? [];
+  const useFreeChat = freeModes.includes(activeMode) && freeChatAvailable;
+  // Free mode no longer pauses paid sessions
+  const freeOnlyBlocked = false;
   const required = minBalanceFor(price);
   const hasEnough = !freeOnlyBlocked && (useFreeChat || pre.balance >= required);
   const isBusy = a.status === "busy";
@@ -217,6 +229,9 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
       setRequest({ sessionId: res.sessionId, mode: activeMode, useFreeChat, expiresAt: Date.now() + (res.expiresInSec || REQUEST_TIMEOUT_SECONDS) * 1000 });
       setPhase("waiting");
     });
+
+  // eslint-disable-next-line react-hooks/refs -- read only inside the auto-start effect above
+  startRef.current = start;
 
   const cancel = () =>
     run("cancel", async () => {
@@ -321,7 +336,7 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
               required={required}
               hasEnough={hasEnough}
               useFreeChat={useFreeChat}
-              freeBlockedByAstrologer={freeModes.includes(activeMode) && freeChatAvailable && !astrologerAllowsFree}
+              freeBlockedByAstrologer={false && astrologerAllowsFree}
               isOffline={isOffline}
             />
           )}
@@ -467,7 +482,7 @@ function SelectStep({ a, modes, activeMode, onModeChange, price, pre, required, 
                 <Icon className={cn("size-6", selected ? "text-brand-600 dark:text-gold-400" : "text-muted")} aria-hidden />
                 <span className="text-sm font-semibold">{t(`session.modes.${m}`)}</span>
                 <span className="text-xs text-muted">
-                  {off ? "Not available now" : `${formatCurrency(priceFor(a, m), locale)}/min`}
+                  {off ? "Not available now" : (a.freeModes ?? []).includes(m) && pre.freeChatAvailable ? "FREE" : `${formatCurrency(priceFor(a, m), locale)}/min`}
                 </span>
               </label>
             );
@@ -483,7 +498,7 @@ function SelectStep({ a, modes, activeMode, onModeChange, price, pre, required, 
               {`Your first ${pre.freeMinutes || FREE_CHAT_MINUTES}-minute ${FREE_NOUN[activeMode] || "chat"} is free`}
             </p>
             <p className="mt-0.5 text-sm text-white/80">
-              {`Once per account and device. It ends when the free ${pre.freeMinutes || FREE_CHAT_MINUTES} minutes are over — nothing is taken from your wallet.`}
+              {`Totally free: ₹0, nothing is taken from your wallet. Starts when ${a.name} answers and ends automatically after ${pre.freeMinutes || FREE_CHAT_MINUTES} minutes — you can end it earlier any time. Once per account and device.`}
             </p>
           </div>
         </div>
@@ -492,6 +507,7 @@ function SelectStep({ a, modes, activeMode, onModeChange, price, pre, required, 
         <p className="rounded-2xl bg-surface-muted p-3 text-xs text-muted">{"Your free first session can't be used with this astrologer. Choose an astrologer marked FREE to use it."}</p>
       )}
 
+      {!useFreeChat && (
       <Card className="p-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -535,6 +551,7 @@ function SelectStep({ a, modes, activeMode, onModeChange, price, pre, required, 
           {`${formatCurrency(price, locale)}/min from your wallet. Any unused prepaid time is returned automatically when the session ends.`}
         </p>
       </Card>
+      )}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { env } from "@/config/site";
 import { SOCKET_EVENTS } from "@/lib/socket/events";
 import { useSocket } from "@/providers/SocketProvider";
+import { useAuth } from "@/features/auth/context/AuthProvider";
 
 const STATUSES = ["online", "busy", "offline"];
 
@@ -17,6 +18,9 @@ const STATUSES = ["online", "busy", "offline"];
  */
 export function useAstrologerPresence(astrologers) {
   const { socket } = useSocket();
+  const { user } = useAuth();
+  // Status updates are the same for everyone: free modes apply only to viewers who still have their free session
+  const canUseFree = !user || user.freeChatAvailable !== false;
   const [live, setLive] = useState({});
   const ids = useMemo(() => astrologers.map((a) => a.id), [astrologers]);
   const idsKey = ids.join(",");
@@ -26,11 +30,11 @@ export function useAstrologerPresence(astrologers) {
 
     if (socket) {
       // `modes`: which modes the astrologer switched on for this online session (chat / call / video)
-      // `freeChat`: online in free chat mode (free chats for new users only)
-      const onStatus = ({ astrologerId, status, queueCount, modes, freeChat }) =>
+      // `freeModes`: modes given free right now (only to users who haven't had their free session)
+      const onStatus = ({ astrologerId, status, queueCount, modes, freeModes }) =>
         setLive((prev) => ({
           ...prev,
-          [astrologerId]: { status, queueCount, ...(modes ? { availableModes: modes } : {}), ...(freeChat !== undefined ? { freeChatOnly: Boolean(freeChat) } : {}) },
+          [astrologerId]: { status, queueCount, ...(modes ? { availableModes: modes } : {}), ...(freeModes !== undefined ? { freeModes: freeModes || [] } : {}) },
         }));
       socket.emit(SOCKET_EVENTS.SUBSCRIBE_PRESENCE, ids);
       socket.on(SOCKET_EVENTS.ASTROLOGER_STATUS, onStatus);
@@ -51,5 +55,8 @@ export function useAstrologerPresence(astrologers) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket, idsKey]);
 
-  return (a) => (live[a.id] ? { ...a, ...live[a.id] } : a);
+  return (a) => {
+    const merged = live[a.id] ? { ...a, ...live[a.id] } : a;
+    return canUseFree ? merged : { ...merged, freeModes: [] };
+  };
 }

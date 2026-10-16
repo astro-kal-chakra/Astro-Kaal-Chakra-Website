@@ -6,9 +6,12 @@ import { MessageCircle, Phone, Video } from "lucide-react";
  */
 const MODES = [
   { key: "chat", label: "Chat", icon: MessageCircle, price: (a) => a.chatPrice, on: () => true },
-  { key: "call", label: "Call", icon: Phone, price: (a) => a.callPrice ?? a.voicePrice ?? a.chatPrice, on: (a) => a.supportsCall ?? true },
-  { key: "video", label: "Video", icon: Video, price: (a) => a.videoPrice, on: (a) => Boolean(a.supportsVideo) },
+  { key: "call", label: "Call", icon: Phone, price: (a) => a.callPrice ?? a.voicePrice ?? a.chatPrice, on: (a) => (a.supportsCall ?? true) || isFreeMode(a, "call") },
+  { key: "video", label: "Video", icon: Video, price: (a) => a.videoPrice, on: (a) => Boolean(a.supportsVideo) || isFreeMode(a, "video") },
 ];
+
+/** Free for this viewer right now (the server sends `freeModes` only to users who haven't had their free session). */
+export const isFreeMode = (a, mode) => Boolean(a?.freeModes?.includes(mode));
 
 /**
  * Can `mode` be started right now? `availableModes` comes from the astrologer's live presence (they choose
@@ -23,6 +26,7 @@ export function astrologerModes(a) {
     label: m.label,
     icon: m.icon,
     price: m.price(a),
+    free: isFreeMode(a, m.key),
     available: a.status === "online" && isModeAvailable(a, m.key),
   }));
 }

@@ -29,8 +29,8 @@ export const priceFor = (astrologer, mode) =>
 /** Modes this astrologer offers (chat always; call / video when priced). Which can start now: isModeAvailable(). */
 export const modesFor = (astrologer) => [
   "chat",
-  ...(astrologer.supportsCall !== false ? ["call"] : []),
-  ...(astrologer.supportsVideo ? ["video"] : []),
+  ...(astrologer.supportsCall !== false || astrologer.freeModes?.includes("call") ? ["call"] : []),
+  ...(astrologer.supportsVideo || astrologer.freeModes?.includes("video") ? ["video"] : []),
 ];
 
 const readMockUser = () => {

@@ -27,9 +27,10 @@ export function AstrologerActions({ astrologer, layout = "card", showFollow = fa
   // Just followed: offer browser notifications (the prompt hides itself if already allowed / blocked)
   const [justFollowed, setJustFollowed] = useState(false);
 
-  const start = (mode) =>
+  // A free mode starts right away (nothing to pay or check); paid modes open the pre-session screen
+  const start = (mode, free) =>
     requireAuth(() => {
-      router.push(`${routes.consult}?astrologer=${astrologer.slug}&mode=${mode}`);
+      router.push(`${routes.consult}?astrologer=${astrologer.slug}&mode=${mode}${free ? "&free=1" : ""}`);
     }, mode);
 
   const joinWaitlist = () =>
@@ -66,17 +67,17 @@ export function AstrologerActions({ astrologer, layout = "card", showFollow = fa
           <Button
             key={m.key}
             size={size}
-            variant={i === 0 ? "primary" : "soft"}
-            onClick={() => start(m.key)}
+            variant={m.free ? "success" : i === 0 ? "primary" : "soft"}
+            onClick={() => start(m.key, m.free)}
             disabled={!m.available}
             title={m.available ? undefined : `${astrologer.name} is taking only ${modes.filter((x) => x.available).map((x) => x.label.toLowerCase()).join(" and ") || "other"} requests right now`}
             className={cn(card ? (i === 0 ? "flex-[1.4] px-2" : "flex-1 px-2") : "w-full justify-between")}
             aria-label={m.available ? `${m.label} with ${astrologer.name}` : `${m.label} not available right now`}
           >
             <span className="flex items-center gap-2">
-              <m.icon className="size-4" aria-hidden /> {card ? m.label : `Start ${m.label.toLowerCase()}`}
+              <m.icon className="size-4" aria-hidden /> {m.free ? `Free ${m.label.toLowerCase()}` : card ? m.label : `Start ${m.label.toLowerCase()}`}
             </span>
-            {!card && <span className="text-sm font-medium opacity-90">{formatCurrency(m.price)}/min</span>}
+            {!card && <span className="text-sm font-medium opacity-90">{m.free ? "₹0" : `${formatCurrency(m.price)}/min`}</span>}
           </Button>
         ))}
       {status === "busy" && (
