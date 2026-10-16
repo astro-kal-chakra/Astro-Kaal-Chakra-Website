@@ -62,6 +62,18 @@ export function CallScreen({ sessionId, voiceOnly: voiceParam }) {
   const isLive = !ended && session?.status === "active";
   useLeaveWarning(isLive);
 
+  // The astrologer is in the call: tell the server, which only now starts billing (retried a few times)
+  const reported = useRef(false);
+  const reportConnected = (attempt = 0) => {
+    if (reported.current) return;
+    sessionService.markConnected(sessionId).then(
+      () => {
+        reported.current = true;
+      },
+      () => attempt < 5 && setTimeout(() => reportConnected(attempt + 1), 1500 * (attempt + 1))
+    );
+  };
+
   const join = async () => {
     if (joining || !media.stream) return;
     setJoining(true);
@@ -70,7 +82,10 @@ export function CallScreen({ sessionId, voiceOnly: voiceParam }) {
       const rtc = createRtcClient();
       rtcRef.current = rtc;
       rtc.on("connection-state", ({ state }) => setRtcState(state));
-      rtc.on("remote-joined", ({ hasVideo }) => setRemote({ joined: true, hasVideo: Boolean(hasVideo) }));
+      rtc.on("remote-joined", ({ hasVideo }) => {
+        setRemote({ joined: true, hasVideo: Boolean(hasVideo) });
+        reportConnected();
+      });
       rtc.on("remote-video", ({ hasVideo }) => setRemote((r) => ({ ...r, hasVideo })));
       rtc.on("remote-left", () => setRemote({ joined: false, hasVideo: false }));
       rtc.on("autoplay-blocked", () =>

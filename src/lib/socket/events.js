@@ -18,6 +18,7 @@ export const SOCKET_EVENTS = {
   SESSION_MISSED: "session:missed", // not answered in time { sessionId, reason, suggestions }
   SESSION_END: "session:end", // { sessionId, reason, durationSec, billedMinutes, totalCharged, unusedReturned, isFree, balance }
   SESSION_TICK: "session:tick", // billing { sessionId, elapsedSec, billedMinutes, totalCharged, balance, minutesLeft }
+  SESSION_CONNECTED: "session:connected", // voice/video really connected: billing + timer start now { sessionId, startedAt }
 
   // Chat
   CHAT_MESSAGE: "chat:message",

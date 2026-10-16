@@ -79,6 +79,16 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
     };
   }, [slug]);
 
+  // Tab closed / reloaded while the astrologer's phone is ringing: cancel so it stops ringing right away
+  useEffect(() => {
+    const onHide = () => {
+      const { sessionId } = pending.current;
+      if (sessionId) sessionService.cancelRequest(sessionId, { keepalive: true }).catch(() => {});
+    };
+    window.addEventListener("pagehide", onHide);
+    return () => window.removeEventListener("pagehide", onHide);
+  }, []);
+
   useEffect(
     () => () => {
       const { sessionId, entryId } = pending.current;
@@ -183,13 +193,26 @@ export function ConsultView({ slug, initialMode, waitlist, simulate }) {
 
   const start = () =>
     run("start", async () => {
-      const res = await sessionService.request({
-        astrologer: a,
-        mode: activeMode,
-        useFreeChat,
-        idempotencyKey: crypto.randomUUID(),
-        simulate,
-      });
+      let res;
+      try {
+        res = await sessionService.request({
+          astrologer: a,
+          mode: activeMode,
+          useFreeChat,
+          idempotencyKey: crypto.randomUUID(),
+          simulate,
+        });
+      } catch (err) {
+        // Someone else's request is ringing / in progress: wait in line instead of failing
+        if (err?.code !== "ASTRO_BUSY" || !err?.data?.canJoinQueue) throw err;
+        const q = await sessionService.joinQueue({ astrologer: a, mode: activeMode, useFreeChat });
+        pending.current.entryId = q.entryId;
+        setQueue(q);
+        setTurn(null);
+        setPhase("queue");
+        toast({ type: "info", title: "Astrologer is on another request", message: "You're in the waitlist. We'll connect you when it's your turn." });
+        return;
+      }
       pending.current.sessionId = res.sessionId;
       setRequest({ sessionId: res.sessionId, mode: activeMode, useFreeChat, expiresAt: Date.now() + (res.expiresInSec || REQUEST_TIMEOUT_SECONDS) * 1000 });
       setPhase("waiting");

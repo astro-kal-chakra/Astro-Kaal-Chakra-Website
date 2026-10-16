@@ -92,12 +92,13 @@ export const sessionService = {
     });
   },
 
-  async cancelRequest(sessionId) {
+  /** `keepalive`: still delivered while the tab is closing. */
+  async cancelRequest(sessionId, { keepalive = false } = {}) {
     if (env.useMocks) {
       mockSessionEngine.cancelRequest(sessionId);
       return mockDelay({ ok: true }, 200);
     }
-    return http(`/sessions/${sessionId}/cancel`, { method: "POST" });
+    return http(`/sessions/${sessionId}/cancel`, { method: "POST", keepalive, retry: !keepalive });
   },
 
   /** @returns {Promise<object>} session incl. astrologer, mode, status, startedAt, ratePerMin, isFree, freeMinutes, billedMinutes */
@@ -129,6 +130,12 @@ export const sessionService = {
   },
 
   /** Agora join credentials — token is minted server-side per session. */
+  /** Voice/video: the astrologer is in the call; the server starts billing from now. */
+  async markConnected(sessionId) {
+    if (env.useMocks) return mockDelay({ connected: true }, 50);
+    return http(`/sessions/${sessionId}/connected`, { method: "POST" });
+  },
+
   async getRtcCredentials(sessionId) {
     if (env.useMocks) return mockDelay({ appId: "mock", channel: sessionId, token: "mock-token", uid: 1 }, 200);
     return http(`/sessions/${sessionId}/rtc-token`, { method: "POST" });

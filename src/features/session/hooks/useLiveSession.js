@@ -34,6 +34,7 @@ export function useLiveSession(session) {
   const [tick, setTick] = useState(null);
   const [low, setLow] = useState(null); // { endsAt } from wallet:low
   const [endedEvent, setEndedEvent] = useState(null);
+  const [connectedAt, setConnectedAt] = useState(null); // calls: the timer starts when the call connects
   const nowSec = useClockSeconds();
 
   const sessionId = session?.id;
@@ -45,6 +46,9 @@ export function useLiveSession(session) {
     transport.emit(CLIENT_EVENTS.SESSION_JOIN, { sessionId });
   }, [transport, sessionId, isActive, connected]);
 
+  useTransportEvent(transport, SOCKET_EVENTS.SESSION_CONNECTED, (p) => {
+    if (p.sessionId === sessionId) setConnectedAt(new Date(p.startedAt).getTime() || Date.now());
+  });
   useTransportEvent(transport, SOCKET_EVENTS.SESSION_TICK, (p) => {
     if (p.sessionId === sessionId) setTick(p);
   });
@@ -58,7 +62,8 @@ export function useLiveSession(session) {
 
   const ended = endedEvent || (session?.status === "completed" ? toEnded(session) : null);
 
-  const startedSec = session?.startedAt ? Math.floor(session.startedAt / 1000) : null;
+  const startedMs = connectedAt || session?.startedAt;
+  const startedSec = startedMs ? Math.floor(startedMs / 1000) : null;
   const elapsed = ended ? ended.durationSec : startedSec && nowSec ? Math.max(0, nowSec - startedSec) : tick?.elapsedSec || 0;
   // Smooth local countdown; the server ends the free chat when its minutes are over.
   const freeRemaining = session?.isFree && !ended ? Math.max(0, (session.freeMinutes || 0) * 60 - elapsed) : 0;
