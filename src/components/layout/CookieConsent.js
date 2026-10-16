@@ -25,7 +25,7 @@ export function CookieConsent() {
         <p className="flex-1 text-sm text-muted">
           We use cookies to keep you logged in, remember your language and understand how the site is used.{" "}
           <LocaleLink href={routes.legal("privacy-policy")} className="font-medium text-brand-600 underline dark:text-gold-400">
-            Privacy Policy
+            Read our privacy policy
           </LocaleLink>
         </p>
         <div className="flex shrink-0 flex-wrap gap-2">

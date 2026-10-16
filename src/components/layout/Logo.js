@@ -22,12 +22,13 @@ export function LogoMark({ className, priority = false }) {
 }
 
 
-export function Logo({ className, onDark = false, priority = false, wordmarkClassName }) {
+/** `asLink={false}`: plain branding (e.g. the footer), so the page doesn't repeat the header's link home. */
+export function Logo({ className, onDark = false, priority = false, wordmarkClassName, asLink = true }) {
+  const Root = asLink ? LocaleLink : "div";
   return (
-    <LocaleLink
-      href="/"
+    <Root
+      {...(asLink ? { href: "/", "aria-label": siteConfig.name } : {})}
       translate="no"
-      aria-label={siteConfig.name}
       className={cn("notranslate flex min-w-0 items-center gap-2 font-display text-xl tracking-tight sm:text-[1.4rem]", className)}
     >
       <LogoMark priority={priority} />
@@ -45,6 +46,6 @@ export function Logo({ className, onDark = false, priority = false, wordmarkClas
       >
         {siteConfig.name}
       </span>
-    </LocaleLink>
+    </Root>
   );
 }

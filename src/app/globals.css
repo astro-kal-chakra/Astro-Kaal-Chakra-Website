@@ -359,3 +359,8 @@ iframe.skiptranslate,
 .article-html video { width: 100%; max-height: 70vh; background: #000; }
 .article-html div[data-youtube-video] { max-width: 100%; margin: 1.8em auto; }
 .article-html iframe { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; margin: 0 auto; border: 0; border-radius: 1rem; }
+
+/* Profile reminder alert bar (ProfileReminder.js): slides down from under the header */
+@keyframes banner-in {
+  from { opacity: 0; transform: translateY(-12px); }
+}
