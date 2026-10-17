@@ -78,7 +78,9 @@ export function getSocket() {
       io(env.socketUrl, {
         withCredentials: true,
         auth: { guest: true }, // ignored by the server when the login cookie is present
-        transports: ["websocket", "polling"],
+        // WebSocket only, like the apps: HTTP long-polling breaks when the API runs as several processes
+        // (each poll can land on a different one). Every current browser supports WebSockets.
+        transports: ["websocket"],
         reconnection: true,
         reconnectionDelay: 1000,
         reconnectionDelayMax: 10000,
