@@ -36,10 +36,21 @@ export function useAstrologerPresence(astrologers) {
           ...prev,
           [astrologerId]: { status, queueCount, ...(modes ? { availableModes: modes } : {}), ...(freeModes !== undefined ? { freeModes: freeModes || [] } : {}) },
         }));
-      socket.emit(SOCKET_EVENTS.SUBSCRIBE_PRESENCE, ids);
+      // (Re)join the live-status room and catch up. The room is lost on every reconnect (network drop, laptop
+      // sleep, server restart), so without this the page stopped updating until it was refreshed.
+      const subscribe = () => {
+        socket.emit(SOCKET_EVENTS.SUBSCRIBE_PRESENCE, ids);
+        socket.emit("presence:get", { astrologerIds: ids.slice(0, 100) }, (ack) => {
+          const map = ack?.ok ? ack.data : null;
+          if (map && typeof map === "object") Object.entries(map).forEach(([astrologerId, p]) => p && onStatus({ ...p, astrologerId }));
+        });
+      };
+      if (socket.connected) subscribe();
+      socket.on("connect", subscribe);
       socket.on(SOCKET_EVENTS.ASTROLOGER_STATUS, onStatus);
       return () => {
         socket.emit(SOCKET_EVENTS.UNSUBSCRIBE_PRESENCE, ids);
+        socket.off("connect", subscribe);
         socket.off(SOCKET_EVENTS.ASTROLOGER_STATUS, onStatus);
       };
     }

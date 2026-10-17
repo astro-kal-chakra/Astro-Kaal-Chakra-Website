@@ -222,7 +222,13 @@ export function ConsultView({ slug, initialMode, waitlist, simulate, autoStartFr
         setQueue(q);
         setTurn(null);
         setPhase("queue");
-        toast({ type: "info", title: "Astrologer is on another request", message: "You're in the waitlist. We'll connect you when it's your turn." });
+        // "paused": the astrologer is on a short break / set themselves busy; otherwise another request is ringing
+        const paused = err?.data?.reason === "paused";
+        toast({
+          type: "info",
+          title: paused ? "Astrologer is busy for a moment" : "Astrologer is on another request",
+          message: "You're in the waitlist. We'll connect you when it's your turn.",
+        });
         return;
       }
       pending.current.sessionId = res.sessionId;
