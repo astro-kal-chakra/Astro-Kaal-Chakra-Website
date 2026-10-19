@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { env } from "@/config/site";
 import { routes } from "@/config/routes";
 import { useCountdown } from "@/hooks/useCountdown";
@@ -61,6 +61,14 @@ export function LoginForm({ onSuccess }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const resend = useCountdown(0);
+
+  // Get Firebase + reCAPTCHA ready while the number is being typed, so "Send OTP" responds quickly
+  useEffect(() => {
+    authService.prepare().catch(() => {});
+  }, []);
+  useEffect(() => {
+    if (PHONE_RE.test(phone)) authService.precheck(phone).catch(() => {});
+  }, [phone]);
 
   const errorMessage = (e) => {
     if (e?.status === 429) return "Too many requests. Please wait a moment and try again.";

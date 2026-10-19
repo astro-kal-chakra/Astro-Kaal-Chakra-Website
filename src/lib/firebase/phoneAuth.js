@@ -21,6 +21,7 @@ export const firebaseConfigured = () => Boolean(CONFIG.apiKey && CONFIG.authDoma
 const RECAPTCHA_ID = "firebase-recaptcha";
 let sdk = null;
 let verifier = null;
+let verifierUsed = false; // a reCAPTCHA answers one send; the next send (resend / retry) needs a fresh one
 let pending = null; // { phone, confirmation }
 
 /** Loads Firebase only when someone logs in (keeps it out of every page). */
@@ -45,7 +46,22 @@ function freshRecaptcha(s) {
   el.id = RECAPTCHA_ID;
   document.body.appendChild(el);
   verifier = new s.RecaptchaVerifier(s.auth, el, { size: "invisible" });
+  verifierUsed = false;
   return verifier;
+}
+
+/**
+ * Called when the login form opens: downloads Firebase and renders the invisible reCAPTCHA in the background,
+ * so tapping "Send OTP" only has to send (instead of first loading the SDK and Google's reCAPTCHA script).
+ */
+export async function warmUp() {
+  if (!firebaseConfigured() || typeof window === "undefined") return;
+  try {
+    const s = await load();
+    if (!verifier || verifierUsed) await freshRecaptcha(s).render();
+  } catch {
+    /* sending will try again */
+  }
 }
 
 function resetRecaptcha() {
@@ -86,7 +102,10 @@ export async function sendPhoneCode(phone, { testing }) {
   const s = await load();
   s.auth.settings.appVerificationDisabledForTesting = Boolean(testing);
   try {
-    const confirmation = await s.signInWithPhoneNumber(s.auth, `+91${phone}`, freshRecaptcha(s));
+    // The reCAPTCHA prepared by warmUp() when it hasn't been used yet; otherwise a fresh one
+    const v = verifier && !verifierUsed && !testing ? verifier : freshRecaptcha(s);
+    verifierUsed = true;
+    const confirmation = await s.signInWithPhoneNumber(s.auth, `+91${phone}`, v);
     pending = { phone, confirmation };
   } catch (err) {
     // Shows the exact Firebase code in the browser console (Settings / domains / quota problems)

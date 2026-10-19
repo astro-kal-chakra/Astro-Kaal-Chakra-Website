@@ -3,11 +3,25 @@ import { ApiError, http, mockDelay } from "../http";
 import { contentService } from "./content.service";
 
 /** Firebase (phone OTP) only when the backend uses it and this site has the Firebase web config. */
-async function firebaseMode() {
-  const { firebaseConfigured } = await import("@/lib/firebase/phoneAuth");
-  if (!firebaseConfigured()) return null;
-  const auth = (await contentService.getSiteConfig().catch(() => null))?.auth;
-  return auth?.otpProvider === "firebase" ? auth : null;
+let modePromise = null; // the login settings, fetched once per page (not again on every "Send OTP")
+function firebaseMode() {
+  modePromise ??= (async () => {
+    const { firebaseConfigured } = await import("@/lib/firebase/phoneAuth");
+    if (!firebaseConfigured()) return null;
+    const auth = (await contentService.getSiteConfig().catch(() => null))?.auth;
+    return auth?.otpProvider === "firebase" ? auth : null;
+  })().catch(() => {
+    modePromise = null; // try again next time
+    return null;
+  });
+  return modePromise;
+}
+
+// "One number, one role" check, started as soon as a full number is typed (one request per number)
+const phoneChecks = new Map();
+function phoneCheck(phone) {
+  if (!phoneChecks.has(phone)) phoneChecks.set(phone, http("/auth/phone-check", { method: "POST", body: { phone } }).catch(() => null));
+  return phoneChecks.get(phone);
 }
 
 /** Firebase error → ApiError the login form can show (message), keeping our codes where they matter. */
@@ -31,13 +45,26 @@ const readMockUser = () => {
 };
 
 export const authService = {
+  /** Login form opened: get the settings and Firebase + reCAPTCHA ready, so sending is quick. */
+  async prepare() {
+    if (env.useMocks) return;
+    const fb = await firebaseMode();
+    if (fb) (await import("@/lib/firebase/phoneAuth")).warmUp();
+  },
+
+  /** A full number was typed: check it in the background (the answer is ready when "Send OTP" is tapped). */
+  async precheck(phone) {
+    if (env.useMocks) return;
+    if (await firebaseMode()) phoneCheck(phone);
+  },
+
   /** Backend enforces rate limits + bot protection; we surface its errors. */
   async sendOtp(phone) {
     if (env.useMocks) return mockDelay({ requestId: "mock", resendAfter: 30, maxAttempts: 3 });
     const fb = await firebaseMode();
     if (fb) {
       // One number, one role: no SMS for an astrologer's number (the backend refuses it at login anyway)
-      const check = await http("/auth/phone-check", { method: "POST", body: { phone } }).catch(() => null);
+      const check = await phoneCheck(phone);
       if (check && check.allowed === false) throw new ApiError(check.message || "This number is registered as an astrologer.", { status: 409, code: check.code });
       const { sendPhoneCode } = await import("@/lib/firebase/phoneAuth");
       try {

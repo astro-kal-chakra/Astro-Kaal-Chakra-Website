@@ -24,6 +24,8 @@ export const siteConfig = {
     "Chat, call or video with verified Vedic astrologers for love, career, marriage, finance and health. First 3-minute chat free. Daily horoscope, free Kundli, Kundli matching and Panchang.",
   keywords: [
     "Astro Kaal Chakra",
+    "astro kaal chakra",
+    "astrokaalchakra",
     "Astro Kaal Chakra astrology",
     "online astrologer",
     "talk to astrologer",
