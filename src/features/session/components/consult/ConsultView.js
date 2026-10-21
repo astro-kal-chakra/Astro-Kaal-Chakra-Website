@@ -106,6 +106,38 @@ export function ConsultView({ slug, initialMode, waitlist, simulate, autoStartFr
 
   /* --------------------------- live server events --------------------------- */
 
+  // The astrologer's answer comes as a live event, which can be missed (connection blip, tab in the background).
+  // While ringing, also ask the server every few seconds and when the tab is shown again, so the page never keeps
+  // "ringing" after the astrologer declined.
+  useEffect(() => {
+    if (phase !== "waiting" || !request?.sessionId || simulate) return;
+    const { sessionId, mode: reqMode, useFreeChat } = request;
+    const check = async () => {
+      try {
+        const s = await sessionService.get(sessionId);
+        if (s?.status === "active" || s?.status === "completed") goLive(sessionId, reqMode, useFreeChat);
+        else if (s?.status === "rejected" || s?.status === "cancelled") {
+          pending.current.sessionId = null;
+          setPhase("rejected");
+        } else if (s?.status === "missed") {
+          pending.current.sessionId = null;
+          setPhase("timeout");
+        }
+      } catch {
+        /* the live events still apply */
+      }
+    };
+    const timer = setInterval(check, 4000);
+    const onVisible = () => document.visibilityState === "visible" && check();
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+    // goLive only navigates; re-running for it would restart the timer every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, request, simulate]);
+
   useTransportEvent(transport, SOCKET_EVENTS.SESSION_START, (p) => {
     if (p.sessionId === request?.sessionId) goLive(p.sessionId, request.mode, request.useFreeChat);
   });

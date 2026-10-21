@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
+import { sessionService } from "@/lib/api/services/session.service";
 import { CLIENT_EVENTS, SOCKET_EVENTS } from "@/lib/socket/events";
 import { normalizeEndReason } from "../lib/sessionEvents";
 import { useSessionTransport, useTransportConnected, useTransportEvent } from "./useSessionTransport";
@@ -59,6 +60,26 @@ export function useLiveSession(session) {
   useTransportEvent(transport, SOCKET_EVENTS.SESSION_END, (p) => {
     if (p.sessionId === sessionId) setEndedEvent(toEnded(p));
   });
+
+  // Ended by the astrologer while the "ended" event was missed (connection blip, tab in the background):
+  // check every few seconds and when the tab is shown again.
+  useEffect(() => {
+    if (!sessionId || !isActive || endedEvent) return;
+    const check = () =>
+      sessionService
+        .get(sessionId)
+        .then((s) => {
+          if (s && s.status !== "active" && s.status !== "pending") setEndedEvent(toEnded(s));
+        })
+        .catch(() => {});
+    const timer = setInterval(check, 5000);
+    const onVisible = () => document.visibilityState === "visible" && check();
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [sessionId, isActive, endedEvent]);
 
   const ended = endedEvent || (session?.status === "completed" ? toEnded(session) : null);
 
