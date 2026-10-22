@@ -1,6 +1,6 @@
 "use client";
 
-import { Mic, MicOff, PhoneOff, SwitchCamera, Video, VideoOff, Volume2, VolumeX } from "lucide-react";
+import { CircleDot, Mic, MicOff, PhoneOff, SwitchCamera, Video, VideoOff, Volume2, VolumeX } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Avatar } from "@/components/ui/Avatar";
 import { Spinner } from "@/components/ui/Skeleton";
@@ -41,6 +41,7 @@ export function InCall({
   stream,
   live,
   rtcState,
+  recorded,
   remote,
   remoteRef,
   controls,
@@ -98,6 +99,12 @@ export function InCall({
           />
           <SessionMeter elapsed={live.elapsed} balance={live.balance} freeRemaining={live.freeRemaining} tone="dark" />
         </div>
+        {recorded && (
+          <p className="mx-auto mt-2 flex max-w-3xl items-center justify-center gap-1.5 px-4 text-xs text-white/70">
+            <CircleDot className="size-3.5 shrink-0" aria-hidden />
+            This call is recorded for quality and safety.
+          </p>
+        )}
         {live.lowBalance && (
           <div className="mx-auto mt-3 max-w-3xl px-4">
             <LowBalanceBanner secondsLeft={live.secondsLeft} className="rounded-xl border" />

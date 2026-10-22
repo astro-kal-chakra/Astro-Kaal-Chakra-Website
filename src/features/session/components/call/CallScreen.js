@@ -30,6 +30,7 @@ export function CallScreen({ sessionId, voiceOnly: voiceParam }) {
   const [phase, setPhase] = useState("prejoin"); // prejoin | incall
   const [joining, setJoining] = useState(false);
   const [rtcState, setRtcState] = useState("DISCONNECTED");
+  const [recorded, setRecorded] = useState(false); // the server records this call (shows a notice)
   const [remote, setRemote] = useState({ joined: false, hasVideo: false });
   const [controls, setControls] = useState({ micOn: true, camOn: true, speakerOn: true });
   const [confirmEnd, setConfirmEnd] = useState(false);
@@ -79,6 +80,7 @@ export function CallScreen({ sessionId, voiceOnly: voiceParam }) {
     setJoining(true);
     try {
       const creds = await sessionService.getRtcCredentials(sessionId);
+      setRecorded(creds?.recorded === true);
       const rtc = createRtcClient();
       rtcRef.current = rtc;
       rtc.on("connection-state", ({ state }) => setRtcState(state));
@@ -164,6 +166,7 @@ export function CallScreen({ sessionId, voiceOnly: voiceParam }) {
           stream={media.stream}
           live={live}
           rtcState={rtcState}
+          recorded={recorded}
           remote={remote}
           remoteRef={remoteRef}
           controls={controls}
