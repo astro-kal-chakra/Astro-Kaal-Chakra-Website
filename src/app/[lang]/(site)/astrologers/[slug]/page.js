@@ -130,9 +130,9 @@ export default async function AstrologerProfilePage({ params }) {
             </h2>
             <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {reviews.items.map((r) => (
-                <ReviewCard key={r.id} review={r} locale={lang} />
+                <ReviewCard key={r.id} review={r} locale={lang} astrologerName={a.name} />
               ))}
-              <MoreReviews astrologerId={astrologer.id} hasMore={reviews.hasMore ?? reviews.items.length < reviews.total} locale={lang} />
+              <MoreReviews astrologerId={astrologer.id} astrologerName={a.name} hasMore={reviews.hasMore ?? reviews.items.length < reviews.total} locale={lang} />
             </ul>
           </section>
         </div>

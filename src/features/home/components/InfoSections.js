@@ -130,13 +130,24 @@ export function Reviews({ locale, reviews }) {
   );
 }
 
-export function ReviewCard({ review: r, locale, as = "li" }) {
+/** One review; `reply` ({ text, at }) is the astrologer's public answer, shown under it. */
+export function ReviewCard({ review: r, locale, astrologerName, as = "li" }) {
+  const from = astrologerName || r.astrologer?.name;
   return (
     <Card as={as} className="flex flex-col p-5">
       <RatingStars value={r.rating} />
       <p className="mt-3 flex-1 font-display text-[1.05rem] leading-relaxed text-fg">“{r.text}”</p>
       <p className="mt-4 text-sm font-semibold text-fg">{r.user}</p>
       <p className="text-xs text-muted">{formatDate(r.date, locale)}</p>
+      {r.reply?.text && (
+        <div className="mt-3 rounded-xl border-l-2 border-brand-500 bg-brand-50 px-3 py-2 dark:bg-brand-950/40">
+          <p className="flex items-center gap-1.5 text-xs font-semibold text-brand-700 dark:text-brand-200">
+            <MessageCircle className="size-3.5" aria-hidden />
+            {from ? `Reply from ${from}` : "Reply from the astrologer"}
+          </p>
+          <p className="mt-1 text-sm leading-relaxed text-fg">{r.reply.text}</p>
+        </div>
+      )}
     </Card>
   );
 }

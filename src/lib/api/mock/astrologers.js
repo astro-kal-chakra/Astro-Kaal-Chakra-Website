@@ -74,7 +74,7 @@ export const MOCK_ASTROLOGERS = NAMES.map((name, i) => {
 
 export const MOCK_REVIEWS = [
   { id: "r1", user: "Priya S.", rating: 5, text: "Very accurate and calm. Helped me decide on my job switch.", date: "2026-09-21" },
-  { id: "r2", user: "Rahul K.", rating: 5, text: "Explained my chart clearly without scaring me. Will consult again.", date: "2026-09-12" },
+  { id: "r2", user: "Rahul K.", rating: 5, text: "Explained my chart clearly without scaring me. Will consult again.", date: "2026-09-12", reply: { text: "Thank you, Rahul. Wishing you a calm and clear year ahead.", at: 1757750400000 } },
   { id: "r3", user: "Anjali M.", rating: 4, text: "Good guidance on marriage timing. Session was smooth.", date: "2026-08-30" },
   { id: "r4", user: "Vikas T.", rating: 5, text: "Free first chat was genuinely helpful. Recharged after that.", date: "2026-08-18" },
 ];

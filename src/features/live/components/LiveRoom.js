@@ -39,6 +39,8 @@ export function LiveRoom({ session, gifts }) {
   const [messages, setMessages] = useState([]);
   const [viewers, setViewers] = useState(session.viewers || 0);
   const [ended, setEnded] = useState(false);
+  // The host's pinned message ({ text, by, at } or null), shown at the top of the stage
+  const [pinned, setPinned] = useState(session.pinned?.text ? session.pinned : null);
   const [text, setText] = useState("");
   const following = useIsFollowing(a ?? { id: "" });
   const [followBusy, setFollowBusy] = useState(false);
@@ -79,6 +81,8 @@ export function LiveRoom({ session, gifts }) {
         setViewers(ev.count);
       } else if (ev.type === "ended") {
         setEnded(true);
+      } else if (ev.type === "pinned") {
+        setPinned(ev.pinned);
       }
     });
     return unsubscribe;
@@ -200,6 +204,21 @@ export function LiveRoom({ session, gifts }) {
                 <Eye className="size-3.5" aria-hidden /> {`${formatCompact(viewers, locale)} watching`}
               </span>
             </div>
+
+            {pinned && !ended && (
+              <div
+                role="status"
+                className="absolute inset-x-3 top-12 z-10 flex items-start gap-2 rounded-xl border-l-4 border-gold-400 bg-black/65 px-3 py-2 text-white backdrop-blur sm:inset-x-4 sm:top-14 sm:max-w-xl"
+              >
+                <span aria-hidden className="text-base leading-5">
+                  📌
+                </span>
+                <div className="min-w-0">
+                  <p className="line-clamp-3 break-words text-sm leading-5">{pinned.text}</p>
+                  <p className="mt-0.5 truncate text-[11px] font-semibold text-gold-300">{`Pinned by ${a?.name || "the astrologer"}`}</p>
+                </div>
+              </div>
+            )}
 
             <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-gradient-to-t from-black/70 to-transparent p-3 pt-12 sm:p-4 sm:pt-16">
               <div className="min-w-0 text-white">

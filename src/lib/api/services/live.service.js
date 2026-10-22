@@ -15,6 +15,7 @@ export const LIVE_EVENTS = {
   MESSAGE: "live:message", // { id, user, text, at, kind: "chat" | "question" | "gift", giftId? }
   VIEWERS: "live:viewers", // { count }
   ENDED: "live:ended",
+  PINNED: "live:pinned", // { roomId, pinned: { text, by: "host", at (ms) } | null }
 };
 
 /** Public astrologer info only — never contact details. */
@@ -116,7 +117,8 @@ export const liveService = {
   },
 
   /**
-   * Subscribe to room events. Calls onEvent({ type: "message" | "viewers", ... }).
+   * Subscribe to room events. Calls onEvent({ type: "message" | "viewers" | "ended" | "pinned", ... }).
+   * "pinned" carries the host's pinned message ({ text, by, at } or null): from the join answer, then on every change.
    * In mock mode it simulates incoming chat, gifts and viewer count changes.
    * @returns {() => void} unsubscribe
    */
@@ -126,19 +128,27 @@ export const liveService = {
       const onMessage = (m) => onEvent({ type: "message", message: m });
       const onViewers = ({ count }) => onEvent({ type: "viewers", count });
       const onEnded = () => onEvent({ type: "ended" });
-      // Join now and again after every reconnect (the server forgets room membership on disconnect)
-      const join = () => socket.emit(LIVE_EVENTS.JOIN, { sessionId });
+      const onPinned = (p) => (!p?.roomId || p.roomId === sessionId) && onEvent({ type: "pinned", pinned: p?.pinned?.text ? p.pinned : null });
+      // Join now and again after every reconnect (the server forgets room membership on disconnect).
+      // The join answer ({ ok, data: { pinned } }) carries the message pinned right now.
+      const join = () =>
+        socket.emit(LIVE_EVENTS.JOIN, { sessionId }, (res) => {
+          const d = res?.data;
+          if (d && "pinned" in d) onEvent({ type: "pinned", pinned: d.pinned?.text ? d.pinned : null });
+        });
       if (socket.connected) join();
       socket.on("connect", join);
       socket.on(LIVE_EVENTS.MESSAGE, onMessage);
       socket.on(LIVE_EVENTS.VIEWERS, onViewers);
       socket.on(LIVE_EVENTS.ENDED, onEnded);
+      socket.on(LIVE_EVENTS.PINNED, onPinned);
       return () => {
         socket.emit(LIVE_EVENTS.LEAVE, { sessionId });
         socket.off("connect", join);
         socket.off(LIVE_EVENTS.MESSAGE, onMessage);
         socket.off(LIVE_EVENTS.VIEWERS, onViewers);
         socket.off(LIVE_EVENTS.ENDED, onEnded);
+        socket.off(LIVE_EVENTS.PINNED, onPinned);
       };
     }
     if (!env.useMocks) return () => {};

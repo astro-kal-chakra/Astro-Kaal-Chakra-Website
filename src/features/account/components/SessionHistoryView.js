@@ -1,17 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import { FileText, History, LifeBuoy, MessageCircle, Phone, RotateCcw, Video } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { FileText, History, LifeBuoy, MessageCircle, MessagesSquare, Phone, RotateCcw, Video } from "lucide-react";
 import { routes } from "@/config/routes";
 import { sessionHistoryService } from "@/lib/api/services/session-history.service";
 import { cn } from "@/lib/utils/cn";
 import { formatCurrency, formatDuration } from "@/lib/utils/format";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
-import { ButtonLink } from "@/components/ui/Button";
+import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { LocaleLink } from "@/components/ui/LocaleLink";
-import { formatDateTime } from "../lib/format";
+import { Modal } from "@/components/ui/Modal";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { formatDateTime, formatTime } from "../lib/format";
 import { AccountFilterChips } from "./AccountControls";
 import { AccountShell } from "./AccountShell";
 import { AccountEmptyCard, AccountErrorState, AccountListSkeleton, AccountLoadMore } from "./AccountStates";
@@ -24,7 +26,80 @@ const STATUS_TONE = { completed: "success", missed: "warning", refunded: "brand"
 
 const TYPE_ICON = { chat: MessageCircle, call: Phone, video: Video };
 
-function SessionRow({ session: s }) {
+/** Messages per transcript request (the API's part size). */
+const TRANSCRIPT_PAGE = 500;
+
+function TranscriptModal({ session, onClose }) {
+  const locale = SITE_LOCALE;
+  // Long chats come in parts of TRANSCRIPT_PAGE messages; the next part starts after the last one shown
+  const lastAt = useRef(null);
+  const list = usePagedResource(async (page) => {
+    if (!session) return { items: [], hasMore: false };
+    const rows = await sessionHistoryService.getTranscript(session.id, page > 1 ? { after: lastAt.current } : {});
+    return { items: rows, hasMore: rows.length >= TRANSCRIPT_PAGE };
+  }, session?.id || "");
+  useEffect(() => {
+    lastAt.current = list.items.at(-1)?.at ?? null;
+  });
+  const { items: data, status, reload } = list;
+
+  return (
+    <Modal
+      open={Boolean(session)}
+      onClose={onClose}
+      title={session ? `Chat with ${session.astrologer.name}` : ""}
+      className="sm:max-w-lg"
+    >
+      {session && (
+        <div>
+          <p className="mb-3 text-xs text-muted">{formatDateTime(session.startedAt, locale)}</p>
+          <div className="max-h-[60vh] space-y-3 overflow-y-auto rounded-2xl bg-surface-muted p-3" aria-live="polite">
+            {status === "loading" &&
+              Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className={cn("h-12 w-3/4 rounded-2xl", i % 2 && "ml-auto")} />
+              ))}
+            {status === "error" && (
+              <div className="py-6 text-center text-sm">
+                <p className="mb-3 text-muted">{"Couldn't load this"}</p>
+                <Button size="sm" variant="outline" onClick={reload}>
+                  Try again
+                </Button>
+              </div>
+            )}
+            {status === "success" && data.length === 0 && <p className="py-6 text-center text-sm text-muted">No messages in this session.</p>}
+            {status === "success" &&
+              data.map((m) =>
+                m.from === "system" ? (
+                  <p key={m.id} className="text-center text-xs text-muted">
+                    {m.text} · {formatTime(m.at, locale)}
+                  </p>
+                ) : (
+                  <div key={m.id} className={cn("flex", m.from === "user" ? "justify-end" : "justify-start")}>
+                    <div
+                      className={cn(
+                        "max-w-[85%] rounded-2xl px-3 py-2 text-sm",
+                        m.from === "user" ? "rounded-br-sm bg-brand-600 text-white" : "rounded-bl-sm bg-surface text-fg shadow-sm"
+                      )}
+                    >
+                      <p className="mb-0.5 text-[11px] font-semibold opacity-80">
+                        {m.from === "user" ? "You" : session.astrologer.name}
+                      </p>
+                      <p className="whitespace-pre-line">{m.text}</p>
+                      <p className="mt-1 text-right text-[10px] opacity-70">{formatTime(m.at, locale)}</p>
+                    </div>
+                  </div>
+                )
+              )}
+            {status === "success" && <AccountLoadMore list={list} label="Show more of this chat" className="mt-2" />}
+          </div>
+          <p className="mt-3 text-xs text-muted">Transcripts are private to you. They may be reviewed for safety if a complaint is raised.</p>
+        </div>
+      )}
+    </Modal>
+  );
+}
+
+function SessionRow({ session: s, onTranscript }) {
   const locale = SITE_LOCALE;
   const kind = TYPE_ICON[s.mode] ? s.mode : "chat";
   const Icon = TYPE_ICON[kind];
@@ -76,6 +151,11 @@ function SessionRow({ session: s }) {
         <ButtonLink href={`${routes.consult}?astrologer=${s.astrologer.slug}&mode=${kind}`} size="sm" variant="primary">
           <RotateCcw className="size-3.5" aria-hidden /> Rebook
         </ButtonLink>
+        {s.hasTranscript && (
+          <Button size="sm" variant="outline" onClick={() => onTranscript(s)}>
+            <MessagesSquare className="size-3.5" aria-hidden /> Transcript
+          </Button>
+        )}
         {s.hasSummary && (
           <ButtonLink href={routes.sessionSummary(s.id)} size="sm" variant="ghost">
             <FileText className="size-3.5" aria-hidden /> Summary
@@ -88,6 +168,7 @@ function SessionRow({ session: s }) {
 
 export function SessionHistoryView() {
   const [tab, setTab] = useState("all");
+  const [transcriptFor, setTranscriptFor] = useState(null);
   const list = usePagedResource((page) => sessionHistoryService.list({ type: tab, page }), tab);
   const { status, reload } = list;
 
@@ -118,7 +199,7 @@ export function SessionHistoryView() {
           </p>
           <ul className="space-y-3">
             {list.items.map((s) => (
-              <SessionRow key={s.id} session={s} />
+              <SessionRow key={s.id} session={s} onTranscript={setTranscriptFor} />
             ))}
           </ul>
           <AccountLoadMore list={list} label="Show older sessions" />
@@ -132,6 +213,8 @@ export function SessionHistoryView() {
           Get help
         </ButtonLink>
       </Card>
+
+      <TranscriptModal session={transcriptFor} onClose={() => setTranscriptFor(null)} />
     </AccountShell>
   );
 }

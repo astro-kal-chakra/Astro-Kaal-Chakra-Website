@@ -9,7 +9,7 @@ import { astrologerService } from "@/lib/api/services/astrologer.service";
  * Reviews after the server-rendered first page: "Show more reviews" loads the next 10 at a time.
  * Renders <li> items, so it sits inside the same list as the first page.
  */
-export function MoreReviews({ astrologerId, hasMore: initialHasMore, locale }) {
+export function MoreReviews({ astrologerId, astrologerName, hasMore: initialHasMore, locale }) {
   const [items, setItems] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(Boolean(initialHasMore));
@@ -34,7 +34,7 @@ export function MoreReviews({ astrologerId, hasMore: initialHasMore, locale }) {
   return (
     <>
       {items.map((r) => (
-        <ReviewCard key={r.id} review={r} locale={locale} />
+        <ReviewCard key={r.id} review={r} locale={locale} astrologerName={astrologerName} />
       ))}
       {(hasMore || state === "error") && (
         <li className="flex flex-col items-center gap-1 sm:col-span-2">
