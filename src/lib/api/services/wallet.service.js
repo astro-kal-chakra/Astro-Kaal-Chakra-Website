@@ -18,15 +18,24 @@ import { ApiError, http, mockDelay } from "../http";
  * Backend amounts are in paise; this layer works in rupees.
  * TODO(api): convert at the boundary when wiring the real endpoints.
  *
- * Recharge limits (backend settings): ₹50 – ₹1,00,000 per recharge. GST is set from the dashboard;
- * at 0% (the default) the user pays exactly the recharge amount.
+ * Recharge limits and the GST rate come from GET /wallet/config (set in the dashboard). GST is added
+ * on top of the recharge amount; the wallet is credited the recharge amount + bonus (never the GST).
+ *
+ * Packs (GET /wallet/packs) come already filtered for the signed-in user and in display order:
+ *   { id, amount, credit, tag?: "popular" | "bestValue", label?, firstRechargeOnly?,
+ *     offer: "first" | "festival" | null, endsAt: ms | null }
+ * Buying a pack whose offer has ended throws ApiError code OFFER_ENDED.
  *
  * Order status values: "created" | "pending" | "success" | "failed"
  * Transaction types: "recharge" | "consultation" | "refund" | "bonus" | "report"
  * Transaction status: "success" | "pending" | "failed"
  */
 
-export const WALLET_CONFIG = { minAmount: 50, maxAmount: 100000, gstRate: 0 }; // GST rate comes from the dashboard (Settings); 0 = none
+/** Fallback only until GET /wallet/config answers; the real limits and GST rate come from the dashboard. */
+export const WALLET_CONFIG = { minAmount: 50, maxAmount: 100000, gstRate: 0 };
+
+/** Error code when the pack's offer (first recharge / festival) is no longer available. */
+export const OFFER_ENDED_CODE = "OFFER_ENDED";
 
 export const TXN_FILTERS = ["all", "recharge", "consultation", "refund", "bonus"];
 
@@ -36,14 +45,41 @@ export const TXN_FILTERS = ["all", "recharge", "consultation", "refund", "bonus"
 // header balance is correct after a refresh.
 // ---------------------------------------------------------------------------
 
+/** Mock of GET /wallet/config (the dashboard's settings). */
+const MOCK_CONFIG = { ...WALLET_CONFIG, gstRate: 0.18 };
+
+/** Normal packs (always shown). */
 export const MOCK_PACKS = [
-  { id: "p50", amount: 50, credit: 50 },
-  { id: "p100", amount: 100, credit: 120, tag: "popular" },
-  { id: "p200", amount: 200, credit: 250 },
-  { id: "p500", amount: 500, credit: 650, tag: "bestValue" },
-  { id: "p1000", amount: 1000, credit: 1350 },
-  { id: "p2000", amount: 2000, credit: 2800 },
+  { id: "p50", amount: 50, credit: 50, offer: null, endsAt: null },
+  { id: "p100", amount: 100, credit: 120, tag: "popular", offer: null, endsAt: null },
+  { id: "p200", amount: 200, credit: 250, offer: null, endsAt: null },
+  { id: "p500", amount: 500, credit: 650, tag: "bestValue", offer: null, endsAt: null },
+  { id: "p1000", amount: 1000, credit: 1350, offer: null, endsAt: null },
+  { id: "p2000", amount: 2000, credit: 2800, offer: null, endsAt: null },
 ];
+
+const DAY = 24 * 3600_000;
+const MOCK_FESTIVAL_ENDS = Date.now() + 3 * DAY + 5 * 3600_000;
+
+/** Offer packs: first-recharge (until the first mock recharge succeeds) and a festival pack (until endsAt). */
+const MOCK_OFFER_PACKS = [
+  { id: "pfirst150", amount: 150, credit: 300, label: "First recharge offer", firstRechargeOnly: true, offer: "first", endsAt: null },
+  { id: "pdiwali1100", amount: 1100, credit: 1500, label: "Diwali offer", offer: "festival", endsAt: MOCK_FESTIVAL_ENDS },
+];
+
+/** What the backend's GET /wallet/packs would answer for this user right now (offers first). */
+function mockPacksFor(store) {
+  const now = Date.now();
+  const offers = MOCK_OFFER_PACKS.filter((p) => (p.offer === "first" ? !store.firstRechargeDone : !p.endsAt || p.endsAt > now));
+  return [...offers, ...MOCK_PACKS];
+}
+
+function assertPackAvailable(packId, store) {
+  if (!packId) return;
+  const offer = MOCK_OFFER_PACKS.find((p) => p.id === packId);
+  if (offer && !mockPacksFor(store).some((p) => p.id === packId))
+    throw new ApiError("This offer has ended", { status: 409, code: OFFER_ENDED_CODE });
+}
 
 /** Mock coupons: extra wallet credit on top of the pack bonus. */
 const MOCK_COUPONS = {
@@ -136,8 +172,9 @@ function assertAmount(amount) {
 }
 
 /** Instant preview of a quote (display only) — the backend quote is what gets charged. */
-export function quoteRecharge({ amount, packs = MOCK_PACKS, couponBonus: extra = 0, gstRate = WALLET_CONFIG.gstRate }) {
-  const pack = packs.find((p) => p.amount === amount);
+export function quoteRecharge({ amount, packId, packs = MOCK_PACKS, couponBonus: extra = 0, gstRate = WALLET_CONFIG.gstRate }) {
+  // The chosen pack wins (an offer pack may share its amount with a normal one); a custom amount matches by amount.
+  const pack = (packId && packs.find((p) => p.id === packId && p.amount === amount)) || packs.find((p) => p.amount === amount);
   const packBonus = pack ? pack.credit - pack.amount : 0;
   const gst = Math.round(amount * (gstRate || 0) * 100) / 100;
   return {
@@ -198,6 +235,7 @@ function resolveMockOrder(orderId) {
     o.status = o.resolveTo;
     if (o.status === "success") {
       // ← this is what the backend does after /payments/verify or the Razorpay payment.captured webhook.
+      s.firstRechargeDone = true;
       s.balance = Math.round((s.balance + o.credit) * 100) / 100;
       s.txns.push({
         id: `txn_${orderId}`,
@@ -247,13 +285,13 @@ const toOrderStatus = (o) => ({
 
 export const walletService = {
   async getPacks() {
-    if (env.useMocks) return mockDelay(MOCK_PACKS, 100);
+    if (env.useMocks) return mockDelay(mockPacksFor(readStore()), 100);
     return http("/wallet/packs");
   },
 
   /** @returns {{ minAmount: number, maxAmount: number, gstRate: number }} */
   async getConfig() {
-    if (env.useMocks) return WALLET_CONFIG;
+    if (env.useMocks) return mockDelay(MOCK_CONFIG, 50);
     return http("/wallet/config");
   },
 
@@ -264,7 +302,7 @@ export const walletService = {
 
   /**
    * POST /user/wallet/quote — amount payable + pack / coupon bonus for a recharge.
-   * Coupons are applied here. Throws ApiError code INVALID_COUPON | COUPON_MIN_AMOUNT | INVALID_AMOUNT.
+   * Coupons are applied here. Throws ApiError code INVALID_COUPON | COUPON_MIN_AMOUNT | INVALID_AMOUNT | OFFER_ENDED.
    * @param {{ packId?: string, amount: number, couponCode?: string }} p
    * @returns {Promise<{ amount: number, total: number, packBonus: number, couponBonus: number, bonus: number, credit: number, coupon: { code: string } | null }>}
    */
@@ -272,8 +310,10 @@ export const walletService = {
     if (env.useMocks) {
       await mockDelay(null, 350);
       assertAmount(amount);
+      const s = readStore();
+      assertPackAvailable(packId, s);
       const extra = couponCode ? couponBonus(couponCode, amount) : 0;
-      const q = quoteRecharge({ amount, couponBonus: extra });
+      const q = quoteRecharge({ amount, packId, packs: mockPacksFor(s), couponBonus: extra, gstRate: MOCK_CONFIG.gstRate });
       return { ...q, coupon: couponCode ? { code: couponCode } : null, packId };
     }
     return http("/wallet/quote", { method: "POST", body: { packId, amount, couponCode } });
@@ -282,6 +322,7 @@ export const walletService = {
   /**
    * POST /user/payments/order — creates the Razorpay order for the quoted recharge.
    * `idempotencyKey` is generated once per attempt so double-clicks / retries never create two orders.
+   * Throws ApiError code OFFER_ENDED when the pack's offer is no longer available.
    * @returns {Promise<{ orderId: string, keyId: string, currency: "INR", amount: number, credit: number, total: number }>}
    */
   async createOrder({ packId, amount, couponCode, idempotencyKey }) {
@@ -291,8 +332,9 @@ export const walletService = {
       const existing = s.idem[idempotencyKey];
       if (existing && s.orders[existing]) return { ...s.orders[existing] };
       assertAmount(amount);
+      assertPackAvailable(packId, s);
       const extra = couponCode ? couponBonus(couponCode, amount) : 0;
-      const q = quoteRecharge({ amount, couponBonus: extra });
+      const q = quoteRecharge({ amount, packId, packs: mockPacksFor(s), couponBonus: extra, gstRate: MOCK_CONFIG.gstRate });
       const orderId = `order_mock_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
       const order = {
         orderId,
