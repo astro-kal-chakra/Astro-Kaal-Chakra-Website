@@ -24,6 +24,7 @@ export const routes = {
   contact: "/contact",
   faqs: "/faqs",
   becomeAstrologer: "/become-astrologer",
+  astrologerDeleteAccount: "/astrologer-delete-account", // public (Play Store "delete account" link)
   legal: (slug) => `/legal/${slug}`,
   reports: "/reports",
   report: (slug) => `/reports/${slug}`,
