@@ -50,6 +50,7 @@ export function Footer({ locale, config }) {
         [routes.legal("terms"), "Terms of Use"],
         [routes.legal("refund-policy"), "Refund & Cancellation"],
         [routes.legal("disclaimer"), "Disclaimer"],
+        [routes.customerDeleteAccount, "Delete customer account"],
         [routes.astrologerDeleteAccount, "Delete astrologer account"],
       ],
     },

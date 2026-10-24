@@ -13,15 +13,38 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PHONE_RE = /^(?:\+?91[-\s]?)?[6-9]\d{9}$/;
 const EMPTY = { phone: "", email: "", reason: "", website: "" };
 
-function validate(v) {
+// Who the form is for: the astrologer app (email required) or the customer app (email optional)
+const AUDIENCES = {
+  astrologer: {
+    submit: (p) => contentService.submitAstrologerDeletionRequest(p),
+    emailRequired: true,
+    phoneHint: "The number you sign in to Kaal-Chakra-Astro with.",
+    emailLabel: "Contact email address",
+    emailHint: "We'll contact you here to verify the request.",
+  },
+  customer: {
+    submit: (p) => contentService.submitUserDeletionRequest(p),
+    emailRequired: false,
+    phoneHint: "The number you log in to Astro-Kaal-Chakra with.",
+    emailLabel: "Contact email address (optional)",
+    emailHint: "So we can reach you if we can't call.",
+  },
+};
+
+function validate(v, emailRequired) {
   const e = {};
   if (!PHONE_RE.test(v.phone.trim().replace(/\s/g, ""))) e.phone = "Enter your registered 10-digit mobile number.";
-  if (!EMAIL_RE.test(v.email.trim())) e.email = "Enter a valid email address.";
+  const email = v.email.trim();
+  if ((emailRequired || email) && !EMAIL_RE.test(email)) e.email = "Enter a valid email address.";
   return e;
 }
 
-/** Account deletion request for astrologers who can't sign in to the app (support verifies ownership first). */
-export function DeletionRequestForm() {
+/**
+ * Account deletion request for people who can't sign in to the app (support verifies ownership first).
+ * `audience`: "astrologer" (default, Kaal-Chakra-Astro) or "customer" (Astro-Kaal-Chakra).
+ */
+export function DeletionRequestForm({ audience = "astrologer" }) {
+  const cfg = AUDIENCES[audience] ?? AUDIENCES.astrologer;
   const { toast } = useToast();
   const [values, setValues] = useState(EMPTY);
   const [errors, setErrors] = useState({});
@@ -37,7 +60,7 @@ export function DeletionRequestForm() {
   const onSubmit = async (e) => {
     e.preventDefault();
     if (inFlight.current) return;
-    const found = validate(values);
+    const found = validate(values, cfg.emailRequired);
     setErrors(found);
     if (Object.keys(found).length) {
       document.getElementById(`del-${Object.keys(found)[0]}`)?.focus();
@@ -46,9 +69,10 @@ export function DeletionRequestForm() {
     inFlight.current = true;
     setSubmitting(true);
     try {
-      const res = await contentService.submitAstrologerDeletionRequest({
+      const email = values.email.trim();
+      const res = await cfg.submit({
         phone: values.phone.trim().replace(/\s/g, ""),
-        email: values.email.trim(),
+        ...(email ? { email } : {}),
         ...(values.reason.trim() ? { reason: values.reason.trim() } : {}),
         website: values.website,
       });
@@ -79,7 +103,7 @@ export function DeletionRequestForm() {
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Field label="Registered mobile number" htmlFor="del-phone" error={errors.phone} hint="The number you sign in to Kaal-Chakra-Astro with.">
+        <Field label="Registered mobile number" htmlFor="del-phone" error={errors.phone} hint={cfg.phoneHint}>
           <Input
             id="del-phone"
             type="tel"
@@ -93,7 +117,7 @@ export function DeletionRequestForm() {
             maxLength={16}
           />
         </Field>
-        <Field label="Contact email address" htmlFor="del-email" error={errors.email} hint="We'll contact you here to verify the request.">
+        <Field label={cfg.emailLabel} htmlFor="del-email" error={errors.email} hint={cfg.emailHint}>
           <Input
             id="del-email"
             type="email"
@@ -102,7 +126,7 @@ export function DeletionRequestForm() {
             onChange={set("email")}
             placeholder="you@example.com"
             aria-invalid={Boolean(errors.email)}
-            aria-required="true"
+            aria-required={cfg.emailRequired ? "true" : undefined}
             maxLength={120}
           />
         </Field>

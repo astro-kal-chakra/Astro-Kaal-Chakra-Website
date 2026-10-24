@@ -11,7 +11,7 @@ export const revalidate = 3600;
 const STATIC_PATHS = [
   routes.home, routes.astrologers, routes.horoscope, routes.kundli, routes.kundliMatching,
   routes.panchang, routes.zodiacFinder, routes.numerology, routes.blog, routes.about, routes.howItWorks,
-  routes.contact, routes.faqs, routes.becomeAstrologer, routes.reports, routes.live, routes.astrologerDeleteAccount,
+  routes.contact, routes.faqs, routes.becomeAstrologer, routes.reports, routes.live, routes.astrologerDeleteAccount, routes.customerDeleteAccount,
 ];
 
 /** One sitemap entry (as an array so callers can flatMap). */

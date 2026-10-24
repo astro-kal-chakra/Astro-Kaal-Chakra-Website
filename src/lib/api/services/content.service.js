@@ -110,6 +110,12 @@ export const contentService = {
     return http("/astrologer-deletion-requests", { method: "POST", body: payload });
   },
 
+  /** Customer app (Astro-Kaal-Chakra) deletion request: { phone, email?, reason?, website } → { requestId } */
+  async submitUserDeletionRequest(payload) {
+    if (env.useMocks) return mockDelay({ requestId: `DEL-${Date.now().toString(36).toUpperCase()}` }, 700);
+    return http("/user-deletion-requests", { method: "POST", body: payload });
+  },
+
   /**
    * Astrologer application. Documents are only previewed client-side for now —
    * TODO(api): upload files to a pre-signed URL first and send the resulting keys here.
