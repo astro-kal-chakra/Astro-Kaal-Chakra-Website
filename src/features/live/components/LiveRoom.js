@@ -20,7 +20,7 @@ import { FloatingGift } from "./FloatingGift";
 import { LiveBadge } from "./LiveBadge";
 import { useLiveStream } from "../hooks/useLiveStream";
 import { setFollowing, useIsFollowing } from "@/features/astrologers/hooks/useFollowing";
-import { label as t } from "@/lib/labels";
+import { hasLabel, label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
 
 const MAX_MESSAGES = 120;
@@ -56,7 +56,8 @@ export function LiveRoom({ session, gifts }) {
   const giftById = useMemo(() => Object.fromEntries(gifts.map((g) => [g.id, g])), [gifts]);
   const you = user?.name || "You";
 
-  const giftLabel = useCallback((id) => t(`content.live.gifts.${id}`), []);
+  // Built-in gifts have translated names; gifts added in the dashboard use their own name
+  const giftLabel = useCallback((id) => (hasLabel(`content.live.gifts.${id}`) ? t(`content.live.gifts.${id}`) : giftById[id]?.name || id), [giftById]);
 
   const pushMessage = useCallback((m) => setMessages((prev) => [...prev.slice(-(MAX_MESSAGES - 1)), m]), []);
 
@@ -264,6 +265,7 @@ export function LiveRoom({ session, gifts }) {
                   <X className="size-4" />
                 </button>
               </div>
+              {gifts.length === 0 && <p className="py-4 text-center text-sm text-muted">No gifts are available right now. Please check back later.</p>}
               <ul className="grid grid-cols-3 gap-2 sm:grid-cols-6">
                 {gifts.map((g) => (
                   <li key={g.id}>
@@ -277,9 +279,14 @@ export function LiveRoom({ session, gifts }) {
                         giftBusy === g.id && "animate-pulse"
                       )}
                     >
-                      <span className="text-3xl" aria-hidden>
-                        {g.emoji}
-                      </span>
+                      {g.iconUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={g.iconUrl} alt="" className="size-9 object-contain" />
+                      ) : (
+                        <span className="text-3xl" aria-hidden>
+                          {g.emoji}
+                        </span>
+                      )}
                       <span className="text-xs font-medium">{giftLabel(g.id)}</span>
                       <span className="text-xs font-semibold text-gold-600 dark:text-gold-400">{formatCurrency(g.price, locale)}</span>
                     </button>

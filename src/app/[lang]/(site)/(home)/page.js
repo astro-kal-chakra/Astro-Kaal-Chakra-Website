@@ -47,12 +47,8 @@ export default async function HomePage({ params }) {
     <>
       <Hero panchang={panchang} freeChat={config.freeChat} />
 
-      {/* Live broadcasts only while someone is streaming; "online now" only when someone is online; all astrologers always */}
-      {liveRes.live?.length > 0 && (
-        <Reveal>
-          <LiveNowSection sessions={liveRes.live} />
-        </Reveal>
-      )}
+      {/* Live broadcasts only while someone is streaming (the section updates itself); "online now" only when someone is online; all astrologers always */}
+      <LiveNowSection sessions={liveRes.live ?? []} />
       <Reveal>
         <HomeAstrologers online={onlineRes.items} all={topRes.items} />
       </Reveal>

@@ -81,7 +81,8 @@ export const liveService = {
 
   async getGifts() {
     if (env.useMocks) return MOCK_LIVE_GIFTS;
-    return http("/live/gifts", { next: { revalidate: 3600 } });
+    // Short cache: gifts are edited in the dashboard (Marketing → Live gifts) and should show up quickly
+    return http("/live/gifts", { next: { revalidate: 60 } });
   },
 
   async getBalance() {
@@ -127,7 +128,8 @@ export const liveService = {
     if (socket) {
       const onMessage = (m) => onEvent({ type: "message", message: m });
       const onViewers = ({ count }) => onEvent({ type: "viewers", count });
-      const onEnded = () => onEvent({ type: "ended" });
+      // Only this room (the server also tells list pages when any live ends)
+      const onEnded = (p) => (!p?.roomId || p.roomId === sessionId) && onEvent({ type: "ended" });
       const onPinned = (p) => (!p?.roomId || p.roomId === sessionId) && onEvent({ type: "pinned", pinned: p?.pinned?.text ? p.pinned : null });
       // Join now and again after every reconnect (the server forgets room membership on disconnect).
       // The join answer ({ ok, data: { pinned } }) carries the message pinned right now.
