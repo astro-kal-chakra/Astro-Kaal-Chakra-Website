@@ -3,6 +3,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { SmartAppBanner } from "@/components/layout/SmartAppBanner";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
+import { CartDrawer } from "@/features/store/components/CartDrawer";
 import { ProfileReminder } from "@/features/auth/components/ProfileReminder";
 import { contentService } from "@/lib/api/services/content.service";
 
@@ -19,6 +20,7 @@ export default async function SiteLayout({ children, params }) {
       </main>
       <Footer locale={lang} config={config} />
       <WhatsAppButton whatsapp={config.support?.whatsapp} />
+      <CartDrawer />
       {/* "Please complete your profile" nudge every 20–30 min for users who skipped onboarding */}
       <ProfileReminder />
       <CookieConsent />

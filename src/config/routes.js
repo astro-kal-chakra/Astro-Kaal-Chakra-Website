@@ -30,6 +30,8 @@ export const routes = {
   reports: "/reports",
   report: (slug) => `/reports/${slug}`,
   live: "/live",
+  store: "/store",
+  storeProduct: (slug) => `/store/${slug}`,
   liveRoom: (id) => `/live/${id}`,
 
   // Auth

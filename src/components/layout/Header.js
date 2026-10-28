@@ -14,6 +14,7 @@ import { LocaleLink } from "@/components/ui/LocaleLink";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Logo } from "./Logo";
 import { ThemeToggle } from "./ThemeToggle";
+import { HeaderCartButton } from "@/features/store/components/HeaderCartButton";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
 
@@ -137,6 +138,7 @@ export function Header() {
           <span className="hidden sm:block">
             <ThemeToggle />
           </span>
+          <HeaderCartButton />
           <AuthArea />
         </div>
       </div>

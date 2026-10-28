@@ -23,6 +23,7 @@ export function Footer({ locale, config }) {
       title: "Company",
       links: [
         [routes.about, "About us"],
+        [routes.store, "Spiritual Store"],
         [routes.howItWorks, "How it works"],
         [routes.becomeAstrologer, "Become an astrologer"],
         [routes.blog, "Astrology Blog"],
