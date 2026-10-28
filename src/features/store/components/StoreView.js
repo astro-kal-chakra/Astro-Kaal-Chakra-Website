@@ -11,7 +11,6 @@ import { ProductCard } from "./ProductCard";
 
 const SORTS = {
   popular: { label: "Most popular", fn: (a, b) => b.reviews - a.reviews },
-  
   rating: { label: "Top rated", fn: (a, b) => b.rating - a.rating || b.reviews - a.reviews },
   priceAsc: { label: "Price: low to high", fn: (a, b) => a.price - b.price },
   priceDesc: { label: "Price: high to low", fn: (a, b) => b.price - a.price },
