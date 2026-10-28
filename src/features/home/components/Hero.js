@@ -1,4 +1,4 @@
-import { BadgeCheck, Gift, IndianRupee, Lock, MessageCircle, Phone, Video } from "lucide-react";
+import { BadgeCheck, Gift, IndianRupee, Lock, MessageCircle, Phone, Video, GraduationCap } from "lucide-react";
 import { routes } from "@/config/routes";
 import { label as t } from "@/lib/labels";
 import { formatTime } from "@/features/tools/lib/format";
@@ -66,6 +66,10 @@ export function Hero({ panchang, freeChat }) {
             </ButtonLink>
             <ButtonLink href={routes.kundli} size="lg" variant="soft">
               Get your Free Kundli
+            </ButtonLink>
+            {/* Training academy opens in a new tab so visitors keep their place on the home page */}
+            <ButtonLink href={routes.academy} size="lg" variant="outline" target="_blank" rel="noopener">
+              <GraduationCap className="size-5" aria-hidden /> Learn Astrology
             </ButtonLink>
           </div>
 

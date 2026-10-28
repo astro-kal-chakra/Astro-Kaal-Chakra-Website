@@ -5,13 +5,14 @@ import { astrologerService } from "@/lib/api/services/astrologer.service";
 import { contentService } from "@/lib/api/services/content.service";
 import { reportService } from "@/lib/api/services/report.service";
 import { LEGAL_PAGES } from "@/features/legal/content";
+import { COURSES } from "@/features/academy/data";
 
 export const revalidate = 3600;
 
 const STATIC_PATHS = [
   routes.home, routes.astrologers, routes.horoscope, routes.kundli, routes.kundliMatching,
   routes.panchang, routes.zodiacFinder, routes.numerology, routes.blog, routes.about, routes.howItWorks,
-  routes.contact, routes.faqs, routes.becomeAstrologer, routes.reports, routes.live, routes.astrologerDeleteAccount, routes.customerDeleteAccount,
+  routes.contact, routes.faqs, routes.becomeAstrologer, routes.reports, routes.live, routes.academy, routes.astrologerDeleteAccount, routes.customerDeleteAccount,
 ];
 
 /** One sitemap entry (as an array so callers can flatMap). */
@@ -37,6 +38,7 @@ export default async function sitemap() {
     ...astrologers.flatMap((a) => entry(routes.astrologer(a.slug), { changeFrequency: "daily", priority: 0.8, lastModified: a.updatedAt })),
     ...posts.flatMap((p) => entry(routes.blogPost(p.slug), { priority: 0.6, lastModified: p.updatedAt })),
     ...reports.flatMap((slug) => entry(routes.report(slug), { priority: 0.6 })),
+    ...COURSES.flatMap((c) => entry(routes.academyCourse(c.slug), { priority: 0.6 })),
     ...Object.keys(LEGAL_PAGES).flatMap((slug) => entry(routes.legal(slug), { changeFrequency: "yearly", priority: 0.2 })),
   ];
 }
