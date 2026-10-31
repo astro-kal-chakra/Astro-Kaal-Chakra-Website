@@ -3,7 +3,7 @@ import { routes } from "@/config/routes";
 import { CATEGORIES } from "@/constants/astrologer";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { label as t } from "@/lib/labels";
+import { categoryLabel } from "@/lib/labels";
 
 const ICONS = { Heart, Briefcase, Gem, IndianRupee, HeartPulse };
 const HINTS = { love: "Relationships, compatibility", career: "Job change, growth, business", marriage: "Timing, matching, delays", finance: "Money, investments, debt", health: "Wellbeing, remedies" };
@@ -28,7 +28,7 @@ export function Categories({ categories }) {
                   <Icon className="size-5" aria-hidden />
                 </span>
                 <span className="min-w-0">
-                  <span className="block font-semibold text-fg">{t(`categories.${c.slug}`)}</span>
+                  <span className="block font-semibold text-fg">{categoryLabel(c.slug)}</span>
                   <span className="block truncate text-xs text-muted">{HINTS[c.slug]}</span>
                 </span>
               </LocaleLink>

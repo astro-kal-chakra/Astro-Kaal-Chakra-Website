@@ -252,9 +252,14 @@ export const LABELS = {
     "verify": "Verify & Continue"
   },
   "categories": {
+    "business": "Business",
     "career": "Career",
+    "education": "Education",
+    "family": "Family",
     "finance": "Finance",
     "health": "Health",
+    "kids": "Kids",
+    "legal": "Legal",
     "love": "Love",
     "marriage": "Marriage"
   },
@@ -1474,4 +1479,14 @@ export function label(key, vars) {
 /** True when `key` has text (used where data may carry either a label key or plain text). */
 export function hasLabel(key) {
   return typeof key.split(".").reduce((acc, part) => acc?.[part], LABELS) === "string";
+}
+
+/**
+ * Consultation category name ("love" → "Love"). Categories added later in the dashboard may not have a label
+ * here yet: those show the key as words ("face_reading" → "Face Reading") instead of "categories.face_reading".
+ */
+export function categoryLabel(key) {
+  const k = String(key ?? "");
+  if (hasLabel(`categories.${k}`)) return label(`categories.${k}`);
+  return k.replace(/[_-]+/g, " ").trim().replace(/\b\w/g, (c) => c.toUpperCase());
 }

@@ -17,7 +17,7 @@ import { AstrologerLiveRow } from "@/features/astrologers/components/AstrologerL
 import { AstrologerProfileLive } from "@/features/astrologers/components/AstrologerProfileLive";
 import { ReviewCard } from "@/features/home/components/InfoSections";
 import { MoreReviews } from "@/features/astrologers/components/MoreReviews";
-import { label as t } from "@/lib/labels";
+import { categoryLabel, label as t } from "@/lib/labels";
 
 export async function generateStaticParams() {
   const slugs = await astrologerService.listSlugs();
@@ -118,7 +118,7 @@ export default async function AstrologerProfilePage({ params }) {
               ))}
               {a.categories.map((c) => (
                 <Badge key={c} tone="gold">
-                  {t(`categories.${c}`)}
+                  {categoryLabel(c)}
                 </Badge>
               ))}
             </div>

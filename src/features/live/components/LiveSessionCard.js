@@ -15,7 +15,7 @@ import { LocaleLink } from "@/components/ui/LocaleLink";
 import { cn } from "@/lib/utils/cn";
 import { formatRelativeTime } from "../utils";
 import { LiveBadge } from "./LiveBadge";
-import { label as t } from "@/lib/labels";
+import { categoryLabel, label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
 
 export function LiveSessionCard({ session: s }) {
@@ -99,7 +99,7 @@ export function LiveSessionCard({ session: s }) {
         <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted">
           {s.tags?.map((tag) => (
             <Badge key={tag} tone="brand">
-              {t(`categories.${tag}`)}
+              {categoryLabel(tag)}
             </Badge>
           ))}
           <span>{`Questions from ${formatCurrency(s.questionPrice, locale)}`}</span>
