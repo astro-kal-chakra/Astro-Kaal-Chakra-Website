@@ -55,7 +55,7 @@ export const siteConfig = {
     // Facebook page (canonical og:url of the share link facebook.com/share/19vPBQUKqy)
     "https://www.facebook.com/people/Astro-Kaal-Chakra/pfbid02JJwnkfrdA9AkzogrqYjgg3C4THYag79hiFdH4QKmYu9H2nwBVW9jbh5PbhVkynvHl/",
     // "https://www.youtube.com/@your-channel",
-  ],
+  ], 
   /** Search Console / Bing Webmaster verification codes (the `content` value of their meta tag). */
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "",
