@@ -130,14 +130,10 @@ export function ApplicationForm({ options }) {
     setSubmitting(true);
     try {
       const { idProof, certificate, consent, ...rest } = values;
-      const res = await contentService.submitAstrologerApplication({
-        ...rest,
-        consent,
-        documents: {
-          idProof: idProof && { name: idProof.file.name, size: idProof.file.size, type: idProof.file.type },
-          certificate: certificate && { name: certificate.file.name, size: certificate.file.size, type: certificate.file.type },
-        },
-      });
+      const res = await contentService.submitAstrologerApplication(
+        { ...rest, consent },
+        { idProof: idProof?.file, certificate: certificate?.file },
+      );
       setResult({ id: res.applicationId, name: values.fullName.trim().split(" ")[0] });
       window.scrollTo({ top: headingRef.current?.closest("section")?.offsetTop ?? 0, behavior: "smooth" });
     } catch {
