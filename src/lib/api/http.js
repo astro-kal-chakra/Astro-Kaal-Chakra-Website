@@ -60,17 +60,19 @@ export async function http(path, { method = "GET", body, query, headers, retry =
     });
   }
 
+  // FormData (file uploads) goes as multipart: the browser sets the Content-Type with its boundary
+  const isForm = typeof FormData !== "undefined" && body instanceof FormData;
   const res = await fetch(url, {
     method,
     credentials: "include",
     headers: {
       Accept: "application/json",
-      ...(body ? { "Content-Type": "application/json" } : {}),
+      ...(body && !isForm ? { "Content-Type": "application/json" } : {}),
       // Server-side rendering: proves this is the website's own server (exempt from per-IP limits). Never in the browser.
       ...(typeof window === "undefined" && process.env.WEB_SSR_KEY ? { "X-SSR-Key": process.env.WEB_SSR_KEY } : {}),
       ...headers,
     },
-    body: body ? JSON.stringify(body) : undefined,
+    body: isForm ? body : body ? JSON.stringify(body) : undefined,
     ...rest,
   });
 

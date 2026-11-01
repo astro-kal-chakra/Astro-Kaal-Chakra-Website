@@ -117,12 +117,18 @@ export const contentService = {
   },
 
   /**
-   * Astrologer application. Documents are only previewed client-side for now —
-   * TODO(api): upload files to a pre-signed URL first and send the resulting keys here.
+   * Astrologer application: the form as JSON in `data` plus the ID proof / certificate files (multipart).
+   * The backend stores the files privately; the team views them from the dashboard.
+   * @param {object} payload form fields
+   * @param {{ idProof?: File, certificate?: File }} [files]
    */
-  async submitAstrologerApplication(payload) {
+  async submitAstrologerApplication(payload, files = {}) {
     if (env.useMocks) return mockDelay({ applicationId: `APP-${Date.now().toString(36).toUpperCase()}` }, 900);
-    return http("/astrologer-applications", { method: "POST", body: payload });
+    const form = new FormData();
+    form.append("data", JSON.stringify(payload));
+    if (files.idProof) form.append("idProof", files.idProof);
+    if (files.certificate) form.append("certificate", files.certificate);
+    return http("/astrologer-applications", { method: "POST", body: form });
   },
 
   /* ----------------------- Site-wide data (backend settings) ----------------------- */
