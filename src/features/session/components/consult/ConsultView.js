@@ -42,7 +42,7 @@ export const liveSessionPath = (sessionId, mode) =>
 
 /**
  * Pre-session screen + request / waitlist state machine.
- * phase: select → waiting (30s) → (session:start → redirect) | rejected | timeout (session:missed)
+ * phase: select → waiting (60s) → (session:start → redirect) | rejected | timeout (session:missed)
  *        select → queue → queue:offer (60s, accept / decline) → (accepted → redirect) | queueExpired
  */
 export function ConsultView({ slug, initialMode, waitlist, simulate, autoStartFree = false }) {

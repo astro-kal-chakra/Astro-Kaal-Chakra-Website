@@ -38,7 +38,7 @@ export const minBalanceFor = (ratePerMin) => Math.max(MIN_WALLET_BALANCE, ratePe
 /** The backend warns (wallet:low) when fewer than this many prepaid minutes are left. */
 export const LOW_BALANCE_MINUTES = 2;
 /** The astrologer has this long to accept a request (backend requestTimeoutSeconds). */
-export const REQUEST_TIMEOUT_SECONDS = 30;
+export const REQUEST_TIMEOUT_SECONDS = 60;
 /** Window the user has to accept or decline when their waitlist turn comes (backend queue.offerSeconds). */
 export const QUEUE_ACCEPT_SECONDS = 60;
 /** Free first chat: chat only, once per account and device (backend freeChat.minutes). */

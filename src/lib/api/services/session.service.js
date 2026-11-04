@@ -51,7 +51,7 @@ const notFound = () => new ApiError("Session not found", { status: 404, code: "S
  * unused part is returned when the session ends.
  *
  * Start rules (backend settings): a paid session needs max(₹50, 5 minutes of the
- * rate); the astrologer has 30 seconds to accept; the free first chat is 3 minutes,
+ * rate); the astrologer has 1 minute to accept; the free first chat is 3 minutes,
  * chat only, once per account / device.
  */
 export const sessionService = {

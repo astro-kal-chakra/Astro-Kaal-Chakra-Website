@@ -516,7 +516,7 @@ export const LABELS = {
         "s1Title": "Check your device",
         "s1Text": "We test your camera, microphone and connection before the call starts.",
         "s2Title": "Request the call",
-        "s2Text": "Tap Video Call on an astrologer's profile. You'll see the per-minute rate first. The astrologer has 30 seconds to accept.",
+        "s2Text": "Tap Video Call on an astrologer's profile. You'll see the per-minute rate first. The astrologer has 1 minute to accept.",
         "s3Title": "Talk face to face",
         "s3Text": "Switch camera or mute anytime. Your number is never shared.",
         "s4Title": "Wrap up",
@@ -740,8 +740,8 @@ export const LABELS = {
       "rejectedText": "They may be with another client right now. Try again, or pick a similar astrologer below.",
       "rejectedTitle": "{name} couldn't take your request",
       "retry": "Try again",
-      "text": "The astrologer has 30 seconds to accept. Please stay on this screen.",
-      "timeoutText": "The astrologer didn't accept within 30 seconds, so you have not been charged. Try again or choose someone available now.",
+      "text": "The astrologer has 1 minute to accept. Please stay on this screen.",
+      "timeoutText": "The astrologer didn't accept within 1 minute, so you have not been charged. Try again or choose someone available now.",
       "timeoutTitle": "No response from {name}",
       "title": "Waiting for {name} to accept"
     }

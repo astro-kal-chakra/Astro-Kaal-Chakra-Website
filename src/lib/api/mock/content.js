@@ -10,7 +10,7 @@ export const MOCK_FAQS = {
     consultations: [
       { q: "Is my first chat really free?", a: "Yes. Your first 3-minute chat is free — once per account and device, for chat only (not calls or video), with astrologers marked FREE. A countdown shows the free time left and the chat ends when it is over; nothing is taken from your wallet." },
       { q: "What is the difference between chat, call and video?", a: "Chat is text-based and great for quick questions. A voice call lets you talk, and video lets you see the astrologer face to face. Each astrologer sets their own per-minute rate for each, paid from your wallet." },
-      { q: "How long does an astrologer take to accept?", a: "The astrologer has 30 seconds to accept your request. If they don't, you are not charged and can try again or pick someone available now." },
+      { q: "How long does an astrologer take to accept?", a: "The astrologer has 1 minute to accept your request. If they don't, you are not charged and can try again or pick someone available now." },
       { q: "What happens if the astrologer is busy?", a: "You can join the waitlist. When it is your turn you get a notification and have 60 seconds to accept or decline. You only pay once the session actually starts." },
       { q: "Can I end a session anytime?", a: "Yes. Tap End at any moment. Billing stops immediately and you pay only for the exact time used — any unused prepaid time goes back to your wallet automatically." },
     ],
@@ -42,7 +42,7 @@ export const MOCK_FAQS = {
     consultations: [
       { q: "क्या मेरी पहली चैट सच में मुफ़्त है?", a: "हाँ। आपकी पहली 3 मिनट की चैट मुफ़्त है — हर खाते और डिवाइस पर एक बार, केवल चैट के लिए (कॉल या वीडियो नहीं), FREE चिह्न वाले ज्योतिषियों के साथ। काउंटडाउन बचा हुआ मुफ़्त समय दिखाता है और समय पूरा होने पर चैट समाप्त हो जाती है; वॉलेट से कुछ नहीं कटता।" },
       { q: "चैट, कॉल और वीडियो में क्या अंतर है?", a: "चैट टेक्स्ट आधारित है और छोटे प्रश्नों के लिए बढ़िया है। वॉइस कॉल में आप बात करते हैं और वीडियो में ज्योतिषी को आमने-सामने देखते हैं। हर ज्योतिषी हर तरीके की प्रति मिनट दर तय करते हैं, और बिल वॉलेट से प्रति सेकंड के हिसाब से कटता है।" },
-      { q: "ज्योतिषी कितनी देर में अनुरोध स्वीकार करते हैं?", a: "ज्योतिषी के पास अनुरोध स्वीकार करने के लिए 30 सेकंड होते हैं। अगर वे स्वीकार नहीं करते, तो कोई शुल्क नहीं लगता और आप दोबारा कोशिश कर सकते हैं या अभी उपलब्ध किसी और को चुन सकते हैं।" },
+      { q: "ज्योतिषी कितनी देर में अनुरोध स्वीकार करते हैं?", a: "ज्योतिषी के पास अनुरोध स्वीकार करने के लिए 1 मिनट होते हैं। अगर वे स्वीकार नहीं करते, तो कोई शुल्क नहीं लगता और आप दोबारा कोशिश कर सकते हैं या अभी उपलब्ध किसी और को चुन सकते हैं।" },
       { q: "अगर ज्योतिषी व्यस्त हों तो क्या होगा?", a: "आप वेटलिस्ट में जुड़ सकते हैं। आपकी बारी आने पर सूचना मिलती है और स्वीकार या अस्वीकार करने के लिए 60 सेकंड मिलते हैं। भुगतान सत्र शुरू होने पर ही होता है।" },
       { q: "क्या मैं कभी भी सत्र समाप्त कर सकता हूँ?", a: "हाँ। किसी भी समय समाप्त करें पर टैप करें। बिलिंग तुरंत रुक जाती है और आप केवल उपयोग किए गए सटीक समय का भुगतान करते हैं — बचा हुआ अग्रिम समय अपने आप वॉलेट में लौट आता है।" },
     ],
