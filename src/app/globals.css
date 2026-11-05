@@ -202,11 +202,12 @@
   html {
     -webkit-tap-highlight-color: transparent;
   }
-  /* Very wide (2K/4K, or a zoomed-out browser): scale rem-based type and spacing up gently
-     (16px → max 18px) so the page keeps its proportions instead of looking tiny and empty. */
-  @media (width >= 2200px) {
+  /* Large desktops (1600px+, 2K/4K, or a zoomed-out browser): scale all rem-based type, spacing and
+     widths up together (16px at 1600px → ~17px at 1920px → ~20px at 2560px and above), so the page
+     keeps the proportions it has on a laptop instead of looking tiny with empty bands either side. */
+  @media (width >= 1600px) {
     html {
-      font-size: clamp(16px, calc(16px + (100vw - 2200px) * 0.004), 18px);
+      font-size: clamp(16px, calc(16px + (100vw - 1600px) * 0.0042), 20px);
     }
   }
   body {

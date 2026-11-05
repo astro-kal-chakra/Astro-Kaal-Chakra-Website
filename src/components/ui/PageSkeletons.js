@@ -236,7 +236,7 @@ export function SkHome() {
               <Skeleton className="h-12 w-32 rounded-full" />
             </div>
           </div>
-          <Skeleton className="mx-auto aspect-square w-full max-w-[420px] rounded-full" />
+          <Skeleton className="mx-auto aspect-square w-full max-w-[26.25rem] rounded-full" />
         </div>
       </div>
       <div className="container-page space-y-6 py-10">

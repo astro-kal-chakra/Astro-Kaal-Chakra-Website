@@ -47,7 +47,9 @@ export function Hero({ panchang, freeChat }) {
       <HeroBackdrop />
       {/* Twinkling, pointer-reactive stars behind the headline and dial (lighter than the horoscope pages) */}
       <ParticleField contained density={0.55} />
-      <div className="container-page relative grid grid-cols-1 items-center gap-12 py-12 md:grid-cols-[1.15fr_1fr] md:py-20">
+      {/* Bottom padding on md+ grows with the width: the backdrop's ground strip (scaled to the full width)
+          gets taller on wide screens and must stay below the Chat / Call / Video row. */}
+      <div className="container-page relative grid grid-cols-1 items-center gap-12 py-12 md:grid-cols-[1.15fr_1fr] md:pt-20 md:pb-[max(5rem,calc(4.9vw+1.75rem))]">
         <div>
           <p className="eyebrow">Kaal Chakra · the wheel of time</p>
           <h1 className="mt-4 font-display text-[2.5rem] leading-[1.08] tracking-tight text-fg sm:text-6xl">
@@ -94,7 +96,8 @@ export function Hero({ panchang, freeChat }) {
           </nav>
         </div>
 
-        <ChakraDial className="mx-auto max-w-[420px]">
+        {/* rem, not px: the dial grows with the rest of the page on large screens */}
+        <ChakraDial className="mx-auto max-w-[26.25rem]">
           {panchang && <TodayInChakra p={panchang} />}
         </ChakraDial>
       </div>

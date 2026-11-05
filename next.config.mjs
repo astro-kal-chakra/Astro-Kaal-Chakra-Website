@@ -30,6 +30,8 @@ const localApi = isDev || Boolean(apiUrl && /^(localhost|127\.|10\.|192\.168\.)/
 const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  // Production builds drop console.log/info/debug so nothing internal is printed in the browser console.
+  compiler: isDev ? {} : { removeConsole: { exclude: ["error", "warn"] } },
   experimental: {
     globalNotFound: true,
   },
