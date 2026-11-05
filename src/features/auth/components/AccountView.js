@@ -7,7 +7,8 @@ import { routes } from "@/config/routes";
 import { AccountConfirmModal } from "@/features/account/components/AccountControls";
 import { AccountShell } from "@/features/account/components/AccountShell";
 import { useAccountResource } from "@/features/account/hooks/useAccountResource";
-import { ACCOUNT_NAV } from "@/features/account/lib/nav";
+import { accountNavFor } from "@/features/account/lib/nav";
+import { useRemediesEnabled } from "@/features/remedies/hooks/useRemedyConfig";
 import { userService } from "@/lib/api/services/user.service";
 import { formatCompact, formatCurrency, maskPhone } from "@/lib/utils/format";
 import { useToast } from "@/providers/ToastProvider";
@@ -19,8 +20,6 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { useAuth } from "../context/AuthProvider";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
-
-const MENU = ACCOUNT_NAV.filter((item) => item.key !== "dashboard");
 
 const STATS = [
   { key: "totalSessions", label: "sessions", icon: History, href: routes.sessions },
@@ -68,6 +67,8 @@ export function AccountView() {
   const locale = SITE_LOCALE;
   const { user, logout } = useAuth();
   const { toast } = useToast();
+  const remedies = useRemediesEnabled();
+  const MENU = accountNavFor({ remedies }).filter((item) => item.key !== "dashboard");
   const router = useRouter();
   const [confirm, setConfirm] = useState(null); // null | "single" | "all"
   const [busy, setBusy] = useState(false);

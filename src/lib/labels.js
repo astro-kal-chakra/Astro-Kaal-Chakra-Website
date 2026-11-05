@@ -38,6 +38,8 @@ export const LABELS = {
       "notifications": "Notifications",
       "profile": "My Profile",
       "referral": "Refer & Earn",
+      "remedies": "My Remedies",
+      "remedy": "Remedy",
       "savedKundlis": "Saved Kundlis",
       "sessions": "Session History",
       "settings": "Settings",
@@ -53,6 +55,7 @@ export const LABELS = {
       "notifications": "Notifications",
       "profile": "My profile",
       "referral": "Refer & earn",
+      "remedies": "My remedies",
       "reports": "My reports",
       "savedKundlis": "Saved kundlis",
       "sessions": "Session history",
@@ -66,6 +69,7 @@ export const LABELS = {
       "notifications": "Alerts, offers and reminders",
       "profile": "Name, birth details and email",
       "referral": "Invite friends, earn wallet credit",
+      "remedies": "Remedies from astrologers",
       "reports": "Detailed reports you purchased",
       "savedKundlis": "Charts you generated",
       "sessions": "Past chats and calls, rebook",
@@ -106,7 +110,8 @@ export const LABELS = {
         "follow_online": "Astrologer online",
         "offer": "Offers",
         "payment_success": "Payments",
-        "queue_turn": "Queue"
+        "queue_turn": "Queue",
+        "remedy": "Remedies"
       }
     },
     "profile": {
@@ -605,6 +610,54 @@ export const LABELS = {
     "kundliMatching": "Kundli Matching",
     "live": "Live Now",
     "panchang": "Panchang"
+  },
+  "remedies": {
+    "status": {
+      "cancelled": "Cancelled",
+      "declined": "Declined",
+      "delivered": "Answered",
+      "expired": "Not answered in time",
+      "pending": "Waiting for reply",
+      "refunded": "Refunded"
+    },
+    "tabs": {
+      "all": "All",
+      "done": "Done",
+      "open": "Open"
+    },
+    "itemType": {
+      "donation": "Donation",
+      "fasting": "Fasting",
+      "gemstone": "Gemstone",
+      "lal_kitab": "Lal Kitab",
+      "lifestyle": "Lifestyle",
+      "mantra": "Mantra",
+      "other": "Remedy",
+      "puja": "Puja",
+      "rudraksha": "Rudraksha",
+      "yantra": "Yantra"
+    },
+    "refundBy": {
+      "admin": "Refunded by our support team",
+      "astrologer": "Refunded because the astrologer declined",
+      "system": "Refunded automatically",
+      "user": "Refunded because you cancelled"
+    },
+    "errors": {
+      "ASTRO_BUSY": "This astrologer has many remedy requests right now. Please try again later or choose another astrologer.",
+      "BIRTH_DETAILS_REQUIRED": "Please add your date of birth to your profile first.",
+      "CANNOT_CANCEL": "The astrologer has already started working on this remedy, so it can no longer be cancelled.",
+      "CANNOT_RATE": "This remedy can't be rated.",
+      "FOLLOW_UP_CLOSED": "The time to ask a follow-up question has passed.",
+      "FOLLOW_UP_USED": "You have already asked your follow-up question.",
+      "INSUFFICIENT_BALANCE": "Not enough balance in your wallet. Please recharge to continue.",
+      "NOT_ACCEPTING": "This astrologer is not taking remedy requests right now.",
+      "NOT_DELIVERED": "You can ask a follow-up question once the remedy is delivered.",
+      "PROFILE_NOT_FOUND": "That birth profile was not found. Please choose another one.",
+      "REMEDIES_OFF": "Remedies are not available right now. Please try again later.",
+      "TOO_MANY_PENDING": "You already have remedy requests waiting with this astrologer.",
+      "VALIDATION_ERROR": "Please check the details and try again."
+    }
   },
   "session": {
     "call": {

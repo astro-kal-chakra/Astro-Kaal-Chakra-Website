@@ -47,6 +47,8 @@ export const routes = {
   birthProfiles: "/account/profiles",
   savedKundlis: "/account/kundlis",
   myReports: "/account/reports",
+  myRemedies: "/account/remedies",
+  remedy: (id) => `/account/remedies/${id}`,
   referral: "/account/referral",
   notifications: "/account/notifications",
   notificationSettings: "/account/notifications/settings",

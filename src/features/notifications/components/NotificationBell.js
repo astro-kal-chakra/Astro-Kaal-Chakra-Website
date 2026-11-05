@@ -39,6 +39,9 @@ function BellDropdown({ className }) {
     const onNew = (n) => {
       refresh();
       if (n?.type === "live" && n.title) toast({ id: `follow-${n.data?.astrologerId || n.title}`, type: "info", title: n.title, message: n.body, duration: 8000 });
+      // Remedy ready / follow-up answered / refunded: a toast that opens that remedy
+      if (n?.type === "remedy" && n.data?.remedyId && n.title)
+        toast({ id: `remedy-${n.id || `${n.data.remedyId}-${n.data.action}`}`, type: "success", title: n.title, message: n.body, action: { label: "Open", href: routes.remedy(n.data.remedyId) }, duration: 10000 });
     };
     socket.on(SOCKET_EVENTS.NOTIFICATION, onNew);
     return () => socket.off(SOCKET_EVENTS.NOTIFICATION, onNew);

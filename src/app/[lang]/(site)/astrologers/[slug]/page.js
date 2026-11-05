@@ -17,6 +17,7 @@ import { AstrologerLiveRow } from "@/features/astrologers/components/AstrologerL
 import { AstrologerProfileLive } from "@/features/astrologers/components/AstrologerProfileLive";
 import { ReviewCard } from "@/features/home/components/InfoSections";
 import { MoreReviews } from "@/features/astrologers/components/MoreReviews";
+import { RemedyProfileCard } from "@/features/remedies/components/RemedyProfileCard";
 import { categoryLabel, label as t } from "@/lib/labels";
 
 export async function generateStaticParams() {
@@ -154,6 +155,7 @@ export default async function AstrologerProfilePage({ params }) {
                 <Lock className="size-3.5 shrink-0 text-brand-500" aria-hidden /> Your phone number is never shared
               </li>
             </ul>
+            <RemedyProfileCard astrologer={{ id: a.id, slug: a.slug, name: a.name }} />
           </Card>
         </aside>
       </div>

@@ -1,9 +1,11 @@
 "use client";
 
-import { ArrowDownLeft, FileText, Gift, MessageCircle, Phone, RotateCcw, Video } from "lucide-react";
+import { ArrowDownLeft, FileText, Gift, HandHeart, MessageCircle, Phone, RotateCcw, Video } from "lucide-react";
+import { routes } from "@/config/routes";
 import { cn } from "@/lib/utils/cn";
 import { formatCurrency, formatDate, formatDuration } from "@/lib/utils/format";
 import { Badge } from "@/components/ui/Badge";
+import { LocaleLink } from "@/components/ui/LocaleLink";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
 import { reportCopy } from "@/features/reports/lib/copy";
@@ -16,6 +18,7 @@ const ICONS = {
   refund: { icon: RotateCcw, tone: "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300" },
   bonus: { icon: Gift, tone: "bg-gold-100 text-gold-700 dark:bg-gold-700/30 dark:text-gold-300" },
   report: { icon: FileText, tone: "bg-brand-100 text-brand-700 dark:bg-brand-800 dark:text-brand-200" },
+  remedy: { icon: HandHeart, tone: "bg-brand-100 text-brand-700 dark:bg-brand-800 dark:text-brand-200" },
 };
 
 export function TxnStatusBadge({ status }) {
@@ -38,13 +41,14 @@ export function useTxnText() {
           subtitle: m.durationSec != null ? `${formatDuration(m.durationSec)}${m.ratePerMin ? ` at ${formatCurrency(m.ratePerMin, SITE_LOCALE)}/min` : ""}` : "",
         };
       case "refund":
-        return { title: "Refund", subtitle: m.astrologer ? `Session with ${m.astrologer}` : "" };
+        return { title: "Refund", subtitle: m.astrologer ? `Session with ${m.astrologer}` : /^remedy refund/i.test(m.reason || "") ? m.reason : "" };
       case "bonus":
         return {
           title: t(`wallet.txn.bonus_${m.reason || "pack"}`),
           subtitle: m.coupon ? `Code ${m.coupon}` : "",
         };
       case "report":
+        if (m.source === "remedy") return { title: "Remedy", subtitle: m.title || "" };
         return { title: "Report purchase", subtitle: m.title || (m.slug ? reportCopy({ slug: m.slug }).title : "") };
       default:
         return { title: txn.type, subtitle: "" };
@@ -55,7 +59,14 @@ export function useTxnText() {
 export function TransactionRow({ txn, action, compact = false }) {
   const locale = SITE_LOCALE;
   const text = useTxnText()(txn);
-  const kind = txn.type === "consultation" && (txn.meta?.mode === "video" || txn.meta?.mode === "call") ? txn.meta.mode : txn.type;
+  const kind = txn.meta?.source === "remedy" ? "remedy" : txn.type === "consultation" && (txn.meta?.mode === "video" || txn.meta?.mode === "call") ? txn.meta.mode : txn.type;
+  // A remedy payment links to that remedy
+  const remedyLink = txn.meta?.source === "remedy" && txn.meta.remedyId && (
+    <LocaleLink href={routes.remedy(txn.meta.remedyId)} className="text-xs font-semibold text-brand-600 hover:underline dark:text-gold-400">
+      View remedy
+    </LocaleLink>
+  );
+  const extra = action || remedyLink;
   const { icon: Icon, tone } = ICONS[kind] || ICONS.report;
   const credit = txn.amount > 0;
   const failed = txn.status === "failed";
@@ -71,7 +82,7 @@ export function TransactionRow({ txn, action, compact = false }) {
           {formatDate(txn.createdAt, locale, { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" })}
           {text.subtitle && ` · ${text.subtitle}`}
         </p>
-        {action && <div className="mt-1.5">{action}</div>}
+        {extra && <div className="mt-1.5">{extra}</div>}
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1">
         <span

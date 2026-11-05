@@ -1,6 +1,7 @@
 "use client";
 
-import { BellRing, CreditCard, ListOrdered, Sparkles, TicketPercent } from "lucide-react";
+import { BellRing, CreditCard, HandHeart, ListOrdered, Sparkles, TicketPercent } from "lucide-react";
+import { routes } from "@/config/routes";
 import { timeAgo } from "@/features/account/lib/format";
 import { cn } from "@/lib/utils/cn";
 import { LocaleLink } from "@/components/ui/LocaleLink";
@@ -13,12 +14,15 @@ export const NOTIFICATION_ICONS = {
   payment_success: { icon: CreditCard, tone: "bg-brand-100 text-brand-700 dark:bg-brand-800 dark:text-brand-200" },
   offer: { icon: TicketPercent, tone: "bg-gold-100 text-gold-700 dark:bg-gold-700/30 dark:text-gold-300" },
   daily_horoscope: { icon: Sparkles, tone: "bg-brand-100 text-brand-700 dark:bg-brand-800 dark:text-gold-300" },
+  remedy: { icon: HandHeart, tone: "bg-brand-100 text-brand-700 dark:bg-brand-800 dark:text-brand-200" },
 };
 
 /** One notification row; clicking marks it read and follows its link. */
 export function NotificationItem({ notification: n, onOpen, compact = false }) {
   const locale = SITE_LOCALE;
   const { icon: Icon, tone } = NOTIFICATION_ICONS[n.type] || NOTIFICATION_ICONS.daily_horoscope;
+  // Remedy notifications open that remedy (when the server sends no link of its own)
+  const href = n.href || (n.data?.remedyId ? routes.remedy(n.data.remedyId) : null);
 
   const content = (
     <>
@@ -49,8 +53,8 @@ export function NotificationItem({ notification: n, onOpen, compact = false }) {
     !n.read && "bg-brand-50/60 dark:bg-brand-800/30"
   );
 
-  return n.href ? (
-    <LocaleLink href={n.href} onClick={() => onOpen?.(n)} className={className}>
+  return href ? (
+    <LocaleLink href={href} onClick={() => onOpen?.(n)} className={className}>
       {content}
     </LocaleLink>
   ) : (
