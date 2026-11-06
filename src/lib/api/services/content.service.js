@@ -151,7 +151,7 @@ export const contentService = {
   /** Latest 4–5★ written reviews from completed sessions (home / about). */
   async getRecentReviews(limit = 4) {
     if (env.useMocks) return MOCK_REVIEWS.slice(0, limit);
-    return http("/reviews/recent", { query: { limit }, next: { revalidate: 600 } });
+    return http("/reviews/recent", { query: { limit }, next: { revalidate: 120 } });
   },
 
   /** Legal / info page managed in the dashboard → { slug, title, sections: [[heading, text]], updatedAt } or null. */

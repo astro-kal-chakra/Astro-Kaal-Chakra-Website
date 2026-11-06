@@ -126,9 +126,11 @@ export default async function AstrologerProfilePage({ params }) {
           </Card>
 
           <section>
+            {/* Count of the reviews shown (hidden ones are left out) */}
             <h2 className="mb-3 font-display text-2xl text-fg">
-              Reviews ({formatCompact(a.reviewCount, lang)})
+              Reviews ({formatCompact(reviews.total ?? reviews.items.length, lang)})
             </h2>
+            {reviews.items.length === 0 && <p className="text-sm text-muted">No reviews yet.</p>}
             <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {reviews.items.map((r) => (
                 <ReviewCard key={r.id} review={r} locale={lang} astrologerName={a.name} />

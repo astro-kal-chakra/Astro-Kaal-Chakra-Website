@@ -55,7 +55,8 @@ export const astrologerService = {
 
   async getReviews(astrologerId, { page = 1 } = {}) {
     if (env.useMocks) return { ...mockPage(MOCK_REVIEWS, page, 10) };
-    return http(`/astrologers/${astrologerId}/reviews`, { query: { page }, next: { revalidate: 300 } });
+    // Short cache: reviews hidden or edited in the dashboard should leave the page quickly
+    return http(`/astrologers/${astrologerId}/reviews`, { query: { page }, next: { revalidate: 60 } });
   },
 
   async getSimilar(astrologer, limit = 4) {
