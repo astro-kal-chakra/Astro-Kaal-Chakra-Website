@@ -29,7 +29,7 @@ export function Categories({ categories }) {
                 </span>
                 <span className="min-w-0">
                   <span className="block font-semibold text-fg">{categoryLabel(c.slug)}</span>
-                  <span className="block truncate text-xs text-muted">{HINTS[c.slug]}</span>
+                  <span className="block truncate text-xs text-muted max-md:line-clamp-2 max-md:whitespace-normal">{HINTS[c.slug]}</span>
                 </span>
               </LocaleLink>
             </li>

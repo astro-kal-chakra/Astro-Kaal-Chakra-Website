@@ -28,9 +28,10 @@ export function AstrologerCard({ astrologer: a, priority = false }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <LocaleLink href={routes.astrologer(a.slug)} className="min-w-0">
-              <h3 className="flex items-center gap-1 font-semibold text-fg hover:text-accent">
-                <span className="truncate">{a.name}</span>
-                {a.isVerified && <BadgeCheck className="size-4 shrink-0 text-brand-500" aria-label="Verified" />}
+              <h3 className="flex items-center gap-1 font-semibold text-fg hover:text-accent max-md:items-start">
+                {/* Phones: the name may wrap to two lines instead of being cut to "Asto Dr. …" next to the status badge */}
+                <span className="truncate max-md:line-clamp-2 max-md:whitespace-normal max-md:break-words">{a.name}</span>
+                {a.isVerified && <BadgeCheck className="size-4 shrink-0 text-brand-500 max-md:mt-[0.2rem]" aria-label="Verified" />}
               </h3>
             </LocaleLink>
             <StatusBadge status={a.status} className="shrink-0" />

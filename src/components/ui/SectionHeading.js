@@ -9,7 +9,9 @@ import { ChakraGlyph } from "./ChakraDial";
 export function SectionHeading({ title, subtitle, eyebrow, action, align = "left", className, as: Tag = "h2" }) {
   const centered = align === "center";
   return (
-    <div className={cn("mb-7 flex items-end justify-between gap-4", centered && "flex-col items-center text-center", className)}>
+    // Phones: the "View all →" link goes under the text, so the title and subtitle get the full width
+    // instead of wrapping in a narrow column beside it. sm and up are unchanged.
+    <div className={cn("mb-7 flex items-end justify-between gap-4", centered ? "flex-col items-center text-center" : "max-sm:flex-col max-sm:items-start max-sm:gap-3", className)}>
       <div className={cn(centered && "max-w-2xl")}>
         {eyebrow && (
           <p className="eyebrow mb-2">

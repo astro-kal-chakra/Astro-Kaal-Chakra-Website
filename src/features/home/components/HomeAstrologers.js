@@ -10,7 +10,7 @@ const isAvailable = (a) => a.status === "online" || a.status === "busy";
 
 function Row({ astrologers }) {
   return (
-    <div className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] md:mx-0 md:grid md:pb-0 grid-cols-1 md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-3">
+    <div className="-mx-4 flex snap-x scroll-px-4 gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] md:mx-0 md:grid md:pb-0 grid-cols-1 md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-3">
       {astrologers.map((a) => (
         <div key={a.id} className="w-[85%] shrink-0 snap-start sm:w-[60%] md:w-auto">
           <AstrologerCard astrologer={a} />
