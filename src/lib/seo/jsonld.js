@@ -18,6 +18,12 @@ export const organizationJsonLd = () => ({
   email: siteConfig.supportEmail,
   contactPoint: [{ "@type": "ContactPoint", contactType: "customer support", email: siteConfig.supportEmail, availableLanguage: ["English", "Hindi"] }],
   ...(siteConfig.socialLinks.length ? { sameAs: siteConfig.socialLinks } : {}),
+  parentOrganization: {
+    "@type": "Organization",
+    name: siteConfig.parentCompany.name,
+    url: siteConfig.parentCompany.url,
+    sameAs: [siteConfig.parentCompany.linkedin],
+  },
 });
 
 /** Site name in Google results, plus the site search (astrologer search). */

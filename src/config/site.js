@@ -44,23 +44,23 @@ export const siteConfig = {
   ],
   url: siteUrl,
   supportEmail: "support@astrokaalchakra.com",
-  /** Floating "Chat with us" button: fallback when the dashboard has no Support → WhatsApp set. */
   whatsappChatUrl: "https://chat.whatsapp.com/CvXNqmm4JeZAL3yDzdm9I6",
   appLinks: {
     playStore: process.env.NEXT_PUBLIC_PLAY_STORE_URL || "#",
     appStore: process.env.NEXT_PUBLIC_APP_STORE_URL || "#",
   },
-  /** Brand logo (header, footer, Google). Generated from brand/logo-source.png. */
   logo: "/images/logo.png",
   ogImage: "/images/og-default.png",
-  /** Official social profiles — Google links them to the brand (Organization `sameAs`). */
   socialLinks: [
     "https://www.instagram.com/astro_kaal_chakra",
-    // Facebook page (canonical og:url of the share link facebook.com/share/19vPBQUKqy)
     "https://www.facebook.com/people/Astro-Kaal-Chakra/pfbid02JJwnkfrdA9AkzogrqYjgg3C4THYag79hiFdH4QKmYu9H2nwBVW9jbh5PbhVkynvHl/",
-    // "https://www.youtube.com/@your-channel",
-  ], 
-  /** Search Console / Bing Webmaster verification codes (the `content` value of their meta tag). */
+  ],
+  /** The company behind the brand: footer credit + Organization `parentOrganization` in JSON-LD. */
+  parentCompany: {
+    name: "RITVEX Technologies Private Limited",
+    url: "https://www.ritvex.in",
+    linkedin: "https://www.linkedin.com/company/ritvex-technologies/",
+  },
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "",
     bing: process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION || "",
@@ -74,5 +74,4 @@ export const env = {
   useMocks: !process.env.NEXT_PUBLIC_API_URL,
 };
 
-/** Non-sensitive cookie set on login so the proxy can do optimistic redirects. */
 export const AUTH_HINT_COOKIE = "logged_in";

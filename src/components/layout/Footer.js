@@ -5,6 +5,11 @@ import { LocaleLink } from "@/components/ui/LocaleLink";
 import { ZodiacWheel } from "@/components/ui/CelestialBackdrop";
 import { AppStoreButtons } from "./AppStoreButtons";
 import { Logo } from "./Logo";
+import { LinkedinIcon, socialMeta } from "./SocialIcons";
+import { Globe } from "lucide-react";
+
+const iconLink =
+  "flex size-9 items-center justify-center rounded-full border border-line bg-surface text-muted transition hover:border-brand-300 hover:text-accent motion-safe:hover:-translate-y-0.5";
 
 
 /** Twinkling sparkles over the footer: [left %, top %, size px, delay s]. */
@@ -85,6 +90,22 @@ export function Footer({ locale, config }) {
           <Logo asLink={false} />
           <p className="max-w-xs text-sm text-muted">{siteConfig.tagline}. Chat, call or video.</p>
           <AppStoreButtons label="Download the app" tone="light" links={config?.appLinks} />
+          <div>
+            <p className="eyebrow mb-2">Follow us</p>
+            <ul className="flex flex-wrap gap-2">
+              {siteConfig.socialLinks.map((url) => {
+                const meta = socialMeta(url);
+                if (!meta) return null;
+                return (
+                  <li key={url}>
+                    <a href={url} target="_blank" rel="noopener noreferrer me" aria-label={`${siteConfig.name} on ${meta.label}`} title={meta.label} className={iconLink}>
+                      <meta.Icon className="size-4" />
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
           {config?.support?.email && (
             <p className="text-sm text-muted">
               Support:{" "}
@@ -128,6 +149,24 @@ export function Footer({ locale, config }) {
         <p>
           © {new Date().getFullYear()} <span translate="no" className="notranslate">{siteConfig.name}</span>. All rights reserved.
         </p>
+      </div>
+
+      {/* Parent company credit */}
+      <div className="container-page flex flex-col items-center gap-3 border-t border-line py-5 text-xs text-muted sm:flex-row sm:justify-center">
+        <p className="text-center">
+          A product of{" "}
+          <a href={siteConfig.parentCompany.url} target="_blank" rel="noopener" translate="no" className="notranslate font-semibold text-fg hover:text-accent hover:underline">
+            {siteConfig.parentCompany.name}
+          </a>
+        </p>
+        <div className="flex gap-2">
+          <a href={siteConfig.parentCompany.url} target="_blank" rel="noopener" aria-label={`${siteConfig.parentCompany.name} website`} title="Website" className={iconLink}>
+            <Globe className="size-4" aria-hidden />
+          </a>
+          <a href={siteConfig.parentCompany.linkedin} target="_blank" rel="noopener noreferrer" aria-label={`${siteConfig.parentCompany.name} on LinkedIn`} title="LinkedIn" className={iconLink}>
+            <LinkedinIcon className="size-4" />
+          </a>
+        </div>
       </div>
     </footer>
   );
