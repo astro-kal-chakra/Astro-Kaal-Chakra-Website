@@ -13,9 +13,13 @@ const isProd = process.env.NODE_ENV === "production";
 const envUrl = process.env.NEXT_PUBLIC_SITE_URL;
 // A localhost value copied from .env.example must never reach the live site's canonical URLs / sitemap.
 const usableEnvUrl = envUrl && !( isProd && /localhost|127\.0\.0\.1/.test( envUrl ) ) ? envUrl : "";
+// The host redirects astrokaalchakra.com → www.astrokaalchakra.com, so the bare domain must never be used as
+// the canonical address: canonical URLs, the sitemap and robots.txt would all point at a redirect, and Google
+// treats that as a mixed signal (it also keeps sitelinks from showing). Map it to the www address.
+const normalizedEnvUrl = usableEnvUrl.replace( /^https?:\/\/astrokaalchakra\.com(?=\/|$)/, PRODUCTION_URL );
 // Local dev follows whatever port the server actually started on (3000, 3001, …).
 const devUrl = typeof window !== "undefined" ? window.location.origin : `http://localhost:${process.env.PORT || 3000}`;
-const siteUrl = ( usableEnvUrl || ( isProd ? PRODUCTION_URL : devUrl ) ).replace( /\/$/, "" );
+const siteUrl = ( normalizedEnvUrl || ( isProd ? PRODUCTION_URL : devUrl ) ).replace( /\/$/, "" );
 
 export const siteConfig = {
   name: "Astro Kaal Chakra",

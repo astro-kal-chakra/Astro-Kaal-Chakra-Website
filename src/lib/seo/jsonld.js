@@ -45,12 +45,9 @@ export const astrologerJsonLd = (a, locale) => ({
   url: abs(`/astrologers/${a.slug}`),
   knowsLanguage: a.languages,
   knowsAbout: a.specialties,
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: a.rating,
-    reviewCount: a.reviewCount,
-    bestRating: 5,
-  },
+  // No aggregateRating here: Google doesn't support review snippets on a Person ("Invalid object type for
+  // field <parent_node>" in Search Console), and astrologers with no reviews would send rating 0 / count 0.
+  // Ratings stay visible on the page itself.
 });
 
 export const faqJsonLd = (faqs) => ({

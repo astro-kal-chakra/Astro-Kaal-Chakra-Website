@@ -46,7 +46,11 @@ export default async function ReportPage({ params }) {
             description: short,
             url,
             brand: { "@type": "Brand", name: siteConfig.name },
-            ...(report.rating > 0 && report.sold > 0 ? { aggregateRating: { "@type": "AggregateRating", ratingValue: report.rating, reviewCount: report.sold, bestRating: 5 } } : {}),
+            // Only real review counts: using the number sold as reviewCount is misleading markup under Google's
+            // review-snippet policy. Rating must be 1–5 and the count positive, or Search Console marks it invalid.
+            ...(report.rating >= 1 && report.reviewCount > 0
+              ? { aggregateRating: { "@type": "AggregateRating", ratingValue: report.rating, reviewCount: report.reviewCount, bestRating: 5, worstRating: 1 } }
+              : {}),
             offers: { "@type": "Offer", price: report.price, priceCurrency: "INR", availability: "https://schema.org/InStock", url },
           },
           breadcrumbJsonLd([
