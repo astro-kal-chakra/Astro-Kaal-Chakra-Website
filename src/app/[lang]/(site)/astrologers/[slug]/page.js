@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { BadgeCheck, Briefcase, Gift, Languages, Lock, Star, Timer, Users } from "lucide-react";
+import { BadgeCheck, Briefcase, Crown, Gift, Languages, Lock, Star, Timer, Users } from "lucide-react";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { routes } from "@/config/routes";
 import { astrologerService } from "@/lib/api/services/astrologer.service";
@@ -83,6 +83,11 @@ export default async function AstrologerProfilePage({ params }) {
                   {a.isVerified && (
                     <Badge tone="brand">
                       <BadgeCheck className="size-3.5" aria-hidden /> Verified
+                    </Badge>
+                  )}
+                  {a.promoted && (
+                    <Badge tone="gold">
+                      <Crown className="size-3.5" aria-hidden /> Top astrologer
                     </Badge>
                   )}
                 </h1>

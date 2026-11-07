@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgeCheck, Gift, Languages, Star, Users } from "lucide-react";
+import { BadgeCheck, Crown, Gift, Languages, Star, Users } from "lucide-react";
 import { routes } from "@/config/routes";
 import { formatCompact, formatCurrency } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
@@ -35,6 +35,12 @@ export function AstrologerCard({ astrologer: a, priority = false }) {
             </LocaleLink>
             <StatusBadge status={a.status} className="shrink-0" />
           </div>
+          {/* Promoted from the dashboard (Marketing → Top astrologers) for a set time */}
+          {a?.promoted && (
+            <span className="mt-0.5 inline-flex items-center gap-1 rounded-full bg-gold-100 px-2 py-0.5 text-[11px] font-semibold text-gold-700 dark:bg-gold-700/30 dark:text-gold-300">
+              <Crown className="size-3" aria-hidden /> Top astrologer
+            </span>
+          )}
           <p className="truncate text-sm text-muted">{a.specialties.join(" · ")}</p>
           <p className="flex items-center gap-1 truncate text-xs text-muted">
             <Languages className="size-3.5 shrink-0" aria-hidden /> {a.languages.join(", ")}
