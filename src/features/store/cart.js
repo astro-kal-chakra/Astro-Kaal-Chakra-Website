@@ -42,8 +42,11 @@ function createStore(key) {
 }
 
 const MAX_QTY = 10;
+const FREE_SHIPPING_FROM = 499;
+const SHIPPING_FEE = 49;
 const cartStore = createStore("store_cart_v1"); // { [slug]: qty }
 const wishStore = createStore("store_wishlist_v1"); // { [slug]: true }
+const checkoutStore = createStore("store_checkout_v1"); // { address, order } — DEMO until the backend takes orders
 
 export const cart = {
   setQty(slug, qty) {
@@ -54,7 +57,23 @@ export const cart = {
   remove: (slug) => cart.setQty(slug, 0),
   clear: () => cartStore.write({}),
   MAX_QTY,
+  FREE_SHIPPING_FROM,
 };
+
+export const checkout = {
+  saveAddress: (address) => checkoutStore.write({ ...checkoutStore.read(), address }),
+  /** Records the paid order (shown on the success page) and empties the cart. */
+  placeOrder(order) {
+    checkoutStore.write({ ...checkoutStore.read(), order: { ...order, id: `AKC-${Date.now().toString(36).toUpperCase()}`, at: Date.now() } });
+    cart.clear();
+  },
+};
+
+/** Saved delivery address and last placed order. */
+export const useCheckout = () => checkoutStore.use();
+/** False during SSR / hydration, so checkout pages never flash "your cart is empty". */
+const noop = () => () => {};
+export const useHydrated = () => useSyncExternalStore(noop, () => true, () => false);
 
 export const wishlist = {
   toggle(slug) {
@@ -71,17 +90,21 @@ export const useCartCount = () => cartStore.use((s) => Object.values(s).reduce((
 /** Whether one product is wishlisted. */
 export const useWished = (slug) => wishStore.use((s) => Boolean(s[slug]), false);
 
-/** Full cart for the drawer: { items: [{ product, qty }], count, subtotal, mrpTotal }. */
+/** Full cart: { items: [{ product, qty }], count, subtotal, mrpTotal, shipping, total }. */
 export function useCart() {
   const raw = cartStore.use();
   const items = Object.entries(raw)
     .map(([slug, qty]) => ({ product: productBySlug(slug), qty }))
     .filter((i) => i.product && i.qty > 0);
+  const subtotal = items.reduce((s, i) => s + i.qty * i.product.price, 0);
+  const shipping = subtotal === 0 || subtotal >= FREE_SHIPPING_FROM ? 0 : SHIPPING_FEE;
   return {
     items,
     count: items.reduce((s, i) => s + i.qty, 0),
-    subtotal: items.reduce((s, i) => s + i.qty * i.product.price, 0),
+    subtotal,
     mrpTotal: items.reduce((s, i) => s + i.qty * i.product.mrp, 0),
+    shipping,
+    total: subtotal + shipping,
   };
 }
 

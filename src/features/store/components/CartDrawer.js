@@ -1,25 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import { routes } from "@/config/routes";
 import { SITE_LOCALE } from "@/config/locale";
 import { formatCurrency } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
-import { useToast } from "@/providers/ToastProvider";
 import { ButtonLink } from "@/components/ui/Button";
 import { CART_OPEN_EVENT, cart, openCart, useCart } from "../cart";
 import { ProductArt } from "./ProductArt";
 
-const FREE_SHIPPING_FROM = 499;
-
 /** Floating cart button (only when the cart has items) + slide-in cart drawer. Mounted once in the site layout. */
 export function CartDrawer() {
   const [open, setOpen] = useState(false);
-  const { items, count, subtotal, mrpTotal } = useCart();
-  const { toast } = useToast();
+  const { items, count, subtotal, mrpTotal, shipping, total } = useCart();
   const money = (n) => formatCurrency(n, SITE_LOCALE);
-  const shipping = subtotal === 0 || subtotal >= FREE_SHIPPING_FROM ? 0 : 49;
+  // No floating cart button on the checkout steps: the order summary is already on the page.
+  const pathname = usePathname();
+  const inCheckout = [routes.storeCheckout, routes.storePayment, routes.storeOrderSuccess].some((r) => pathname.endsWith(r));
 
   useEffect(() => {
     const onOpen = () => setOpen(true);
@@ -39,17 +38,9 @@ export function CartDrawer() {
     };
   }, [open]);
 
-  const checkout = () =>
-    toast({
-      type: "info",
-      title: "Checkout is coming soon",
-      message: "Online payment for the store is being set up. Your cart is saved on this device.",
-      duration: 5000,
-    });
-
   return (
     <>
-      {count > 0 && !open && (
+      {count > 0 && !open && !inCheckout && (
         <button
           type="button"
           onClick={openCart}
@@ -127,9 +118,9 @@ export function CartDrawer() {
               </ul>
 
               <footer className="space-y-2 border-t border-line px-5 py-4 text-sm">
-                {subtotal < FREE_SHIPPING_FROM && (
+                {subtotal < cart.FREE_SHIPPING_FROM && (
                   <p className="rounded-lg bg-brand-50 px-3 py-2 text-xs text-brand-800 dark:bg-brand-950 dark:text-brand-200">
-                    Add {money(FREE_SHIPPING_FROM - subtotal)} more for <strong>free delivery</strong>.
+                    Add {money(cart.FREE_SHIPPING_FROM - subtotal)} more for <strong>free delivery</strong>.
                   </p>
                 )}
                 <div className="flex justify-between">
@@ -146,15 +137,11 @@ export function CartDrawer() {
                 </div>
                 <div className="flex justify-between border-t border-dashed border-line pt-2 text-base font-bold">
                   <span>Total</span>
-                  <span>{money(subtotal + shipping)}</span>
+                  <span>{money(total)}</span>
                 </div>
-                <button
-                  type="button"
-                  onClick={checkout}
-                  className="mt-2 flex h-12 w-full items-center justify-center rounded-full bg-gradient-to-r from-brand-500 to-brand-600 font-semibold text-white shadow-sm shadow-brand-500/30 hover:from-brand-600 hover:to-brand-700"
-                >
+                <ButtonLink href={routes.storeCheckout} onClick={() => setOpen(false)} variant="gold" size="lg" className="mt-2 w-full">
                   Proceed to checkout
-                </button>
+                </ButtonLink>
               </footer>
             </>
           )}

@@ -32,6 +32,9 @@ export const routes = {
   live: "/live",
   store: "/store",
   storeProduct: (slug) => `/store/${slug}`,
+  storeCheckout: "/store/checkout",
+  storePayment: "/store/payment",
+  storeOrderSuccess: "/store/order-success",
   liveRoom: (id) => `/live/${id}`,
 
   // Auth
