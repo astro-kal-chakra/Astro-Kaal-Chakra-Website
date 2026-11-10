@@ -33,6 +33,9 @@ export const routes = {
   liveRoom: (id) => `/live/${id}`,
   academy: "/academy",
   academyCourse: (slug) => `/academy/${slug}`,
+  academyEnroll: (slug) => `/academy/${slug}/enroll`,
+  academyPlans: (slug) => `/academy/${slug}/plans`,
+  academySuccess: (slug) => `/academy/${slug}/success`,
 
   // Auth
   login: "/login",

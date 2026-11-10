@@ -18,7 +18,7 @@ export async function generateMetadata({ params }) {
 }
 
 const STEPS = [
-  { icon: GraduationCap, title: "Enroll", text: "Pick a course and register in 30 seconds." },
+  { icon: GraduationCap, title: "Enroll & subscribe", text: "Register for a course and pick the plan that suits you." },
   { icon: Video, title: "Watch lessons", text: "Short video lessons, module by module." },
   { icon: NotebookPen, title: "Take notes", text: "Notes per lesson and downloadable study material." },
   { icon: Radio, title: "Join live classes", text: "Weekly live video class with your trainer." },

@@ -1,42 +1,52 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { CheckCircle2, Circle, Download, FileText, NotebookPen, PlayCircle, Radio, Sparkles } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { CheckCircle2, Circle, Crown, Download, FileText, PlayCircle } from "lucide-react";
+import { routes } from "@/config/routes";
 import { cn } from "@/lib/utils/cn";
-import { allLessons } from "../data";
+import { LocaleLink } from "@/components/ui/LocaleLink";
+import { Spinner } from "@/components/ui/Skeleton";
+import { allLessons, planById, PLANS } from "../data";
 import { academy, useAcademy } from "../progress";
-import { EnrollForm } from "./EnrollForm";
+import { useCourseTab } from "./AcademyHeader";
 import { LiveClass } from "./LiveClass";
+import { TrainerSessions } from "./TrainerSessions";
 
-const TABS = [
-  { id: "overview", label: "Overview", icon: Sparkles },
-  { id: "notes", label: "My notes", icon: NotebookPen },
-  { id: "resources", label: "Study material", icon: FileText },
-  { id: "live", label: "Live class", icon: Radio },
-];
-
-/** Enrolment gate → video lessons with module list, progress, notes, downloads and the live class. */
+/**
+ * Video lessons plus the section picked in the academy header (only those the plan unlocks).
+ * Sends visitors without a plan to enrolment or the plans step.
+ */
 export function CoursePlayer({ course }) {
+  const router = useRouter();
   const state = useAcademy();
-  const enrolled = state.enrolled[course.slug];
+  const enrolled = state?.enrolled[course.slug];
+  const sub = state?.subs[course.slug];
+  const plan = sub && planById(sub.plan);
   const lessons = allLessons(course);
   const [currentId, setCurrentId] = useState(lessons[0].id);
-  const [tab, setTab] = useState("overview");
+  const tab = useCourseTab(plan);
+  const panelRef = useRef(null);
+  const shownTab = useRef(tab);
+
+  useEffect(() => {
+    if (state && !plan) router.replace(enrolled ? routes.academyPlans(course.slug) : routes.academyEnroll(course.slug));
+  }, [state, enrolled, plan, router, course.slug]);
+
+  // Picking a section in the header brings it into view (recorded classes = the player at the top).
+  useEffect(() => {
+    if (shownTab.current === tab) return;
+    shownTab.current = tab;
+    if (tab === "classes") window.scrollTo({ top: 0, behavior: "smooth" });
+    else panelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [tab]);
+
+  if (!plan) return <Spinner className="mx-auto my-24 size-10" />;
+
   const current = lessons.find((l) => l.id === currentId) || lessons[0];
   const doneCount = lessons.filter((l) => state.done[l.id]).length;
   const pct = Math.round((doneCount / lessons.length) * 100);
-
-  if (!enrolled) {
-    return (
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_420px]">
-        <CourseIntro course={course} lessons={lessons} />
-        <div className="rounded-3xl border border-line bg-surface p-6 shadow-[0_20px_50px_-30px_rgb(194_65_12/0.5)] lg:sticky lg:top-24 lg:self-start">
-          <EnrollForm course={course} />
-        </div>
-      </div>
-    );
-  }
-
+  const topPlan = plan.id === PLANS.at(-1).id;
   const next = lessons[lessons.indexOf(current) + 1];
 
   return (
@@ -77,36 +87,28 @@ export function CoursePlayer({ course }) {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div role="tablist" className="flex gap-1 overflow-x-auto border-b border-line [scrollbar-width:none]">
-          {TABS.map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              type="button"
-              role="tab"
-              aria-selected={tab === id}
-              onClick={() => setTab(id)}
-              className={cn(
-                "inline-flex shrink-0 items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-semibold transition",
-                tab === id ? "border-brand-600 text-brand-700 dark:border-gold-400 dark:text-gold-300" : "border-transparent text-muted hover:text-fg"
-              )}
-            >
-              <Icon className="size-4" aria-hidden /> {label}
-              {id === "live" && <span className="size-1.5 rounded-full bg-red-500" aria-hidden />}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-surface-muted px-4 py-2.5 text-sm">
+          <span className="inline-flex items-center gap-2 font-semibold">
+            <Crown className="size-4 text-brand-600 dark:text-gold-400" aria-hidden /> {`${plan.name} plan`}
+          </span>
+          {!topPlan && (
+            <LocaleLink href={routes.academyPlans(course.slug)} className="font-semibold text-accent hover:underline">
+              Upgrade for more features →
+            </LocaleLink>
+          )}
         </div>
 
-        <div role="tabpanel" className="motion-safe:animate-[banner-in_0.3s_ease-out]" key={tab}>
-          {tab === "overview" && <Overview course={course} name={enrolled.name} />}
+        <div ref={panelRef} className="scroll-mt-36 motion-safe:animate-[banner-in_0.3s_ease-out]" key={tab}>
+          {tab === "classes" && <Overview course={course} name={enrolled.name} live={plan.features.includes("live")} />}
           {tab === "notes" && <Notes key={current.id} lesson={current} value={state.notes[current.id] || ""} />}
           {tab === "resources" && <Resources course={course} />}
           {tab === "live" && <LiveClass course={course} />}
+          {tab === "session" && <TrainerSessions course={course} plan={plan} booked={sub.booked} />}
         </div>
       </div>
 
       {/* Module list */}
-      <aside className="lg:sticky lg:top-24 lg:self-start">
+      <aside className="lg:sticky lg:top-36 lg:self-start xl:top-24">
         <div className="overflow-hidden rounded-3xl border border-line bg-surface">
           <div className="border-b border-line p-4">
             <p className="font-semibold">Course content</p>
@@ -150,35 +152,10 @@ export function CoursePlayer({ course }) {
   );
 }
 
-function CourseIntro({ course, lessons }) {
-  return (
-    <div className="space-y-6">
-      <div>
-        <p className="eyebrow">{`${course.level} · ${course.hours} hours · ${lessons.length} video lessons`}</p>
-        <h1 className="mt-2 font-display text-3xl leading-tight sm:text-4xl">{course.title}</h1>
-        <p className="mt-3 text-lg text-muted">{course.summary}</p>
-        <p className="mt-3 text-sm">{`Trainer: ${course.trainer.name} · ${course.trainer.role}`}</p>
-      </div>
-      <Overview course={course} />
-      <div>
-        <h2 className="font-display text-xl">Curriculum</h2>
-        <ol className="mt-3 space-y-2">
-          {course.modules.map((m, i) => (
-            <li key={m.title} className="rounded-2xl border border-line p-4">
-              <p className="font-semibold">{`Module ${i + 1} · ${m.title}`}</p>
-              <p className="mt-1 text-sm text-muted">{m.lessons.map((l) => l.title).join(" · ")}</p>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </div>
-  );
-}
-
-function Overview({ course, name }) {
+function Overview({ course, name, live }) {
   return (
     <div className="space-y-5">
-      {name && <p className="rounded-2xl bg-brand-50 px-4 py-3 text-sm text-brand-800 dark:bg-brand-950 dark:text-brand-100">{`Welcome, ${name.split(" ")[0]}! Watch the lessons in order, take notes, and join the weekly live class.`}</p>}
+      <p className="rounded-2xl bg-brand-50 px-4 py-3 text-sm text-brand-800 dark:bg-brand-950 dark:text-brand-100">{`Welcome, ${name.split(" ")[0]}! Watch the lessons in order${live ? ", take notes, and join the weekly live class." : " and take notes as you go."}`}</p>
       <div>
         <h2 className="font-display text-xl">What you&apos;ll learn</h2>
         <ul className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -189,7 +166,7 @@ function Overview({ course, name }) {
           ))}
         </ul>
       </div>
-      <p className="text-sm text-muted">{`Live class: ${course.live.day}, ${course.live.time} (${course.live.length}) with ${course.trainer.name}.`}</p>
+      {live && <p className="text-sm text-muted">{`Live class: ${course.live.day}, ${course.live.time} (${course.live.length}) with ${course.trainer.name}.`}</p>}
     </div>
   );
 }

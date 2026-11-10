@@ -1,17 +1,12 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { routes } from "@/config/routes";
 import { breadcrumbJsonLd } from "@/lib/seo/jsonld";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { ContentBreadcrumbs } from "@/features/content/components/ContentBreadcrumbs";
-import { COURSES, courseBySlug } from "@/features/academy/data";
+import { courseBySlug } from "@/features/academy/data";
 import { CoursePlayer } from "@/features/academy/components/CoursePlayer";
-
-export const dynamicParams = false; // demo catalogue: every course page is built ahead of time
-
-export function generateStaticParams() {
-  return COURSES.map((c) => ({ slug: c.slug }));
-}
 
 export async function generateMetadata({ params }) {
   const { lang, slug } = await params;
@@ -27,7 +22,9 @@ export default async function CoursePage({ params }) {
   return (
     <div className="container-page py-8">
       <ContentBreadcrumbs label="Breadcrumb" items={[{ name: "Home", href: routes.home }, { name: "Academy", href: routes.academy }, { name: course.title }]} className="mb-5" />
-      <CoursePlayer course={course} />
+      <Suspense>
+        <CoursePlayer course={course} />
+      </Suspense>
       <JsonLd
         data={[
           breadcrumbJsonLd([

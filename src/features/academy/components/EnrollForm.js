@@ -1,13 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { GraduationCap } from "lucide-react";
+import { routes } from "@/config/routes";
 import { Button } from "@/components/ui/Button";
 import { Field, Input, Select } from "@/components/ui/Input";
-import { academy } from "../progress";
+import { Spinner } from "@/components/ui/Skeleton";
+import { academy, useAcademy } from "../progress";
+import { Stepper } from "./Stepper";
 
-/** Step 1 of training: a short enrolment form (name, phone, experience, goal). Unlocks the course. */
-export function EnrollForm({ course }) {
+/** /academy/[slug]/enroll: the form, or straight on to the plans once this course is enrolled. */
+export function EnrollStep({ course }) {
+  const router = useRouter();
+  const state = useAcademy();
+  const enrolled = state?.enrolled[course.slug];
+
+  useEffect(() => {
+    if (enrolled) router.replace(routes.academyPlans(course.slug));
+  }, [enrolled, router, course.slug]);
+
+  if (!state || enrolled) return <Spinner className="mx-auto my-24 size-10" />;
+  return (
+    <div className="mx-auto max-w-lg">
+      <Stepper current={0} />
+      <div className="mt-8 rounded-3xl border border-line bg-surface p-6 shadow-[0_20px_50px_-30px_rgb(194_65_12/0.5)] motion-safe:animate-[banner-in_0.4s_ease-out] sm:p-8">
+        <EnrollForm course={course} />
+      </div>
+    </div>
+  );
+}
+
+/** Step 1 of training: a short enrolment form (name, phone, experience, goal). Leads on to the plans. */
+function EnrollForm({ course }) {
   const [form, setForm] = useState({ name: "", phone: "", experience: "beginner", goal: "" });
   const [errors, setErrors] = useState({});
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -28,8 +53,8 @@ export function EnrollForm({ course }) {
           <GraduationCap className="size-6" aria-hidden />
         </span>
         <div>
-          <h2 className="font-display text-2xl">Enroll to start training</h2>
-          <p className="text-sm text-muted">Free · takes 30 seconds</p>
+          <h1 className="font-display text-2xl">Enroll to start training</h1>
+          <p className="text-sm text-muted">{course.title}</p>
         </div>
       </div>
       <Field label="Full name" htmlFor="en-name" error={errors.name}>
@@ -57,9 +82,8 @@ export function EnrollForm({ course }) {
         <Input id="en-goal" value={form.goal} onChange={set("goal")} placeholder="e.g. Read charts for family, start consulting" />
       </Field>
       <Button type="submit" size="lg" variant="gold" className="w-full">
-        Enroll &amp; start learning
+        Continue to plans
       </Button>
-      <p className="text-center text-xs text-muted">You&apos;ll get access to video lessons, notes, study material and live classes.</p>
     </form>
   );
 }

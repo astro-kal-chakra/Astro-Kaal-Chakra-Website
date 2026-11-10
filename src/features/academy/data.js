@@ -98,3 +98,21 @@ export const COURSES = [
 
 export const courseBySlug = (slug) => COURSES.find((c) => c.slug === slug);
 export const allLessons = (course) => course.modules.flatMap((m) => m.lessons);
+
+/** What a subscription can unlock on a course; the course page's tabs follow the plan's list. */
+export const FEATURES = {
+  recorded: "Recorded video classes",
+  notes: "Lesson notes",
+  material: "Study material downloads",
+  live: "Weekly live class",
+  session: "1:1 sessions with your trainer",
+};
+
+/** DEMO per-course monthly plans, until the backend sells subscriptions. */
+export const PLANS = [
+  { id: "basic", name: "Basic", price: 499, blurb: "Learn at your own pace.", features: ["recorded", "notes"] },
+  { id: "pro", name: "Pro", price: 999, blurb: "Learn live with your trainer every week.", features: ["recorded", "notes", "material", "live"], popular: true },
+  { id: "mentor", name: "Mentorship", price: 1999, blurb: "Personal guidance to start consulting.", features: ["recorded", "notes", "material", "live", "session"], sessions: 2 },
+];
+
+export const planById = (id) => PLANS.find((p) => p.id === id);
