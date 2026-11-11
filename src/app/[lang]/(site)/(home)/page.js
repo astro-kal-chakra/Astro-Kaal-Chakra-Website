@@ -15,6 +15,7 @@ import { HomeAstrologers } from "@/features/home/components/HomeAstrologers";
 import { LiveNowSection } from "@/features/home/components/LiveNowSection";
 import { AppBand, FaqSection, FreeTools, HowItWorks, OffersBanner, Reviews, TrustSection } from "@/features/home/components/InfoSections";
 import { ZodiacGrid } from "@/features/horoscope/components/ZodiacGrid";
+import { StoreSection } from "@/features/store/components/StoreSection";
 
 // Live data (who is live / online, today's panchang): re-render at most every 30 s; online status then updates live over the socket
 export const revalidate = 30;
@@ -62,6 +63,9 @@ export default async function HomePage({ params }) {
           <SectionHeading eyebrow="Today" title="Your horoscope for today" action={{ href: routes.horoscope, label: "All horoscopes" }} />
           <ZodiacGrid locale={lang} variant="strip" />
         </section>
+      </Reveal>
+      <Reveal>
+        <StoreSection />
       </Reveal>
 
       <Reveal>
