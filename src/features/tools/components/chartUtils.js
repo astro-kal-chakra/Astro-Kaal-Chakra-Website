@@ -7,8 +7,8 @@ export const chunk = (arr, size) => {
   return out;
 };
 
-/** Planet labels laid out in centred rows around (cx, cy). Retrograde planets get a superscript "R". */
-export function PlanetLabels({ items = [], cx, cy, perLine = 3, gap = 30, lineHeight = 17, fontSize = 13 }) {
+/** Planet labels laid out in centred rows around (cx, cy). Retrograde planets get a superscript "R" (or `retroLabel`). */
+export function PlanetLabels({ items = [], cx, cy, perLine = 3, gap = 30, lineHeight = 17, fontSize = 13, retroLabel = "R" }) {
   const rows = chunk(items.map(toItem), perLine);
   const top = cy - ((rows.length - 1) * lineHeight) / 2;
   return rows.map((row, r) =>
@@ -26,7 +26,7 @@ export function PlanetLabels({ items = [], cx, cy, perLine = 3, gap = 30, lineHe
         <tspan>{p.label}</tspan>
         {p.retro && (
           <tspan fontSize={fontSize * 0.62} dy={-fontSize * 0.4} className="fill-red-600 dark:fill-red-400">
-            R
+            {retroLabel}
           </tspan>
         )}
       </text>

@@ -7,10 +7,10 @@ export const THEME_STORAGE_KEY = "theme";
 const THEME_EVENT = "theme:change";
 
 /**
- * Inline script for <head> — applies the saved/system theme before paint
+ * Inline script for <head> — applies the saved theme before paint (light by default)
  * so there's no light→dark flash.
  */
-export const themeInitScript = `(function(){try{var t=localStorage.getItem("${THEME_STORAGE_KEY}");if(!t){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}})()`;
+export const themeInitScript = `(function(){try{var t=localStorage.getItem("${THEME_STORAGE_KEY}");if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}})()`;
 
 const subscribe = (cb) => {
   window.addEventListener(THEME_EVENT, cb);
@@ -24,7 +24,7 @@ export function ThemeProvider({ children }) {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(THEME_STORAGE_KEY);
-      const dark = saved ? saved === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+      const dark = saved === "dark";
       if (dark !== document.documentElement.classList.contains("dark")) {
         document.documentElement.classList.toggle("dark", dark);
         window.dispatchEvent(new Event(THEME_EVENT));

@@ -44,6 +44,8 @@ export const siteConfig = {
   ],
   url: siteUrl,
   supportEmail: "support@astrokaalchakra.com",
+  /** "Chat with us" WhatsApp number (10 digits = Indian number, +91 is added). */
+  whatsappNumber: "92510 64637",
   whatsappChatUrl: "https://chat.whatsapp.com/CvXNqmm4JeZAL3yDzdm9I6",
   appLinks: {
     playStore: process.env.NEXT_PUBLIC_PLAY_STORE_URL || "#",

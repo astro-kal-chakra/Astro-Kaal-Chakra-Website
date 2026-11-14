@@ -29,10 +29,8 @@ export const viewport = {
   viewportFit: "cover",
   // Android Chrome: shrink the layout when the keyboard opens so bottom sheets stay visible.
   interactiveWidget: "resizes-content",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f0804" },
-  ],
+  // The site opens in the light theme by default, whatever the device setting.
+  themeColor: "#ffffff",
 };
 
 export async function generateMetadata() {

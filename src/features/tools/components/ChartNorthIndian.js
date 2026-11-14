@@ -30,7 +30,7 @@ const HOUSES = {
  *   className?: string
  * }} props
  */
-export function ChartNorthIndian({ houses = {}, signs = {}, title, className }) {
+export function ChartNorthIndian({ houses = {}, signs = {}, retroLabel, title, className }) {
   return (
     <svg viewBox="0 0 400 400" role="img" aria-label={title} className={cn("h-auto w-full max-w-md", className)}>
       <title>{title}</title>
@@ -47,7 +47,7 @@ export function ChartNorthIndian({ houses = {}, signs = {}, title, className }) 
               {signs[h]}
             </text>
           )}
-          <PlanetLabels items={houses[h]} cx={c[0]} cy={c[1]} perLine={side ? 2 : 3} gap={side ? 26 : 30} />
+          <PlanetLabels items={houses[h]} cx={c[0]} cy={c[1]} perLine={side ? 2 : 3} gap={side ? 26 : 30} retroLabel={retroLabel} />
         </g>
       ))}
     </svg>

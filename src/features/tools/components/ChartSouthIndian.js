@@ -20,7 +20,7 @@ const SIZE = 100;
  *   className?: string
  * }} props
  */
-export function ChartSouthIndian({ signs = {}, ascendantSign, signLabels = [], centerLabel, title, className }) {
+export function ChartSouthIndian({ signs = {}, ascendantSign, signLabels = [], centerLabel, retroLabel, title, className }) {
   return (
     <svg viewBox="0 0 400 400" role="img" aria-label={title} className={cn("h-auto w-full max-w-md", className)}>
       <title>{title}</title>
@@ -49,7 +49,7 @@ export function ChartSouthIndian({ signs = {}, ascendantSign, signLabels = [], c
             <text x={x + SIZE - 8} y={y + 16} textAnchor="end" fontSize="11" className="fill-brand-500 dark:fill-gold-400">
               {signLabels[i] || num}
             </text>
-            <PlanetLabels items={signs[num]} cx={x + SIZE / 2} cy={y + SIZE / 2 + 8} perLine={3} gap={28} lineHeight={16} fontSize={12.5} />
+            <PlanetLabels items={signs[num]} cx={x + SIZE / 2} cy={y + SIZE / 2 + 8} perLine={3} gap={28} lineHeight={16} fontSize={12.5} retroLabel={retroLabel} />
           </g>
         );
       })}

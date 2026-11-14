@@ -32,7 +32,7 @@ function WhatsAppIcon({ className }) {
  */
 export function WhatsAppButton({ whatsapp }) {
   const pathname = usePathname();
-  const href = whatsappHref(whatsapp) || siteConfig.whatsappChatUrl;
+  const href = whatsappHref(siteConfig.whatsappNumber) || whatsappHref(whatsapp) || siteConfig.whatsappChatUrl;
   if (!href || /\/live\/[^/]+/.test(pathname || "")) return null;
 
   return (
