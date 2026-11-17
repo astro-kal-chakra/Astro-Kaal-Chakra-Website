@@ -4,13 +4,16 @@ const abs = (path) => new URL(path, siteConfig.url).toString();
 
 const ORG_ID = abs("/#organization");
 
+/** Spellings people search for the brand with; helps Google map them to this site. */
+const BRAND_ALIASES = ["AstroKaalChakra", "Astro Kal Chakra", "Astro Kaalchakra", "Kaal Chakra Astrology"];
+
 /** Brand identity: lets Google show the logo and link official profiles in the knowledge panel. */
 export const organizationJsonLd = () => ({
   "@context": "https://schema.org",
   "@type": "Organization",
   "@id": ORG_ID,
   name: siteConfig.name,
-  alternateName: "Astro Kaal Chakra",
+  alternateName: BRAND_ALIASES,
   url: siteConfig.url,
   logo: { "@type": "ImageObject", url: abs(siteConfig.logo), width: 512, height: 512 },
   image: abs(siteConfig.ogImage),
@@ -32,7 +35,7 @@ export const websiteJsonLd = () => ({
   "@type": "WebSite",
   "@id": abs("/#website"),
   name: siteConfig.name,
-  alternateName: "Astro Kaal Chakra",
+  alternateName: BRAND_ALIASES,
   url: siteConfig.url,
   inLanguage: "en-IN",
   publisher: { "@id": ORG_ID },

@@ -12,58 +12,62 @@ export function BirthFields({ idPrefix, value, onChange, errors = {}, maxDate, w
   const id = (f) => `${idPrefix}-${f}`;
   const err = (f) => (errors[f] ? t(errors[f]) : undefined);
 
+  // Two columns only when the form itself is wide enough (26rem), not the screen: on Kundli the form sits
+  // beside the result panel on laptops, where two columns cut "Select gender" short.
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      <Field label="Name" htmlFor={id("name")} error={err("name")} className={withGender ? "" : "sm:col-span-2"}>
-        <Input
-          id={id("name")}
-          value={value.name}
-          onChange={(e) => onChange({ name: e.target.value })}
-          placeholder="Full name"
-          autoComplete="name"
-          aria-invalid={Boolean(errors.name) || undefined}
-        />
-      </Field>
-      {withGender && (
-        <Field label="Gender" htmlFor={id("gender")}>
-          <Select id={id("gender")} value={value.gender} onChange={(e) => onChange({ gender: e.target.value })}>
-            <option value="">Select gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
-          </Select>
+    <div className="@container">
+      <div className="grid grid-cols-1 gap-4 @min-[26rem]:grid-cols-2">
+        <Field label="Name" htmlFor={id("name")} error={err("name")} className={withGender ? "" : "@min-[26rem]:col-span-2"}>
+          <Input
+            id={id("name")}
+            value={value.name}
+            onChange={(e) => onChange({ name: e.target.value })}
+            placeholder="Full name"
+            autoComplete="name"
+            aria-invalid={Boolean(errors.name) || undefined}
+          />
         </Field>
-      )}
-      <Field label="Date of birth" htmlFor={id("date")} error={err("date")}>
-        <Input
-          id={id("date")}
-          type="date"
-          value={value.date}
-          max={maxDate}
-          min="1900-01-01"
-          onChange={(e) => onChange({ date: e.target.value })}
-          required
-          aria-invalid={Boolean(errors.date) || undefined}
-        />
-      </Field>
-      <Field label="Time of birth" htmlFor={id("time")} error={err("time")}>
-        <Input
-          id={id("time")}
-          type="time"
-          value={value.time}
-          onChange={(e) => onChange({ time: e.target.value })}
-          required
-          aria-invalid={Boolean(errors.time) || undefined}
-        />
-      </Field>
-      <Field label="Place of birth" htmlFor={id("place")} error={err("place")} className="sm:col-span-2">
-        <PlaceAutocomplete
-          id={id("place")}
-          value={value.place}
-          onChange={(place) => onChange({ place })}
-          placeholder="Start typing a city"
-        />
-      </Field>
+        {withGender && (
+          <Field label="Gender" htmlFor={id("gender")}>
+            <Select id={id("gender")} value={value.gender} onChange={(e) => onChange({ gender: e.target.value })}>
+              <option value="">Select gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </Select>
+          </Field>
+        )}
+        <Field label="Date of birth" htmlFor={id("date")} error={err("date")}>
+          <Input
+            id={id("date")}
+            type="date"
+            value={value.date}
+            max={maxDate}
+            min="1900-01-01"
+            onChange={(e) => onChange({ date: e.target.value })}
+            required
+            aria-invalid={Boolean(errors.date) || undefined}
+          />
+        </Field>
+        <Field label="Time of birth" htmlFor={id("time")} error={err("time")}>
+          <Input
+            id={id("time")}
+            type="time"
+            value={value.time}
+            onChange={(e) => onChange({ time: e.target.value })}
+            required
+            aria-invalid={Boolean(errors.time) || undefined}
+          />
+        </Field>
+        <Field label="Place of birth" htmlFor={id("place")} error={err("place")} className="@min-[26rem]:col-span-2">
+          <PlaceAutocomplete
+            id={id("place")}
+            value={value.place}
+            onChange={(place) => onChange({ place })}
+            placeholder="Start typing a city"
+          />
+        </Field>
+      </div>
     </div>
   );
 }

@@ -35,7 +35,7 @@ export function FollowingView() {
   return (
     <AccountShell title="Followed astrologers" subtitle="We'll notify you when they come online.">
       {status === "loading" && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-busy="true">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3" aria-busy="true">
           {Array.from({ length: 3 }).map((_, i) => (
             <AstrologerCardSkeleton key={i} />
           ))}
@@ -51,7 +51,7 @@ export function FollowingView() {
         />
       )}
       {status === "success" && data.length > 0 && (
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {data.map((a) => (
             <li key={a.id} className="flex flex-col gap-2">
               <AstrologerCard astrologer={a} />

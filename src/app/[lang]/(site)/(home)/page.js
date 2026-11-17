@@ -23,7 +23,7 @@ const DELHI = { name: "New Delhi", region: "Delhi, India", lat: 28.61, lng: 77.2
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
-  return buildMetadata({ locale: lang, path: "/", title: { absolute: "Talk to Verified Astrologers Online – Chat, Call & Video" }, description: "Chat, call or video with verified Vedic astrologers for love, career, marriage, finance and health. Free first chat. Daily horoscope, free Kundli and Panchang." });
+  return buildMetadata({ locale: lang, path: "/", title: { absolute: "Astro Kaal Chakra – Talk to Verified Astrologers Online | Chat, Call & Video" }, description: "Astro Kaal Chakra: chat, call or video with verified Vedic astrologers for love, career, marriage, finance and health. Free first chat. Daily horoscope, free Kundli and Panchang." });
 }
 
 /** Home FAQs: the first questions of the "consultations" and "payments" groups managed in the dashboard. */

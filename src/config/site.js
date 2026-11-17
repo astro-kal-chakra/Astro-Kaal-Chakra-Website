@@ -44,6 +44,11 @@ export const siteConfig = {
   ],
   url: siteUrl,
   supportEmail: "support@astrokaalchakra.com",
+  /** Customer contact shown in the footer. */
+  contact: {
+    email: "support@ritvex.in",
+    phone: "+91 92510 64637",
+  },
   /** "Chat with us" WhatsApp number (10 digits = Indian number, +91 is added). */
   whatsappNumber: "92510 64637",
   whatsappChatUrl: "https://chat.whatsapp.com/CvXNqmm4JeZAL3yDzdm9I6",

@@ -118,7 +118,7 @@ export function AstrologerListing({ initial, initialFilters, options }) {
           action={<Button variant="outline" onClick={reset}>Clear filters</Button>}
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {items.map((a, i) => (
             <AstrologerCard key={a.id} astrologer={withPresence(a)} priority={i < 3} />
           ))}

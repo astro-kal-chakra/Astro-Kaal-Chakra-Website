@@ -39,7 +39,7 @@ export function OtpInput({ value, onChange, length = 6, disabled, invalid }) {
   };
 
   return (
-    <div className="flex justify-between gap-2" role="group" aria-label="One-time password">
+    <div className="flex w-full justify-between gap-1.5 sm:gap-2" role="group" aria-label="One-time password">
       {digits.map((d, i) => (
         <input
           key={i}
@@ -55,7 +55,8 @@ export function OtpInput({ value, onChange, length = 6, disabled, invalid }) {
           autoFocus={i === 0}
           aria-label={`Digit ${i + 1}`}
           className={cn(
-            "size-12 rounded-xl border bg-surface text-center text-xl font-semibold focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20",
+            // Boxes share the row's width (never overflow on narrow phones), stay square, and cap at 48px
+            "aspect-square min-w-0 max-w-12 flex-1 rounded-xl border bg-surface p-0 text-center text-lg font-semibold sm:text-xl focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20",
             invalid ? "border-red-500" : "border-line"
           )}
         />

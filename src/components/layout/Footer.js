@@ -6,7 +6,7 @@ import { ZodiacWheel } from "@/components/ui/CelestialBackdrop";
 import { AppStoreButtons } from "./AppStoreButtons";
 import { Logo } from "./Logo";
 import { LinkedinIcon, socialMeta } from "./SocialIcons";
-import { Globe } from "lucide-react";
+import { Globe, Mail, Phone } from "lucide-react";
 
 const iconLink =
   "flex size-9 items-center justify-center rounded-full border border-line bg-surface text-muted transition hover:border-brand-300 hover:text-accent motion-safe:hover:-translate-y-0.5";
@@ -106,14 +106,23 @@ export function Footer({ locale, config }) {
               })}
             </ul>
           </div>
-          {config?.support?.email && (
-            <p className="text-sm text-muted">
-              Support:{" "}
-              <a href={`mailto:${config.support.email}`} className="text-accent hover:underline">
-                {config.support.email}
-              </a>
-            </p>
-          )}
+          <div>
+            <p className="eyebrow mb-2">Contact us</p>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <a href={`mailto:${siteConfig.contact.email}`} className="inline-flex items-center gap-2 text-muted transition hover:text-accent">
+                  <Mail className="size-4 shrink-0 text-accent" aria-hidden />
+                  <span translate="no" className="notranslate break-all">{siteConfig.contact.email}</span>
+                </a>
+              </li>
+              <li>
+                <a href={`tel:${siteConfig.contact.phone.replace(/\s/g, "")}`} className="inline-flex items-center gap-2 text-muted transition hover:text-accent">
+                  <Phone className="size-4 shrink-0 text-accent" aria-hidden />
+                  <span translate="no" className="notranslate whitespace-nowrap">{siteConfig.contact.phone}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
         {columns.map((col) => (
           <div key={col.title} className="min-w-0">

@@ -6,7 +6,12 @@ import { contentService } from "@/lib/api/services/content.service";
 import { reportService } from "@/lib/api/services/report.service";
 import { LEGAL_PAGES } from "@/features/legal/content";
 
-export const revalidate = 3600;
+// Built on each request so new astrologers and blog posts appear right away. (With `revalidate`, Vercel kept
+// serving the copy from the last deploy.) The slug lists are still cached for up to an hour in their fetch calls.
+export const dynamic = "force-dynamic";
+
+/** Today in India (YYYY-MM-DD): daily horoscopes change every day. */
+const todayIST = () => new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
 
 const STATIC_PATHS = [
   routes.home, routes.astrologers, routes.horoscope, routes.kundli, routes.kundliMatching,
@@ -14,8 +19,12 @@ const STATIC_PATHS = [
   routes.contact, routes.faqs, routes.becomeAstrologer, routes.reports, routes.live,
 ];
 
-/** One sitemap entry (as an array so callers can flatMap). */
-function entry(path, { changeFrequency = "weekly", priority = 0.5, lastModified = new Date() } = {}) {
+/**
+ * One sitemap entry (as an array so callers can flatMap).
+ * lastModified is only set when we know the real date: Google ignores <lastmod> on sites where it is
+ * always "now", which would also discard the real dates of astrologer profiles and blog posts.
+ */
+function entry(path, { changeFrequency = "weekly", priority = 0.5, lastModified } = {}) {
   return [{ url: `${siteConfig.url}${path === "/" ? "" : path}`, lastModified, changeFrequency, priority }];
 }
 
@@ -31,7 +40,11 @@ export default async function sitemap() {
     ...STATIC_PATHS.flatMap((p) => entry(p, { priority: p === "/" ? 1 : 0.7 })),
     ...HOROSCOPE_PERIODS.flatMap((period) =>
       ZODIAC_SIGNS.flatMap((s) =>
-        entry(routes.horoscopeSign(period, s.slug), { changeFrequency: period === "daily" ? "daily" : "weekly", priority: 0.8 })
+        entry(routes.horoscopeSign(period, s.slug), {
+          changeFrequency: period === "daily" ? "daily" : "weekly",
+          priority: 0.8,
+          ...(period === "daily" ? { lastModified: todayIST() } : {}),
+        })
       )
     ),
     ...astrologers.flatMap((a) => entry(routes.astrologer(a.slug), { changeFrequency: "daily", priority: 0.8, lastModified: a.updatedAt })),
