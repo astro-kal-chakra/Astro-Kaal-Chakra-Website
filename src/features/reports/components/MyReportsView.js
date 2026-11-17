@@ -6,7 +6,7 @@ import { AccountLoadMore } from "@/features/account/components/AccountStates";
 import { Download, FileText, Loader2 } from "lucide-react";
 import { routes } from "@/config/routes";
 import { reportService } from "@/lib/api/services/report.service";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatDate } from "@/lib/utils/format";
 import { useToast } from "@/providers/ToastProvider";
 import { Badge } from "@/components/ui/Badge";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -17,6 +17,7 @@ import { ReportIcon } from "./ReportIcon";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
 import { reportCopy } from "../lib/copy";
+import { useMoney } from "@/features/international/components/CurrencyProvider";
 
 const POLL_MS = 5000;
 
@@ -77,6 +78,7 @@ export function MyReportsView() {
 }
 
 function MyReportRow({ report: r }) {
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
   const locale = SITE_LOCALE;
   const { toast } = useToast();
   const [downloading, setDownloading] = useState(false);
@@ -107,7 +109,7 @@ function MyReportRow({ report: r }) {
           <p className="truncate font-semibold">{reportCopy(r).title}</p>
           <p className="truncate text-sm text-muted">{`For ${r.profileNames.join(" & ")}`}</p>
           <p className="text-xs text-muted">
-            {`Purchased ${formatDate(r.purchasedAt, locale)} · ${formatCurrency(r.price, locale)}`}
+            {`Purchased ${formatDate(r.purchasedAt, locale)} · ${money(r.price, locale)}`}
           </p>
         </div>
       </div>

@@ -6,10 +6,12 @@ import { routes } from "@/config/routes";
 import { useAuth } from "@/features/auth/context/AuthProvider";
 import { cn } from "@/lib/utils/cn";
 import { maskPhone } from "@/lib/utils/format";
+import { accountContact } from "@/features/international/lib/currency";
 import { Avatar } from "@/components/ui/Avatar";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { useRemediesEnabled } from "@/features/remedies/hooks/useRemedyConfig";
 import { accountNavFor } from "../lib/nav";
+import { useCurrency } from "@/features/international/components/CurrencyProvider";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
 
@@ -19,6 +21,7 @@ export function AccountSidebarNav({ className }) {
   const { user } = useAuth();
   const pathname = usePathname();
   const remedies = useRemediesEnabled();
+  const { international } = useCurrency(); // dollar accounts: no Refer & Earn (rewards are in rupees)
   const rel = pathname.replace(new RegExp(`^/${locale}(?=/|$)`), "") || "/";
   const isActive = (href) => (href === routes.account ? rel === href : rel === href || rel.startsWith(`${href}/`));
 
@@ -28,11 +31,11 @@ export function AccountSidebarNav({ className }) {
         <Avatar name={user?.name || "U"} size={40} />
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold">{user?.name || "My Account"}</p>
-          {user?.phone && <p className="text-xs text-muted">+91 {maskPhone(user.phone)}</p>}
+          {accountContact(user, maskPhone) && <p className="text-xs text-muted">{accountContact(user, maskPhone)}</p>}
         </div>
       </div>
       <ul className="space-y-0.5">
-        {accountNavFor({ remedies }).map(({ key, href, icon: Icon }) => {
+        {accountNavFor({ remedies, international }).map(({ key, href, icon: Icon }) => {
           const active = isActive(href);
           return (
             <li key={key}>

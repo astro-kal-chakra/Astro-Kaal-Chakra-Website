@@ -5,6 +5,7 @@ import { LANGUAGES, PRICE_RANGES, SORT_OPTIONS, SPECIALTIES } from "@/constants/
 import { cn } from "@/lib/utils/cn";
 import { Input, Select } from "@/components/ui/Input";
 import { MODE_FILTERS } from "../lib/modes";
+import { useCurrency } from "@/features/international/components/CurrencyProvider";
 
 const chip = (active) =>
   cn(
@@ -17,6 +18,8 @@ const chip = (active) =>
 export function AstrologerFilters({ filters, onChange, onReset, languages = LANGUAGES, specialties = SPECIALTIES }) {
   const set = (patch) => onChange({ ...filters, ...patch });
   const hasFilters = Object.entries(filters).some(([k, v]) => k !== "sort" && v);
+  // The price ranges are in rupees: not offered to international viewers (who see dollar prices)
+  const { currency } = useCurrency();
 
   return (
     <div className="space-y-3">
@@ -69,14 +72,16 @@ export function AstrologerFilters({ filters, onChange, onReset, languages = LANG
             <option key={s}>{s}</option>
           ))}
         </Select>
-        <Select value={filters.price || ""} onChange={(e) => set({ price: e.target.value })} className="h-9 w-auto shrink-0 rounded-full text-sm" aria-label="Price">
-          <option value="">Price</option>
-          {PRICE_RANGES.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.label}
-            </option>
-          ))}
-        </Select>
+        {currency !== "USD" && (
+          <Select value={filters.price || ""} onChange={(e) => set({ price: e.target.value })} className="h-9 w-auto shrink-0 rounded-full text-sm" aria-label="Price">
+            <option value="">Price</option>
+            {PRICE_RANGES.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.label}
+              </option>
+            ))}
+          </Select>
+        )}
 
         {hasFilters && (
           <button onClick={onReset} className="flex h-9 shrink-0 items-center gap-1 px-2 text-sm font-medium text-accent">

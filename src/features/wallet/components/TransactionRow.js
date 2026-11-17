@@ -3,12 +3,13 @@
 import { ArrowDownLeft, FileText, Gift, HandHeart, MessageCircle, Phone, RotateCcw, Video } from "lucide-react";
 import { routes } from "@/config/routes";
 import { cn } from "@/lib/utils/cn";
-import { formatCurrency, formatDate, formatDuration } from "@/lib/utils/format";
+import { formatDate, formatDuration } from "@/lib/utils/format";
 import { Badge } from "@/components/ui/Badge";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
 import { reportCopy } from "@/features/reports/lib/copy";
+import { useMoney } from "@/features/international/components/CurrencyProvider";
 
 const ICONS = {
   recharge: { icon: ArrowDownLeft, tone: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400" },
@@ -29,6 +30,7 @@ export function TxnStatusBadge({ status }) {
 
 /** Human title + subtitle for a transaction, fully localised. */
 export function useTxnText() {
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
   return (txn) => {
     const m = txn.meta || {};
     switch (txn.type) {
@@ -38,7 +40,7 @@ export function useTxnText() {
         return {
           title: m.mode === "video" ? `Video call with ${m.astrologer}` : m.mode === "call" ? `Voice call with ${m.astrologer}` : `Chat with ${m.astrologer}`,
           // Billed by the second: "03:01 at ₹12/min"
-          subtitle: m.durationSec != null ? `${formatDuration(m.durationSec)}${m.ratePerMin ? ` at ${formatCurrency(m.ratePerMin, SITE_LOCALE)}/min` : ""}` : "",
+          subtitle: m.durationSec != null ? `${formatDuration(m.durationSec)}${m.ratePerMin ? ` at ${money(m.ratePerMin, SITE_LOCALE)}/min` : ""}` : "",
         };
       case "refund":
         return { title: "Refund", subtitle: m.astrologer ? `Session with ${m.astrologer}` : /^remedy refund/i.test(m.reason || "") ? m.reason : "" };
@@ -57,6 +59,7 @@ export function useTxnText() {
 }
 
 export function TransactionRow({ txn, action, compact = false }) {
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
   const locale = SITE_LOCALE;
   const text = useTxnText()(txn);
   const kind = txn.meta?.source === "remedy" ? "remedy" : txn.type === "consultation" && (txn.meta?.mode === "video" || txn.meta?.mode === "call") ? txn.meta.mode : txn.type;
@@ -92,7 +95,7 @@ export function TransactionRow({ txn, action, compact = false }) {
           )}
         >
           {credit ? "+" : "−"}
-          {formatCurrency(Math.abs(txn.amount), locale)}
+          {money(Math.abs(txn.amount), locale)}
         </span>
         {(!compact || txn.status !== "success") && <TxnStatusBadge status={txn.status} />}
       </div>

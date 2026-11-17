@@ -9,7 +9,9 @@ const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
  * TODO(api): if the backend generates signed PDF invoices, open that URL instead.
  */
 export function buildInvoiceHtml(inv, t, locale) {
-  const money = (n) => esc(formatCurrency(n, locale));
+  // International users pay in US dollars (`inv.currency` from the backend)
+  const usd = inv.currency === "USD";
+  const money = (n) => esc(formatCurrency(n, locale, inv.currency));
   const row = (label, value, strong = false) =>
     `<tr${strong ? ' class="total"' : ""}><td>${esc(label)}</td><td class="num">${value}</td></tr>`;
   // GST is set from the dashboard (Settings). With no GST charged this is a plain payment receipt.
@@ -45,7 +47,7 @@ export function buildInvoiceHtml(inv, t, locale) {
   ${esc("Date")}: ${esc(formatDate(inv.date, locale))}</div></div>
 </header>
 <div class="grid">
-  <div class="box"><b>${esc("Billed to")}</b>${esc(inv.customer.name || "—")}<br>${inv.customer.phone ? `+91 ${esc(inv.customer.phone)}` : ""}</div>
+  <div class="box"><b>${esc("Billed to")}</b>${esc(inv.customer.name || "—")}<br>${inv.customer.phone ? `${usd ? "" : "+91 "}${esc(inv.customer.phone)}` : esc(inv.customer.email || "")}</div>
   <div class="box"><b>${esc("Payment")}</b>${esc("Order ID")}: ${esc(inv.orderId || "—")}<br>${esc("Method")}: ${esc(inv.method)}</div>
 </div>
 <table>
@@ -53,11 +55,11 @@ export function buildInvoiceHtml(inv, t, locale) {
   <tbody>
     ${inv.lines.map((l) => row(t(`wallet.invoice.line_${l.description}`), money(l.amount))).join("")}
     ${hasGst ? row("Taxable value", money(inv.taxable)) : ""}
-    ${inv.igst ? row(`IGST @ ${inv.gstPercent}%`, money(inv.igst)) : hasGst ? `${row(`CGST @ ${inv.gstPercent / 2}%`, money(inv.cgst))}${row(`SGST @ ${inv.gstPercent / 2}%`, money(inv.sgst))}` : ""}
+    ${usd && hasGst ? row(`GST @ ${inv.gstPercent}%`, money((inv.igst || 0) + (inv.cgst || 0) + (inv.sgst || 0))) : inv.igst ? row(`IGST @ ${inv.gstPercent}%`, money(inv.igst)) : hasGst ? `${row(`CGST @ ${inv.gstPercent / 2}%`, money(inv.cgst))}${row(`SGST @ ${inv.gstPercent / 2}%`, money(inv.sgst))}` : ""}
     ${row("Total paid", money(inv.total), true)}
   </tbody>
 </table>
-<p class="note">${esc(`${formatCurrency(inv.credit, locale)} was credited to your wallet for this payment (including any bonus).`)}</p>
+<p class="note">${esc(`${formatCurrency(inv.credit, locale, inv.currency)} was credited to your wallet for this payment (including any bonus).`)}</p>
 <p class="muted">${esc("This is a computer-generated receipt and does not require a signature.")}</p>
 <div class="actions"><button onclick="window.print()">${esc("Print / Save as PDF")}</button></div>
 </div></body></html>`;

@@ -68,7 +68,7 @@ export default async function HomePage({ params }) {
         <FreeTools />
       </Reveal>
       <Reveal>
-        <OffersBanner freeChat={config.freeChat} minRecharge={config.recharge?.minAmount} />
+        <OffersBanner freeChat={config.freeChat} minRecharge={config.recharge?.minAmount} minRechargeUsd={config.international?.minRecharge} />
       </Reveal>
       <Reveal>
         <HowItWorks freeChat={config.freeChat} />

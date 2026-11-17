@@ -12,7 +12,6 @@ import { formatShortDate } from "@/features/account/lib/format";
 import { REMEDY_TABS, remedyService } from "@/lib/api/services/remedy.service";
 import { categoryLabel, label as t } from "@/lib/labels";
 import { cn } from "@/lib/utils/cn";
-import { formatCurrency } from "@/lib/utils/format";
 import { Avatar } from "@/components/ui/Avatar";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -20,6 +19,7 @@ import { LocaleLink } from "@/components/ui/LocaleLink";
 import { useNow, useRemedyUpdates } from "../hooks/useRemedyLive";
 import { timeLeftText } from "../lib/remedies";
 import { RemedyStatusBadge } from "./RemedyStatusBadge";
+import { useMoney } from "@/features/international/components/CurrencyProvider";
 
 const EMPTY = {
   all: { title: "No remedies yet", description: "Ask an astrologer about a problem and get written remedies: mantra, puja, gemstone and more." },
@@ -28,6 +28,7 @@ const EMPTY = {
 };
 
 function RemedyRow({ remedy: r, now }) {
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
   const locale = SITE_LOCALE;
   const left = r.status === "pending" && now ? new Date(r.dueAt).getTime() - now : null;
   const followUpWaiting = r.followUp && !r.followUp.answer;
@@ -59,7 +60,7 @@ function RemedyRow({ remedy: r, now }) {
           </p>
           <p className="mt-1.5 line-clamp-2 break-words text-sm">{r.question}</p>
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-muted">
-            <span className="tabular-nums">{formatCurrency(r.price, locale)}</span>
+            <span className="tabular-nums">{money(r.price, locale)}</span>
             {left !== null && left > 0 && (
               <span className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-400">
                 <Clock className="size-3.5" aria-hidden /> {`Reply due in ${timeLeftText(left)}`}

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { AlertTriangle, BadgeCheck, Clock, Gift, LogOut, ShieldAlert, Wallet, WalletCards, WifiOff, UserX } from "lucide-react";
 import { routes } from "@/config/routes";
 import { cn } from "@/lib/utils/cn";
-import { formatCurrency, formatDuration } from "@/lib/utils/format";
+import { formatDuration } from "@/lib/utils/format";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { LocaleLink } from "@/components/ui/LocaleLink";
@@ -14,6 +14,7 @@ import { Spinner } from "@/components/ui/Skeleton";
 import { END_REASONS } from "../lib/sessionEvents";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
+import { useMoney } from "@/features/international/components/CurrencyProvider";
 
 /** Avatar + name + specialties. Never shows contact details. */
 export function AstrologerIdentity({ astrologer, size = 40, subtitle, className, tone = "default" }) {
@@ -35,6 +36,7 @@ export function AstrologerIdentity({ astrologer, size = 40, subtitle, className,
 
 /** Live timer + running balance (or free-time countdown). Display only. */
 export function SessionMeter({ elapsed, balance, freeRemaining, tone = "default", className }) {
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
   const locale = SITE_LOCALE;
   const chip =
     tone === "dark"
@@ -65,7 +67,7 @@ export function SessionMeter({ elapsed, balance, freeRemaining, tone = "default"
           aria-label="Wallet balance"
         >
           <Wallet className="size-3.5" aria-hidden />
-          <span translate="no" className="notranslate">{balance == null ? "—" : formatCurrency(balance, locale)}</span>
+          <span translate="no" className="notranslate">{balance == null ? "—" : money(balance, locale)}</span>
         </span>
       )}
     </div>
@@ -156,6 +158,7 @@ const REVIEW_REDIRECT_SECONDS = 4;
 
 /** Shown when the session finishes for any reason other than the user ending it here. */
 export function SessionEndedPanel({ sessionId, ended, astrologer, isFree, tone = "default" }) {
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
   const locale = SITE_LOCALE;
   const router = useRouter();
   const reason = REASON_ICON[ended.reason] ? ended.reason : "other";
@@ -199,11 +202,11 @@ export function SessionEndedPanel({ sessionId, ended, astrologer, isFree, tone =
           </div>
           <div className="rounded-xl bg-surface-muted p-3">
             <dt className="text-xs text-muted">Charged</dt>
-            <dd className="font-semibold">{isFree && !ended.totalCharged ? "FREE" : formatCurrency(ended.totalCharged || 0, locale)}</dd>
+            <dd className="font-semibold">{isFree && !ended.totalCharged ? "FREE" : money(ended.totalCharged || 0, locale)}</dd>
           </div>
         </dl>
         {ended.unusedReturned > 0 && (
-          <p className="mt-3 text-xs text-muted">{`${formatCurrency(ended.unusedReturned, locale)} unused time returned to your wallet`}</p>
+          <p className="mt-3 text-xs text-muted">{`${money(ended.unusedReturned, locale)} unused time returned to your wallet`}</p>
         )}
         <div className="mt-5 grid gap-2">
           <Button size="lg" onClick={() => router.push(`${routes.sessionSummary(sessionId)}`)}>

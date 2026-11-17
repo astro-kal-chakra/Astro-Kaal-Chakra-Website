@@ -4,6 +4,7 @@ import { siteConfig } from "@/config/site";
 import { hasLocale, locales } from "@/config/locale";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/jsonld";
 import { AppProviders } from "@/providers/AppProviders";
+import { contentService } from "@/lib/api/services/content.service";
 import { ThemeInitScript } from "@/providers/ThemeInitScript";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { OfflineBanner } from "@/components/layout/OfflineBanner";
@@ -94,6 +95,8 @@ export async function generateMetadata() {
 export default async function RootLayout( { children, params } ) {
   const { lang } = await params;
   if ( !hasLocale( lang ) ) notFound();
+  // International users (dollar prices, Google login): off unless switched on in the dashboard
+  const international = ( await contentService.getSiteConfig().catch( () => null ) )?.international ?? null;
 
   return (
     <html lang={lang} suppressHydrationWarning className={`${inter.variable} ${poppins.variable} ${devanagari.variable} ${marcellus.variable}`}>
@@ -101,7 +104,7 @@ export default async function RootLayout( { children, params } ) {
         <ThemeInitScript />
       </head>
       <body className="flex min-h-dvh flex-col font-sans antialiased">
-        <AppProviders>
+        <AppProviders international={international}>
           <OfflineBanner />
           {children}
         </AppProviders>

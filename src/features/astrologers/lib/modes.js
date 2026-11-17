@@ -19,13 +19,16 @@ export const isFreeMode = (a, mode) => Boolean(a?.freeModes?.includes(mode));
  */
 export const isModeAvailable = (a, mode) => (a.availableModes ? Boolean(a.availableModes[mode]) : true);
 
-/** Offered modes with their price; `available`: can be started right now (online and switched on). */
-export function astrologerModes(a) {
+/**
+ * Offered modes with their price; `available`: can be started right now (online and switched on).
+ * `currency` "USD" (international viewers): the astrologer's foreign price per minute (`usd`) instead.
+ */
+export function astrologerModes(a, currency = "INR") {
   return MODES.filter((m) => m.on(a)).map((m) => ({
     key: m.key,
     label: m.label,
     icon: m.icon,
-    price: m.price(a),
+    price: currency === "USD" ? a.usd?.[m.key] ?? 0 : m.price(a),
     free: isFreeMode(a, m.key),
     available: a.status === "online" && isModeAvailable(a, m.key),
   }));

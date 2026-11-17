@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { Clock, HandHeart, RotateCcw } from "lucide-react";
 import { useAuth } from "@/features/auth/context/AuthProvider";
-import { formatCurrency } from "@/lib/utils/format";
+import { Money, useCurrency } from "@/features/international/components/CurrencyProvider";
+import { itemPrice } from "@/features/international/lib/currency";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { SITE_LOCALE } from "@/config/locale";
@@ -18,6 +19,7 @@ export function RemedyProfileCard({ astrologer }) {
   const locale = SITE_LOCALE;
   const { requireAuth } = useAuth();
   const config = useRemedyConfig(astrologer.id);
+  const { currency } = useCurrency(); // ₹, or the dollar price for international users
   const [open, setOpen] = useState(false);
   const [sheetKey, setSheetKey] = useState(0);
   const [hidden, setHidden] = useState(false);
@@ -56,7 +58,7 @@ export function RemedyProfileCard({ astrologer }) {
         <Button variant="soft" size="lg" className="w-full justify-between" onClick={start}>
           <span>Get a remedy</span>
           <span translate="no" className="notranslate font-medium opacity-90">
-            {formatCurrency(config.price, locale)}
+            <Money value={itemPrice(config, currency)} />
           </span>
         </Button>
       </section>

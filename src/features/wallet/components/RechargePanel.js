@@ -7,7 +7,7 @@ import { routes } from "@/config/routes";
 import { useAuth } from "@/features/auth/context/AuthProvider";
 import { OFFER_ENDED_CODE, WALLET_CONFIG, quoteRecharge, walletService } from "@/lib/api/services/wallet.service";
 import { cn } from "@/lib/utils/cn";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatDate } from "@/lib/utils/format";
 import { useToast } from "@/providers/ToastProvider";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -18,6 +18,7 @@ import { openCheckout } from "../lib/razorpay";
 import { useInflightOrder } from "../lib/inflight";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
+import { useCurrency, useMoney } from "@/features/international/components/CurrencyProvider";
 
 const COUPON_ERRORS ={ INVALID_COUPON: "wallet.couponInvalid", COUPON_MIN_AMOUNT: "wallet.couponMinAmount" };
 
@@ -36,6 +37,8 @@ function endsLabel(endsAt, now, locale) {
 }
 
 export function RechargePanel() {
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
+  const usd = useCurrency().currency === "USD"; // international users recharge in whole dollars
   const locale = SITE_LOCALE;
   const { requireAuth } = useAuth();
   const { toast } = useToast();
@@ -97,9 +100,9 @@ export function RechargePanel() {
 
   let amountError = null;
   if (custom) {
-    if (!Number.isInteger(amount)) amountError = "Enter a whole amount in rupees";
-    else if (amount < config.minAmount) amountError = `Minimum recharge is ${formatCurrency(config.minAmount, locale)}`;
-    else if (amount > config.maxAmount) amountError = `Maximum recharge is ${formatCurrency(config.maxAmount, locale)}`;
+    if (!Number.isInteger(amount)) amountError = usd ? "Enter a whole amount in dollars" : "Enter a whole amount in rupees";
+    else if (amount < config.minAmount) amountError = `Minimum recharge is ${money(config.minAmount, locale)}`;
+    else if (amount > config.maxAmount) amountError = `Maximum recharge is ${money(config.maxAmount, locale)}`;
   }
   const valid = amount > 0 && !amountError;
 
@@ -136,7 +139,7 @@ export function RechargePanel() {
           setCoupon({
             status: "invalid",
             code,
-            error: t(COUPON_ERRORS[e?.code] || "wallet.couponInvalid", { amount: formatCurrency(e?.data?.minAmount ?? 0, locale) }),
+            error: t(COUPON_ERRORS[e?.code] || "wallet.couponInvalid", { amount: money(e?.data?.minAmount ?? 0, locale) }),
           });
       });
   };
@@ -282,17 +285,17 @@ export function RechargePanel() {
                         <CheckCircle2 className="absolute right-3 top-3 size-4 text-gold-600 dark:text-gold-400" aria-hidden />
                       )}
                       <p className="text-xs text-muted">Pay</p>
-                      <p className="font-display text-2xl font-bold">{formatCurrency(p.amount, locale)}</p>
+                      <p className="font-display text-2xl font-bold">{money(p.amount, locale)}</p>
                       {/* What the wallet gets for every pack (credit and bonus come from /wallet/packs, set in the dashboard) */}
                       {bonus > 0 ? (
                         <p className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm font-semibold text-green-700 dark:text-green-400" data-pack-reward>
-                          {`Get ${formatCurrency(p.credit, locale)}`}
+                          {`Get ${money(p.credit, locale)}`}
                           <span className="rounded-full bg-green-100 px-1.5 py-0.5 text-xs font-semibold dark:bg-green-900/40">
-                            {`+${formatCurrency(bonus, locale)} bonus`}
+                            {`+${money(bonus, locale)} bonus`}
                           </span>
                         </p>
                       ) : (
-                        <p className="mt-1 text-sm text-muted">{`Get ${formatCurrency(p.credit, locale)}`}</p>
+                        <p className="mt-1 text-sm text-muted">{`Get ${money(p.credit, locale)}`}</p>
                       )}
                       {config.gstRate > 0 && <p className="mt-1 text-xs text-muted">{`+ ${gstPercent(config.gstRate)} GST`}</p>}
                       {p.offer === "festival" && p.endsAt && (
@@ -313,11 +316,11 @@ export function RechargePanel() {
             label="Custom amount"
             htmlFor="custom-amount"
             error={amountError}
-            hint={`Between ${formatCurrency(config.minAmount, locale)} and ${formatCurrency(config.maxAmount, locale)}`}
+            hint={`Between ${money(config.minAmount, locale)} and ${money(config.maxAmount, locale)}`}
           >
             <div className="relative">
               <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted" aria-hidden>
-                ₹
+                {usd ? "$" : "₹"}
               </span>
               <Input
                 id="custom-amount"
@@ -344,7 +347,7 @@ export function RechargePanel() {
                 <span className="min-w-0 flex-1 truncate text-sm">
                   <strong className="tabular-nums">{coupon.code}</strong>{" "}
                   <span className="text-green-700 dark:text-green-400">
-                    {`applied · +${formatCurrency(coupon.bonus, locale)} extra`}
+                    {`applied · +${money(coupon.bonus, locale)} extra`}
                   </span>
                 </span>
                 <button
@@ -396,11 +399,11 @@ export function RechargePanel() {
       <Card className="space-y-4 p-5 lg:sticky lg:top-24">
         <h2 className="text-lg font-semibold">Order summary</h2>
         <dl className="space-y-2.5 text-sm">
-          <Row label="Recharge amount" value={formatCurrency(valid ? quote.amount : 0, locale)} />
+          <Row label="Recharge amount" value={money(valid ? quote.amount : 0, locale)} />
           {/* GST (rate from the dashboard) is added on top on its own row, never folded silently into the total */}
-          {valid && quote.gst > 0 && <Row label={`GST (${gstPercent(config.gstRate)})`} value={`+${formatCurrency(quote.gst, locale)}`} />}
+          {valid && quote.gst > 0 && <Row label={`GST (${gstPercent(config.gstRate)})`} value={`+${money(quote.gst, locale)}`} />}
           <div className="border-t border-dashed border-line pt-2.5">
-            <Row label="Total to pay" value={formatCurrency(valid ? quote.total : 0, locale)} strong />
+            <Row label="Total to pay" value={money(valid ? quote.total : 0, locale)} strong />
           </div>
         </dl>
         <div className="space-y-1.5 rounded-xl bg-green-50 px-3 py-2.5 text-sm dark:bg-green-900/20">
@@ -408,13 +411,13 @@ export function RechargePanel() {
             <span className="text-green-800 dark:text-green-300">
               {valid && quote.bonus > 0 ? "You get in wallet (incl. bonus)" : "You get in wallet"}
             </span>
-            <span className="font-bold tabular-nums text-green-700 dark:text-green-400">{formatCurrency(valid ? quote.credit : 0, locale)}</span>
+            <span className="font-bold tabular-nums text-green-700 dark:text-green-400">{money(valid ? quote.credit : 0, locale)}</span>
           </div>
           {valid && quote.bonus > 0 && (
             <ul className="space-y-0.5 text-xs text-green-800/80 dark:text-green-300/80">
               <li className="flex justify-between gap-4">
                 <span>Recharge</span>
-                <span className="tabular-nums">{formatCurrency(quote.amount, locale)}</span>
+                <span className="tabular-nums">{money(quote.amount, locale)}</span>
               </li>
               {quote.packBonus > 0 && (
                 <li className="flex justify-between gap-4">
@@ -425,13 +428,13 @@ export function RechargePanel() {
                         ? `${pack.label || "Offer"} bonus`
                         : "Pack bonus"}
                   </span>
-                  <span className="tabular-nums">{`+${formatCurrency(quote.packBonus, locale)}`}</span>
+                  <span className="tabular-nums">{`+${money(quote.packBonus, locale)}`}</span>
                 </li>
               )}
               {quote.couponBonus > 0 && (
                 <li className="flex justify-between gap-4">
                   <span>{`Coupon bonus (${coupon.code})`}</span>
-                  <span className="tabular-nums">{`+${formatCurrency(quote.couponBonus, locale)}`}</span>
+                  <span className="tabular-nums">{`+${money(quote.couponBonus, locale)}`}</span>
                 </li>
               )}
             </ul>
@@ -447,7 +450,7 @@ export function RechargePanel() {
           onClick={() => requireAuth(pay, "recharge")}
         >
           <Lock className="size-4" aria-hidden />
-          {valid ? `Pay ${formatCurrency(quote.total, locale)}` : "Add money"}
+          {valid ? `Pay ${money(quote.total, locale)}` : "Add money"}
         </Button>
       </Card>
     </div>

@@ -3,13 +3,15 @@ import { localeTags } from "@/config/locale";
 /**
  * Rupees with paise only when there are any: 36.2 -> "₹36.20", 36 -> "₹36", 100000 -> "₹1,00,000".
  * Rounds to the paisa first so float noise (36.199999) never shows.
+ * `currency` "USD" (international users): "$36.20", "$1,000" (US digit grouping).
  */
-export function formatCurrency(amount, locale = "en") {
+export function formatCurrency(amount, locale = "en", currency = "INR") {
   const paise = Math.round((Number(amount) || 0) * 100);
   const digits = paise % 100 === 0 ? 0 : 2;
-  return new Intl.NumberFormat(localeTags[locale] || "en-IN", {
+  const usd = currency === "USD";
+  return new Intl.NumberFormat(usd ? "en-US" : localeTags[locale] || "en-IN", {
     style: "currency",
-    currency: "INR",
+    currency: usd ? "USD" : "INR",
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
   }).format(paise / 100);

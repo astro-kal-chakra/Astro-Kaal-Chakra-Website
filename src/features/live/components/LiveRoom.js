@@ -7,7 +7,9 @@ import { useAuth } from "@/features/auth/context/AuthProvider";
 import { astrologerService } from "@/lib/api/services/astrologer.service";
 import { liveService } from "@/lib/api/services/live.service";
 import { cn } from "@/lib/utils/cn";
-import { formatCompact, formatCurrency } from "@/lib/utils/format";
+import { formatCompact } from "@/lib/utils/format";
+import { Money, useCurrency, useMoney } from "@/features/international/components/CurrencyProvider";
+import { itemPrice } from "@/features/international/lib/currency";
 import { useToast } from "@/providers/ToastProvider";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -31,6 +33,8 @@ const MAX_FLOATING = 8;
  * Chat, viewers and gifts come from liveService.subscribe (socket, or a simulation in mock mode).
  */
 export function LiveRoom({ session, gifts }) {
+  // ₹, or $ for international users (gift and question prices have a dollar price too)
+  const { currency } = useCurrency();
   const locale = SITE_LOCALE;
   const { requireAuth, user } = useAuth();
   const { toast } = useToast();
@@ -133,7 +137,7 @@ export function LiveRoom({ session, gifts }) {
       if (giftBusy) return;
       setGiftBusy(g.id);
       try {
-        await liveService.sendGift(session.id, { giftId: g.id, price: g.price, idempotencyKey: newIdempotencyKey() });
+        await liveService.sendGift(session.id, { giftId: g.id, price: itemPrice(g, currency), idempotencyKey: newIdempotencyKey() });
         spawnGift(g.id, you);
         stickToBottom.current = true;
         pushMessage({ id: `gift_${Date.now()}`, user: you, kind: "gift", giftId: g.id, mine: true, at: new Date().toISOString() });
@@ -250,7 +254,7 @@ export function LiveRoom({ session, gifts }) {
 
           <div className="flex flex-wrap gap-2">
             <Button variant="primary" onClick={openAsk} disabled={ended}>
-              <HelpCircle className="size-4" aria-hidden /> Ask a question · {formatCurrency(session.questionPrice, locale)}
+              <HelpCircle className="size-4" aria-hidden /> Ask a question · <Money value={itemPrice(session, currency, "questionPrice")} />
             </Button>
             <Button variant="outline" onClick={() => setGiftsOpen((o) => !o)} aria-expanded={giftsOpen} aria-controls="gift-tray" disabled={ended}>
               <Gift className="size-4 text-gold-500" aria-hidden /> Send a gift
@@ -288,7 +292,7 @@ export function LiveRoom({ session, gifts }) {
                         </span>
                       )}
                       <span className="text-xs font-medium">{giftLabel(g.id)}</span>
-                      <span className="text-xs font-semibold text-gold-600 dark:text-gold-400">{formatCurrency(g.price, locale)}</span>
+                      <Money value={itemPrice(g, currency)} className="text-xs font-semibold text-gold-600 dark:text-gold-400" />
                     </button>
                   </li>
                 ))}
@@ -409,7 +413,10 @@ function AskQuestionModal({ open, onClose, session, onAsked }) {
   const [balance, setBalance] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const keyRef = useRef(null);
-  const price = formatCurrency(session.questionPrice, locale);
+  const { currency } = useCurrency(); // ₹, or $ for international users
+  const money = useMoney();
+  const questionPrice = itemPrice(session, currency, "questionPrice");
+  const price = money(questionPrice);
 
   // Fetch the balance whenever the modal opens (setState happens in the async callback).
   useEffect(() => {
@@ -441,7 +448,7 @@ function AskQuestionModal({ open, onClose, session, onAsked }) {
     setSubmitting(true);
     keyRef.current ??= newIdempotencyKey(); // reused on retry so the user is never charged twice
     try {
-      const res = await liveService.askQuestion(session.id, { text: q, price: session.questionPrice, idempotencyKey: keyRef.current });
+      const res = await liveService.askQuestion(session.id, { text: q, price: questionPrice, idempotencyKey: keyRef.current });
       keyRef.current = null;
       if (typeof res?.balance === "number") setBalance(res.balance);
       onAsked(q);
@@ -493,7 +500,7 @@ function AskQuestionModal({ open, onClose, session, onAsked }) {
           </div>
         </div>
 
-        {balance != null && <p className="text-sm text-muted">{`Wallet balance: ${formatCurrency(balance, locale)}`}</p>}
+        {balance != null && <p className="text-sm text-muted">{`Wallet balance: ${money(balance)}`}</p>}
 
         {lowBalance && (
           <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-500/30 bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-300" role="alert">

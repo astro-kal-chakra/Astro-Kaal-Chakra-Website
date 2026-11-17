@@ -7,7 +7,7 @@ import { routes } from "@/config/routes";
 import { useAuth } from "@/features/auth/context/AuthProvider";
 import { astrologerService } from "@/lib/api/services/astrologer.service";
 import { cn } from "@/lib/utils/cn";
-import { formatCurrency } from "@/lib/utils/format";
+import { Money, useCurrency } from "@/features/international/components/CurrencyProvider";
 import { useToast } from "@/providers/ToastProvider";
 import { Button } from "@/components/ui/Button";
 import { PushPermissionPrompt } from "@/features/notifications/components/PushPermissionPrompt";
@@ -57,7 +57,8 @@ export function AstrologerActions({ astrologer, layout = "card", showFollow = fa
   const card = layout === "card";
   const size = card ? "sm" : "lg";
   const { status } = astrologer;
-  const modes = astrologerModes(astrologer);
+  const { currency } = useCurrency(); // ₹, or $ for international viewers
+  const modes = astrologerModes(astrologer, currency);
 
   // Card: one row of compact buttons. Profile: full-width buttons with the price.
   return (
@@ -77,7 +78,12 @@ export function AstrologerActions({ astrologer, layout = "card", showFollow = fa
             <span className="flex items-center gap-2">
               <m.icon className="size-4" aria-hidden /> {m.free ? `Free ${m.label.toLowerCase()}` : card ? m.label : `Start ${m.label.toLowerCase()}`}
             </span>
-            {!card && <span className="text-sm font-medium opacity-90">{m.free ? "₹0" : `${formatCurrency(m.price)}/min`}</span>}
+            {!card && (
+              <span className="text-sm font-medium opacity-90">
+                <Money value={m.free ? 0 : m.price} />
+                {!m.free && "/min"}
+              </span>
+            )}
           </Button>
         ))}
       {status === "busy" && (

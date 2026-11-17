@@ -22,9 +22,14 @@ const pick = (a) => ({
   experienceYears: a.experienceYears,
 });
 
-/** ₹/min for a mode ("chat" | "call" | "video") — the astrologer's own price per mode. */
-export const priceFor = (astrologer, mode) =>
-  mode === "chat" ? astrologer.chatPrice : mode === "call" ? astrologer.callPrice : astrologer.videoPrice;
+/**
+ * ₹/min for a mode ("chat" | "call" | "video") — the astrologer's own price per mode.
+ * `currency` "USD" (international viewers): their foreign $/min (`usd`) instead.
+ */
+export const priceFor = (astrologer, mode, currency = "INR") =>
+  currency === "USD"
+    ? astrologer.usd?.[mode] ?? 0
+    : mode === "chat" ? astrologer.chatPrice : mode === "call" ? astrologer.callPrice : astrologer.videoPrice;
 
 /** Modes this astrologer offers (chat always; call / video when priced). Which can start now: isModeAvailable(). */
 export const modesFor = (astrologer) => [

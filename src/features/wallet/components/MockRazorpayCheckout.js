@@ -3,12 +3,12 @@
 import { useSyncExternalStore } from "react";
 import { CheckCircle2, ChevronRight, Clock, CreditCard, Landmark, QrCode, ShieldCheck, XCircle } from "lucide-react";
 import { siteConfig } from "@/config/site";
-import { formatCurrency } from "@/lib/utils/format";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { mockCheckoutStore } from "../lib/razorpay";
 import { SITE_LOCALE } from "@/config/locale";
+import { useMoney } from "@/features/international/components/CurrencyProvider";
 
 /**
  * Dev-only stand-in for Razorpay Checkout, laid out like the real one
@@ -17,6 +17,7 @@ import { SITE_LOCALE } from "@/config/locale";
  * is wired in lib/razorpay.js.
  */
 export function MockRazorpayCheckout() {
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
   const locale = SITE_LOCALE;
   const session = useSyncExternalStore(mockCheckoutStore.subscribe, mockCheckoutStore.get, mockCheckoutStore.getServer);
 
@@ -42,7 +43,7 @@ export function MockRazorpayCheckout() {
                 <p className="text-xs text-white/70">Wallet recharge</p>
               </div>
               <div className="text-right">
-                <p className="text-xl font-bold tabular-nums">{formatCurrency(session.total, locale)}</p>
+                <p className="text-xl font-bold tabular-nums">{money(session.total, locale)}</p>
                 <p className="tabular-nums text-[10px] text-white/60">{session.orderId}</p>
               </div>
             </div>

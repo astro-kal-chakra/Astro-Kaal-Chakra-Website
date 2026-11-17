@@ -7,7 +7,9 @@ import { useAuth } from "@/features/auth/context/AuthProvider";
 import { reportService } from "@/lib/api/services/report.service";
 import { WALLET_CONFIG } from "@/lib/api/services/wallet.service";
 import { cn } from "@/lib/utils/cn";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatDate } from "@/lib/utils/format";
+import { useCurrency, useMinRecharge, useMoney } from "@/features/international/components/CurrencyProvider";
+import { ReportPriceTag, reportPrice } from "./ReportPriceTag";
 import { useToast } from "@/providers/ToastProvider";
 import { Badge } from "@/components/ui/Badge";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -43,8 +45,8 @@ export function ReportPurchasePanel({ report }) {
     <>
       <Card className="space-y-4 p-5 lg:sticky lg:top-24">
         <div className="flex items-end gap-3">
-          <p className="font-display text-3xl font-bold">{formatCurrency(report.price, locale)}</p>
-          <p className="pb-1 text-sm text-muted line-through">{formatCurrency(report.originalPrice, locale)}</p>
+          {/* ₹, or the dollar prices for international users */}
+          <ReportPriceTag report={report} size="panel" />
           {off > 0 && (
             <Badge tone="gold" className="mb-1.5">
               {`${off}% off`}
@@ -88,9 +90,14 @@ function PurchaseSheet({ report, profiles, onClose }) {
   // Default to the first N saved profiles until the user picks.
   const picked = pickedState ?? (profiles || []).slice(0, report.profilesRequired).map((p) => p.id);
 
+  // Wallet maths in the account's currency (rupees, or dollars for international users)
+  const { currency } = useCurrency();
+  const money = useMoney();
+  const price = reportPrice(report, currency);
+  const minRecharge = useMinRecharge(WALLET_CONFIG.minAmount);
   const balance = user?.walletBalance ?? 0;
-  const shortfall = Math.max(0, report.price - balance);
-  const rechargeAmount = Math.max(Math.ceil(shortfall), WALLET_CONFIG.minAmount);
+  const shortfall = Math.max(0, price - balance);
+  const rechargeAmount = Math.max(Math.ceil(shortfall), minRecharge);
   const ready = picked.length === report.profilesRequired && picked.every(Boolean) && new Set(picked).size === picked.length;
 
   const pay = async () => {
@@ -210,16 +217,16 @@ function PurchaseSheet({ report, profiles, onClose }) {
       <dl className="space-y-2 rounded-2xl bg-surface-muted p-4 text-sm">
         <div className="flex justify-between">
           <dt className="text-muted">Report price</dt>
-          <dd className="font-semibold">{formatCurrency(report.price, locale)}</dd>
+          <dd className="font-semibold">{money(price)}</dd>
         </div>
         <div className="flex justify-between">
           <dt className="text-muted">Wallet balance</dt>
-          <dd className={cn("font-semibold", shortfall > 0 && "text-red-600 dark:text-red-400")}>{formatCurrency(balance, locale)}</dd>
+          <dd className={cn("font-semibold", shortfall > 0 && "text-red-600 dark:text-red-400")}>{money(balance, locale)}</dd>
         </div>
         {shortfall > 0 && (
           <div className="flex justify-between border-t border-line pt-2">
             <dt className="font-medium">Amount needed</dt>
-            <dd className="font-bold text-red-600 dark:text-red-400">{formatCurrency(shortfall, locale)}</dd>
+            <dd className="font-bold text-red-600 dark:text-red-400">{money(shortfall, locale)}</dd>
           </div>
         )}
       </dl>
@@ -230,12 +237,12 @@ function PurchaseSheet({ report, profiles, onClose }) {
             {"You don't have enough balance for this report."}
           </p>
           <ButtonLink href={`${routes.wallet}?amount=${rechargeAmount}`} variant="gold" size="lg" className="w-full">
-            {`Recharge ${formatCurrency(rechargeAmount, locale)}`}
+            {`Recharge ${money(rechargeAmount, locale)}`}
           </ButtonLink>
         </div>
       ) : (
         <Button variant="gold" size="lg" className="w-full" disabled={!ready} loading={paying} onClick={pay}>
-          {`Pay ${formatCurrency(report.price, locale)} from wallet`}
+          {`Pay ${money(price)} from wallet`}
         </Button>
       )}
     </div>

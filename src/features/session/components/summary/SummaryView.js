@@ -6,7 +6,7 @@ import { routes } from "@/config/routes";
 import { astrologerService } from "@/lib/api/services/astrologer.service";
 import { sessionService } from "@/lib/api/services/session.service";
 import { cn } from "@/lib/utils/cn";
-import { formatCurrency, formatDate, formatDuration } from "@/lib/utils/format";
+import { formatDate, formatDuration } from "@/lib/utils/format";
 import { useToast } from "@/providers/ToastProvider";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
@@ -19,6 +19,7 @@ import { SessionScreenState } from "../SessionParts";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
 import { setFollowing, useIsFollowing } from "@/features/astrologers/hooks/useFollowing";
+import { useMoney } from "@/features/international/components/CurrencyProvider";
 
 const MODE_ICONS = { chat: MessageCircle, call: Phone, video: Video };
 
@@ -164,6 +165,7 @@ function FollowButton({ astrologer }) {
 }
 
 export function SummaryView({ sessionId }) {
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
   const locale = SITE_LOCALE;
   const [data, setData] = useState(undefined);
 
@@ -233,7 +235,7 @@ export function SummaryView({ sessionId }) {
                 <Wallet className="size-3.5" aria-hidden /> Charged
               </dt>
               <dd className="mt-0.5 font-bold">
-                {free ? <span className="text-online">FREE</span> : formatCurrency(s.totalCharged || 0, locale)}
+                {free ? <span className="text-online">FREE</span> : money(s.totalCharged || 0, locale)}
               </dd>
             </div>
             <div className="rounded-xl bg-surface-muted p-3">
@@ -245,7 +247,7 @@ export function SummaryView({ sessionId }) {
                   <span className="text-online">FREE</span>
                 ) : (
                   <>
-                    {formatCurrency(s.ratePerMin, locale)}
+                    {money(s.ratePerMin, locale)}
                     <span className="text-xs font-normal text-muted">/min</span>
                   </>
                 )}
@@ -257,15 +259,15 @@ export function SummaryView({ sessionId }) {
           ) : (
             started && (
               <p className="mt-3 text-xs text-muted">
-                {`${formatDuration(s.durationSec)} at ${formatCurrency(s.ratePerMin, locale)}/min = ${formatCurrency(s.totalCharged || 0, locale)}.`}
-                {s.unusedReturned > 0 && ` ${formatCurrency(s.unusedReturned, locale)} unused time returned to your wallet.`}
+                {`${formatDuration(s.durationSec)} at ${money(s.ratePerMin, locale)}/min = ${money(s.totalCharged || 0, locale)}.`}
+                {s.unusedReturned > 0 && ` ${money(s.unusedReturned, locale)} unused time returned to your wallet.`}
               </p>
             )
           )}
           {s.endBalance != null && (
             <p className="mt-3 text-sm text-muted">
               Wallet balance now:{" "}
-              <span className="font-semibold text-fg">{formatCurrency(s.endBalance, locale)}</span>
+              <span className="font-semibold text-fg">{money(s.endBalance, locale)}</span>
             </p>
           )}
         </Card>

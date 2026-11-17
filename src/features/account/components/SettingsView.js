@@ -8,7 +8,6 @@ import { useAuth } from "@/features/auth/context/AuthProvider";
 import { LanguageToggle } from "@/features/translate/components/LanguageToggle";
 import { userService } from "@/lib/api/services/user.service";
 import { cn } from "@/lib/utils/cn";
-import { formatCurrency } from "@/lib/utils/format";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useToast } from "@/providers/ToastProvider";
 import { Button } from "@/components/ui/Button";
@@ -23,6 +22,7 @@ import { AccountSwitch, AccountTextarea } from "./AccountControls";
 import { AccountShell } from "./AccountShell";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
+import { useMoney } from "@/features/international/components/CurrencyProvider";
 
 const DELETE_REASONS = ["not_useful", "too_expensive", "privacy", "another_account", "bad_experience", "other"];
 const CONFIRM_WORD = "DELETE";
@@ -187,6 +187,7 @@ function PrivacySetting() {
 }
 
 function DeleteAccountModal({ open, onClose }) {
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
   const locale = SITE_LOCALE;
   const { user, logout } = useAuth();
   const { toast } = useToast();
@@ -230,7 +231,7 @@ function DeleteAccountModal({ open, onClose }) {
           <TriangleAlert className="size-5 shrink-0" aria-hidden />
           <div className="space-y-1">
             <p>{"This can't be undone. Your profile, birth profiles, saved kundlis and chat history will be erased. Invoices are retained as required by law."}</p>
-            {balance > 0 && <p className="font-semibold">{`You have ${formatCurrency(balance, locale)} in your wallet. It will be forfeited and cannot be refunded after deletion.`}</p>}
+            {balance > 0 && <p className="font-semibold">{`You have ${money(balance, locale)} in your wallet. It will be forfeited and cannot be refunded after deletion.`}</p>}
           </div>
         </div>
 

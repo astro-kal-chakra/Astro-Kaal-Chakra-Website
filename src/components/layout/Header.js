@@ -8,7 +8,6 @@ import { useAuth } from "@/features/auth/context/AuthProvider";
 import { LanguageToggle } from "@/features/translate/components/LanguageToggle";
 import { NotificationBell } from "@/features/notifications/components/NotificationBell";
 import { cn } from "@/lib/utils/cn";
-import { formatCurrency } from "@/lib/utils/format";
 import { ButtonLink } from "@/components/ui/Button";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -16,6 +15,7 @@ import { Logo } from "./Logo";
 import { ThemeToggle } from "./ThemeToggle";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
+import { useMoney } from "@/features/international/components/CurrencyProvider";
 
 const NAV = [
   { href: routes.astrologers, key: "nav.astrologers" },
@@ -29,6 +29,7 @@ const NAV = [
 ];
 
 function AuthArea() {
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
   const locale = SITE_LOCALE;
   const { status, user, logout } = useAuth();
 
@@ -48,7 +49,7 @@ function AuthArea() {
         className="flex h-9 items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 text-sm font-semibold text-brand-700 hover:bg-brand-100 dark:border-brand-800 dark:bg-brand-950/40 dark:text-brand-200 dark:hover:bg-brand-900/60 dark:hover:text-brand-100"
       >
         <Wallet className="size-4" aria-hidden />
-        <span translate="no" className="notranslate">{formatCurrency(user?.walletBalance ?? 0, locale)}</span>
+        <span translate="no" className="notranslate">{money(user?.walletBalance ?? 0, locale)}</span>
       </LocaleLink>
       <LocaleLink href={routes.account} className="hidden size-9 items-center justify-center rounded-full border border-line sm:flex" aria-label="My Account">
         <User className="size-4" />

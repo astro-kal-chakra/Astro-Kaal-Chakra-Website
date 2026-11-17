@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import { astrologerService } from "@/lib/api/services/astrologer.service";
-import { formatCurrency } from "@/lib/utils/format";
+import { useCurrency, useMoney } from "@/features/international/components/CurrencyProvider";
 import { modesFor, priceFor } from "@/lib/api/services/session.service";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
@@ -17,6 +17,8 @@ import { SITE_LOCALE } from "@/config/locale";
  * `onPick(astrologer)` lets the parent cancel any pending request first.
  */
 export function SimilarAstrologers({ astrologer, mode, onPick, title }) {
+  const { currency } = useCurrency(); // ₹, or $ for international viewers
+  const money = useMoney();
   const locale = SITE_LOCALE;
   const [items, setItems] = useState(null);
 
@@ -61,7 +63,7 @@ export function SimilarAstrologers({ astrologer, mode, onPick, title }) {
                       {a.rating.toFixed(1)}
                     </span>
                     <span>
-                      {formatCurrency(priceFor(a, mode), locale)}
+                      {money(priceFor(a, mode, currency))}
                       /min
                     </span>
                   </p>

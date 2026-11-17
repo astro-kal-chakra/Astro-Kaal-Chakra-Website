@@ -14,7 +14,6 @@ import { useAuth } from "@/features/auth/context/AuthProvider";
 import { REMEDY_FOLLOW_UP_MAX, REMEDY_FOLLOW_UP_MIN, REMEDY_REVIEW_MAX, remedyService } from "@/lib/api/services/remedy.service";
 import { categoryLabel, hasLabel, label as t } from "@/lib/labels";
 import { cn } from "@/lib/utils/cn";
-import { formatCurrency } from "@/lib/utils/format";
 import { useToast } from "@/providers/ToastProvider";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -25,6 +24,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { useNow, useRemedyUpdates } from "../hooks/useRemedyLive";
 import { REFUNDED_STATUSES, REMEDY_ITEM_ICONS, remedyErrorText, remedyItemTypeLabel, timeLeftText } from "../lib/remedies";
 import { RemedyStatusBadge } from "./RemedyStatusBadge";
+import { useMoney } from "@/features/international/components/CurrencyProvider";
 
 /** Printing shows only the remedy sheet, in plain black on white. */
 const PRINT_CSS = `
@@ -234,6 +234,7 @@ function RatingCard({ remedy: r, onSaved }) {
 }
 
 function RefundInfo({ remedy: r }) {
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
   const locale = SITE_LOCALE;
   const by = r.refund?.by && hasLabel(`remedies.refundBy.${r.refund.by}`) ? t(`remedies.refundBy.${r.refund.by}`) : "Refunded";
   const heading =
@@ -255,7 +256,7 @@ function RefundInfo({ remedy: r }) {
       )}
       {r.refund ? (
         <p className="text-sm">
-          <span className="font-semibold text-green-700 dark:text-green-400">{`${formatCurrency(r.refund.amount, locale)} returned to your wallet`}</span>
+          <span className="font-semibold text-green-700 dark:text-green-400">{`${money(r.refund.amount, locale)} returned to your wallet`}</span>
           <span className="text-muted">{` · ${by}${r.refund.at ? ` on ${formatDateTime(r.refund.at, locale)}` : ""}`}</span>
         </p>
       ) : (
@@ -277,6 +278,7 @@ function RefundInfo({ remedy: r }) {
 
 /** /account/remedies/[id]: one remedy request with its answer, follow-up, rating and print. */
 export function RemedyDetailView({ id }) {
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
   const locale = SITE_LOCALE;
   const { setUser } = useAuth();
   const { toast } = useToast();
@@ -323,7 +325,7 @@ export function RemedyDetailView({ id }) {
       const next = await remedyService.cancel(r.id);
       mutate(next);
       setConfirmCancel(false);
-      toast({ type: "success", title: "Request cancelled", message: `${formatCurrency(r.price, locale)} is back in your wallet.` });
+      toast({ type: "success", title: "Request cancelled", message: `${money(r.price, locale)} is back in your wallet.` });
       // Header balance: add the refund locally (the next wallet read confirms it)
       if (next?.refund?.amount) setUser((u) => (u ? { ...u, walletBalance: Math.round(((u.walletBalance || 0) + next.refund.amount) * 100) / 100 } : u));
     } catch (e) {
@@ -377,7 +379,7 @@ export function RemedyDetailView({ id }) {
                 <RemedyStatusBadge status={r.status} />
               </div>
               <p className="mt-0.5 text-sm text-muted">{[categoryLabel(r.category), r.forName && `For ${r.forName}`].filter(Boolean).join(" · ")}</p>
-              <p className="mt-0.5 text-xs text-muted">{`Asked ${formatDateTime(r.createdAt, locale)} · ${formatCurrency(r.price, locale)}`}</p>
+              <p className="mt-0.5 text-xs text-muted">{`Asked ${formatDateTime(r.createdAt, locale)} · ${money(r.price, locale)}`}</p>
             </div>
           </div>
 
@@ -447,7 +449,7 @@ export function RemedyDetailView({ id }) {
         onConfirm={cancel}
         loading={cancelling}
         title="Cancel this request?"
-        description={`${formatCurrency(r.price, locale)} will go back to your wallet right away. ${astroName} won't see your question.`}
+        description={`${money(r.price, locale)} will go back to your wallet right away. ${astroName} won't see your question.`}
         confirmLabel="Yes, cancel"
       />
     </AccountShell>

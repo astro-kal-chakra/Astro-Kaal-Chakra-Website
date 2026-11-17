@@ -5,6 +5,7 @@ import { Lock, Pencil, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/features/auth/context/AuthProvider";
 import { userService } from "@/lib/api/services/user.service";
 import { maskPhone } from "@/lib/utils/format";
+import { accountContact, isGoogleAccount, validContactPhone } from "@/features/international/lib/currency";
 import { useToast } from "@/providers/ToastProvider";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
@@ -67,7 +68,9 @@ function ProfileDetails({ user, onEdit }) {
 function ProfileEditForm({ user, onDone, onCancel }) {
   const { setUser } = useAuth();
   const { toast } = useToast();
-  const [form, setForm] = useState(() => ({ ...toBirthForm(user), email: user.email || "" }));
+  // Google accounts (international users): the email is their login (fixed); a mobile number is optional
+  const google = isGoogleAccount(user);
+  const [form, setForm] = useState(() => ({ ...toBirthForm(user), email: user.email || "", contactPhone: user.contactPhone || "" }));
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
 
@@ -77,7 +80,8 @@ function ProfileEditForm({ user, onDone, onCancel }) {
     e.preventDefault();
     if (saving) return;
     const errs = validateBirthForm(form, t);
-    if (form.email && !isValidEmail(form.email.trim())) errs.email = "Enter a valid email address";
+    if (!google && form.email && !isValidEmail(form.email.trim())) errs.email = "Enter a valid email address";
+    if (google && form.contactPhone.trim() && !validContactPhone(form.contactPhone.trim())) errs.contactPhone = "Enter a valid mobile number with country code, e.g. +1 415 555 0100";
     setErrors(errs);
     if (Object.keys(errs).length) return;
 
@@ -89,7 +93,7 @@ function ProfileEditForm({ user, onDone, onCancel }) {
         dob: form.dob,
         tob: form.unknownTime ? null : form.tob,
         place: form.place,
-        email: form.email.trim() || null,
+        ...(google ? { contactPhone: form.contactPhone.trim() || null } : { email: form.email.trim() || null }),
       });
       setUser(updated);
       toast({ type: "success", title: "Profile updated" });
@@ -110,6 +114,28 @@ function ProfileEditForm({ user, onDone, onCancel }) {
 
       <BirthDetailsFields idPrefix="pf" form={form} onChange={set} errors={errors} />
 
+      {google ? (
+        <Field
+          label={
+            <>
+              Mobile number <span className="font-normal text-muted">(optional)</span>
+            </>
+          }
+          htmlFor="pf-contact-phone"
+          error={errors.contactPhone}
+          hint="With your country code. Only used if our support team needs to reach you."
+        >
+          <Input
+            id="pf-contact-phone"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            value={form.contactPhone}
+            placeholder="+1 415 555 0100"
+            onChange={(e) => set({ contactPhone: e.target.value })}
+          />
+        </Field>
+      ) : (
       <Field
         label={
           <>
@@ -130,6 +156,7 @@ function ProfileEditForm({ user, onDone, onCancel }) {
           onChange={(e) => set({ email: e.target.value })}
         />
       </Field>
+      )}
 
       <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
         <Button variant="outline" onClick={onCancel} disabled={saving}>
@@ -156,7 +183,7 @@ export function ProfileView() {
           <Avatar name={user.name || "U"} size={64} />
           <div className="min-w-0">
             <p className="truncate text-lg font-semibold">{user.name || "Not set"}</p>
-            <p className="text-sm text-muted">+91 {maskPhone(user.phone)}</p>
+            <p className="text-sm text-muted">{accountContact(user, maskPhone)}</p>
           </div>
         </Card>
 
@@ -168,12 +195,26 @@ export function ProfileView() {
 
         <Card className="p-5">
           <h2 className="mb-3 font-semibold">Contact</h2>
-          <Field label="Mobile number" htmlFor="pf-phone" hint="Your number is used to log in and can't be changed here. It is never shown to astrologers.">
-            <div className="relative">
-              <Input id="pf-phone" value={`+91 ${maskPhone(user.phone)}`} readOnly disabled className="pr-10" />
-              <Lock className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted" aria-hidden />
-            </div>
-          </Field>
+          {isGoogleAccount(user) ? (
+            <>
+              <Field label="Google account" htmlFor="pf-google" hint="You sign in with this Google account. It is never shown to astrologers.">
+                <div className="relative">
+                  <Input id="pf-google" value={user.email || ""} readOnly disabled className="pr-10" />
+                  <Lock className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted" aria-hidden />
+                </div>
+              </Field>
+              <p className="mt-3 text-sm text-muted">
+                {user.contactPhone ? `Mobile number: ${user.contactPhone}` : "No mobile number added. You can add one with Edit above (optional)."}
+              </p>
+            </>
+          ) : (
+            <Field label="Mobile number" htmlFor="pf-phone" hint="Your number is used to log in and can't be changed here. It is never shown to astrologers.">
+              <div className="relative">
+                <Input id="pf-phone" value={`+91 ${maskPhone(user.phone)}`} readOnly disabled className="pr-10" />
+                <Lock className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted" aria-hidden />
+              </div>
+            </Field>
+          )}
         </Card>
       </div>
     </AccountShell>

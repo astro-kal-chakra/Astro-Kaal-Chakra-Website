@@ -10,7 +10,8 @@ import { useAccountResource } from "@/features/account/hooks/useAccountResource"
 import { accountNavFor } from "@/features/account/lib/nav";
 import { useRemediesEnabled } from "@/features/remedies/hooks/useRemedyConfig";
 import { userService } from "@/lib/api/services/user.service";
-import { formatCompact, formatCurrency, maskPhone } from "@/lib/utils/format";
+import { formatCompact, maskPhone } from "@/lib/utils/format";
+import { accountContact } from "@/features/international/lib/currency";
 import { useToast } from "@/providers/ToastProvider";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -20,6 +21,8 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { useAuth } from "../context/AuthProvider";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
+import { useMoney } from "@/features/international/components/CurrencyProvider";
+import { useCurrency } from "@/features/international/components/CurrencyProvider";
 
 const STATS = [
   { key: "totalSessions", label: "sessions", icon: History, href: routes.sessions },
@@ -64,11 +67,13 @@ function QuickStats() {
 }
 
 export function AccountView() {
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
   const locale = SITE_LOCALE;
   const { user, logout } = useAuth();
   const { toast } = useToast();
   const remedies = useRemediesEnabled();
-  const MENU = accountNavFor({ remedies }).filter((item) => item.key !== "dashboard");
+  const { international } = useCurrency(); // dollar accounts: no Refer & Earn (rewards are in rupees)
+  const MENU = accountNavFor({ remedies, international }).filter((item) => item.key !== "dashboard");
   const router = useRouter();
   const [confirm, setConfirm] = useState(null); // null | "single" | "all"
   const [busy, setBusy] = useState(false);
@@ -91,7 +96,7 @@ export function AccountView() {
             <Avatar name={user?.name || "U"} size={72} />
             <div className="min-w-0 flex-1">
               <h1 className="truncate font-display text-2xl font-semibold">{`Namaste, ${name}`}</h1>
-              <p className="text-sm text-white/90">+91 {maskPhone(user?.phone)}</p>
+              <p className="text-sm text-white/90">{accountContact(user, maskPhone)}</p>
             </div>
             <ButtonLink href={routes.profile} size="sm" variant="outline" className="border-white/30 bg-white/10 text-white hover:bg-white/20">
               <Pencil className="size-3.5" aria-hidden /> Edit profile
@@ -105,7 +110,7 @@ export function AccountView() {
             </span>
             <div className="flex-1">
               <p className="text-xs text-white/90">Wallet balance</p>
-              <p className="text-xl font-bold">{formatCurrency(user?.walletBalance ?? 0, locale)}</p>
+              <p className="text-xl font-bold">{money(user?.walletBalance ?? 0, locale)}</p>
             </div>
             <div className="flex flex-wrap gap-2">
               <ButtonLink href={routes.walletTransactions} size="sm" variant="ghost" className="text-white hover:bg-white/10">

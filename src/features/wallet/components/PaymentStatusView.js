@@ -3,7 +3,6 @@
 import { CheckCircle2, Clock, HelpCircle, RotateCcw, ShieldAlert, XCircle } from "lucide-react";
 import { routes } from "@/config/routes";
 import { useAuth } from "@/features/auth/context/AuthProvider";
-import { formatCurrency } from "@/lib/utils/format";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Spinner } from "@/components/ui/Skeleton";
@@ -11,6 +10,7 @@ import { useOrderStatus } from "../hooks/useOrderStatus";
 import { useInflightOrder } from "../lib/inflight";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
+import { useMoney } from "@/features/international/components/CurrencyProvider";
 
 /**
  * /wallet/payment/[orderId] — the single source of truth for a payment's outcome.
@@ -29,7 +29,7 @@ export function PaymentStatusView({ orderId }) {
     },
   });
 
-  const money = (n) => formatCurrency(n ?? 0, locale);
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
 
   if (status === "loading") {
     return (

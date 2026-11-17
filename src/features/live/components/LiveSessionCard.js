@@ -6,6 +6,8 @@ import { routes } from "@/config/routes";
 import { useAuth } from "@/features/auth/context/AuthProvider";
 import { liveService } from "@/lib/api/services/live.service";
 import { formatCompact, formatCurrency } from "@/lib/utils/format";
+import { useCurrency } from "@/features/international/components/CurrencyProvider";
+import { itemPrice } from "@/features/international/lib/currency";
 import { useToast } from "@/providers/ToastProvider";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
@@ -19,6 +21,7 @@ import { categoryLabel, label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
 
 export function LiveSessionCard({ session: s }) {
+  const { currency } = useCurrency(); // ₹, or $ for international viewers
   const locale = SITE_LOCALE;
   const { requireAuth } = useAuth();
   const { toast } = useToast();
@@ -102,7 +105,7 @@ export function LiveSessionCard({ session: s }) {
               {categoryLabel(tag)}
             </Badge>
           ))}
-          <span>{`Questions from ${formatCurrency(s.questionPrice, locale)}`}</span>
+          <span>{`Questions from ${formatCurrency(itemPrice(s, currency, "questionPrice"), locale, currency)}`}</span>
         </div>
         <p className="mt-3 text-xs font-medium text-muted" suppressHydrationWarning>
           {isLive

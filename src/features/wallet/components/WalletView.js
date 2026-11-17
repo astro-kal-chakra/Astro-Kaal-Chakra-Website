@@ -4,13 +4,13 @@ import { History, Sparkles, Wallet } from "lucide-react";
 import { routes } from "@/config/routes";
 import { env } from "@/config/site";
 import { useAuth } from "@/features/auth/context/AuthProvider";
-import { formatCurrency } from "@/lib/utils/format";
 import { ButtonLink } from "@/components/ui/Button";
 import { MockRazorpayCheckout } from "./MockRazorpayCheckout";
 import { PaymentRecoveryBanner } from "./PaymentRecoveryBanner";
 import { RechargePanel } from "./RechargePanel";
 import { RecentTransactions } from "./RecentTransactions";
 import { SITE_LOCALE } from "@/config/locale";
+import { useMoney } from "@/features/international/components/CurrencyProvider";
 
 /**
  * Wallet screen: balance, recharge (packs / custom / coupon / order summary),
@@ -18,6 +18,7 @@ import { SITE_LOCALE } from "@/config/locale";
  * the backend (after payment verify or the Razorpay webhook) — the UI polls order status.
  */
 export function WalletView() {
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
   const locale = SITE_LOCALE;
   const { user } = useAuth();
   const balance = user?.walletBalance ?? 0;
@@ -36,7 +37,7 @@ export function WalletView() {
             <div>
               <p className="text-sm text-brand-200">Wallet balance</p>
               <p className="font-display text-4xl font-bold tabular-nums" aria-live="polite">
-                {formatCurrency(balance, locale)}
+                {money(balance, locale)}
               </p>
             </div>
           </div>

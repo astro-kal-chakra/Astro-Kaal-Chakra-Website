@@ -2,7 +2,8 @@
 
 import { BadgeCheck, Crown, Gift, Languages, Star, Users } from "lucide-react";
 import { routes } from "@/config/routes";
-import { formatCompact, formatCurrency } from "@/lib/utils/format";
+import { formatCompact } from "@/lib/utils/format";
+import { Money, useCurrency } from "@/features/international/components/CurrencyProvider";
 import { cn } from "@/lib/utils/cn";
 import { Avatar } from "@/components/ui/Avatar";
 import { Card } from "@/components/ui/Card";
@@ -16,7 +17,8 @@ const RING = { online: "ring-online", busy: "ring-busy", offline: "ring-line" };
 
 export function AstrologerCard({ astrologer: a, priority = false }) {
   const locale = SITE_LOCALE;
-  const modes = astrologerModes(a);
+  const { currency } = useCurrency(); // ₹, or $ for international viewers
+  const modes = astrologerModes(a, currency);
 
   return (
     <Card as="article" interactive className="flex h-full min-w-0 flex-col p-4">
@@ -73,7 +75,7 @@ export function AstrologerCard({ astrologer: a, priority = false }) {
               <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">FREE</span>
             ) : (
               <span className="text-sm font-semibold text-fg">
-                {formatCurrency(m.price, locale)}
+                <Money value={m.price} />
                 <span className="text-[11px] font-normal text-muted">/min</span>
               </span>
             )}
@@ -86,7 +88,7 @@ export function AstrologerCard({ astrologer: a, priority = false }) {
           {/* Free session for users who haven't had theirs: no charge at all */}
           {a.freeModes?.length > 0 && a.status !== "offline" && (
             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
-              <Gift className="size-3" aria-hidden /> Free session for you · ₹0
+              <Gift className="size-3" aria-hidden /> Free session for you · <Money value={0} />
             </span>
           )}
           {a.queueCount > 0 && (

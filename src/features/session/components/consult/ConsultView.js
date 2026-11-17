@@ -11,7 +11,7 @@ import { astrologerService } from "@/lib/api/services/astrologer.service";
 import { modesFor, priceFor, sessionService } from "@/lib/api/services/session.service";
 import { isModeAvailable } from "@/features/astrologers/lib/modes";
 import { cn } from "@/lib/utils/cn";
-import { formatCurrency } from "@/lib/utils/format";
+import { useCurrency, useMoney } from "@/features/international/components/CurrencyProvider";
 import { useToast } from "@/providers/ToastProvider";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
@@ -47,6 +47,9 @@ export const liveSessionPath = (sessionId, mode) =>
  */
 export function ConsultView({ slug, initialMode, waitlist, simulate, autoStartFree = false }) {
   const { user, setUser } = useAuth();
+  // ₹, or $ for international users (their prices, balance and minimum are in dollars)
+  const { currency, settings: intl } = useCurrency();
+  const minWallet = currency === "USD" ? intl?.minWalletBalance ?? 1 : MIN_WALLET_BALANCE;
   const { toast } = useToast();
   const router = useRouter();
   const transport = useSessionTransport();
@@ -193,7 +196,7 @@ export function ConsultView({ slug, initialMode, waitlist, simulate, autoStartFr
   // Only modes the astrologer switched on for this online session can be requested (e.g. chat only)
   const openModes = modes.filter((m) => isModeAvailable(a, m));
   const activeMode = openModes.includes(mode) ? mode : openModes[0] || SESSION_MODES.CHAT;
-  const price = priceFor(a, activeMode);
+  const price = priceFor(a, activeMode, currency);
   const freeChatAvailable = user?.freeChatAvailable !== false && pre.freeChatAvailable;
   const astrologerAllowsFree = a.freeChatEligible !== false;
   // The server decides: modes this astrologer gives free right now, sent only to users who haven't had their free session
@@ -201,7 +204,7 @@ export function ConsultView({ slug, initialMode, waitlist, simulate, autoStartFr
   const useFreeChat = freeModes.includes(activeMode) && freeChatAvailable;
   // Free mode no longer pauses paid sessions
   const freeOnlyBlocked = false;
-  const required = minBalanceFor(price);
+  const required = minBalanceFor(price, minWallet);
   const hasEnough = !freeOnlyBlocked && (useFreeChat || pre.balance >= required);
   const isBusy = a.status === "busy";
   const isOffline = a.status === "offline";
@@ -372,6 +375,7 @@ export function ConsultView({ slug, initialMode, waitlist, simulate, autoStartFr
               price={price}
               pre={pre}
               required={required}
+              minWallet={minWallet}
               hasEnough={hasEnough}
               useFreeChat={useFreeChat}
               freeBlockedByAstrologer={false && astrologerAllowsFree}
@@ -459,8 +463,10 @@ export function ConsultView({ slug, initialMode, waitlist, simulate, autoStartFr
   );
 }
 
-function SelectStep({ a, modes, activeMode, onModeChange, price, pre, required, hasEnough, useFreeChat, freeBlockedByAstrologer, isOffline }) {
+function SelectStep({ a, modes, activeMode, onModeChange, price, pre, required, minWallet, hasEnough, useFreeChat, freeBlockedByAstrologer, isOffline }) {
   const locale = SITE_LOCALE;
+  const { currency } = useCurrency();
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
 
   return (
     <div className="space-y-4">
@@ -520,7 +526,7 @@ function SelectStep({ a, modes, activeMode, onModeChange, price, pre, required, 
                 <Icon className={cn("size-6", selected ? "text-brand-600 dark:text-gold-400" : "text-muted")} aria-hidden />
                 <span className="text-sm font-semibold">{t(`session.modes.${m}`)}</span>
                 <span className="text-xs text-muted">
-                  {off ? "Not available now" : (a.freeModes ?? []).includes(m) && pre.freeChatAvailable ? "FREE" : `${formatCurrency(priceFor(a, m), locale)}/min`}
+                  {off ? "Not available now" : (a.freeModes ?? []).includes(m) && pre.freeChatAvailable ? "FREE" : `${money(priceFor(a, m, currency), locale)}/min`}
                 </span>
               </label>
             );
@@ -536,7 +542,7 @@ function SelectStep({ a, modes, activeMode, onModeChange, price, pre, required, 
               {`Your first ${pre.freeMinutes || FREE_CHAT_MINUTES}-minute ${FREE_NOUN[activeMode] || "chat"} is free`}
             </p>
             <p className="mt-0.5 text-sm text-white/80">
-              {`Totally free: ₹0, nothing is taken from your wallet. Starts when ${a.name} answers and ends automatically after ${pre.freeMinutes || FREE_CHAT_MINUTES} minutes — you can end it earlier any time. Once per account and device.`}
+              {`Totally free: ${money(0)}, nothing is taken from your wallet. Starts when ${a.name} answers and ends automatically after ${pre.freeMinutes || FREE_CHAT_MINUTES} minutes — you can end it earlier any time. Once per account and device.`}
             </p>
           </div>
         </div>
@@ -554,7 +560,7 @@ function SelectStep({ a, modes, activeMode, onModeChange, price, pre, required, 
             </span>
             <div>
               <p className="text-xs text-muted">Wallet balance</p>
-              <p className="text-lg font-bold">{formatCurrency(pre.balance, locale)}</p>
+              <p className="text-lg font-bold">{money(pre.balance, locale)}</p>
             </div>
           </div>
           <ButtonLink href={routes.wallet} variant="outline" size="sm">
@@ -565,20 +571,20 @@ function SelectStep({ a, modes, activeMode, onModeChange, price, pre, required, 
           <div className="flex justify-between">
             <dt className="text-muted">Price</dt>
             <dd className="font-semibold">
-              {formatCurrency(price, locale)}
+              {money(price, locale)}
               /min
             </dd>
           </div>
           <div className="flex justify-between">
             <dt className="text-muted">Minimum balance to start</dt>
-            <dd className="font-semibold">{useFreeChat ? <Badge tone="gold">FREE</Badge> : formatCurrency(required, locale)}</dd>
+            <dd className="font-semibold">{useFreeChat ? <Badge tone="gold">FREE</Badge> : money(required, locale)}</dd>
           </div>
         </dl>
         {!hasEnough && (
           <div role="alert" className="mt-3 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-200">
             <p className="font-semibold">Not enough balance</p>
             <p className="mt-0.5">
-              {`To start you need ${formatCurrency(required, locale)} in your wallet (${MIN_BALANCE_MINUTES} minutes at this rate, or ${formatCurrency(MIN_WALLET_BALANCE, locale)} — whichever is more). Add ${formatCurrency(Math.max(0, required - pre.balance), locale)} or more to continue.`}
+              {`To start you need ${money(required, locale)} in your wallet (${MIN_BALANCE_MINUTES} minutes at this rate, or ${money(minWallet, locale)} — whichever is more). Add ${money(Math.max(0, required - pre.balance), locale)} or more to continue.`}
             </p>
             <ButtonLink href={routes.wallet} variant="gold" size="md" className="mt-3 w-full">
               Recharge now
@@ -586,7 +592,7 @@ function SelectStep({ a, modes, activeMode, onModeChange, price, pre, required, 
           </div>
         )}
         <p className="mt-3 text-xs text-muted">
-          {`${formatCurrency(price, locale)}/min from your wallet. Any unused prepaid time is returned automatically when the session ends.`}
+          {`${money(price, locale)}/min from your wallet. Any unused prepaid time is returned automatically when the session ends.`}
         </p>
       </Card>
       )}

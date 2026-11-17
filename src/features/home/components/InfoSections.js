@@ -9,6 +9,7 @@ import { LocaleLink } from "@/components/ui/LocaleLink";
 import { RatingStars } from "@/components/ui/RatingStars";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { AppStoreButtons } from "@/components/layout/AppStoreButtons";
+import { ViewerPrice } from "@/features/international/components/CurrencyProvider";
 
 export function HowItWorks({ freeChat }) {
   const free = freeChat?.enabled ? `Your first chat is free for ${freeChat.minutes} minutes. After that you` : "You";
@@ -64,7 +65,7 @@ export function TrustSection() {
 }
 
 /** Saffron band: the free first chat (backend settings; hidden when free chats are off). */
-export function OffersBanner({ freeChat, minRecharge = 50 }) {
+export function OffersBanner({ freeChat, minRecharge = 50, minRechargeUsd }) {
   if (!freeChat?.enabled) return null;
   return (
     <section className="container-page py-4 sm:py-6">
@@ -72,7 +73,12 @@ export function OffersBanner({ freeChat, minRecharge = 50 }) {
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/85">New here?</p>
           <h2 className="mt-2 font-display text-3xl sm:text-4xl">{`Your first ${freeChat.minutes}-minute chat is free`}</h2>
-          <p className="mt-2 max-w-xl text-white/90">{`One free chat per account. After that, recharge from ₹${minRecharge} and pay the astrologer's per-minute rate.`}</p>
+          <p className="mt-2 max-w-xl text-white/90">
+            {"One free chat per account. After that, recharge from "}
+            {/* ₹, or the dashboard's dollar minimum for international visitors */}
+            <ViewerPrice inr={minRecharge} usd={minRechargeUsd} />
+            {" and pay the astrologer's per-minute rate."}
+          </p>
         </div>
         <ButtonLink href={routes.astrologers} size="lg" variant="light" className="relative z-10 motion-safe:animate-glow">
           Start free chat

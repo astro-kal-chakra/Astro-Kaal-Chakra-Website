@@ -104,6 +104,15 @@ export const authService = {
     return http("/auth/otp/verify", { method: "POST", body: { phone, otp, requestId, ...(referralCode ? { referralCode } : {}) } });
   },
 
+  /**
+   * "Continue with Google" (international users): the ID token from Google's button (lib/google/identity.js).
+   * The backend checks it, creates the account if new (dollar wallet outside India) and sets our cookies.
+   * @returns {Promise<{ user, isNewUser, referral? }>}
+   */
+  async googleLogin({ idToken, referralCode } = {}) {
+    return http("/auth/google", { method: "POST", body: { idToken, ...(referralCode ? { referralCode } : {}) } });
+  },
+
   async me() {
     if (env.useMocks) return readMockUser();
     // No login hint cookie → a guest: skip the round trip (and the refresh attempt that a 401 triggers)

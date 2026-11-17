@@ -4,10 +4,10 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AlertCircle, ArrowDown, Check, CheckCheck, Clock } from "lucide-react";
 import { localeTags } from "@/config/locale";
 import { cn } from "@/lib/utils/cn";
-import { formatCurrency } from "@/lib/utils/format";
 import { Avatar } from "@/components/ui/Avatar";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
+import { useMoney } from "@/features/international/components/CurrencyProvider";
 
 const timeFormat = (locale) =>
   new Intl.DateTimeFormat(localeTags[locale] || "en-IN", { hour: "numeric", minute: "2-digit", timeZone: "Asia/Kolkata" });
@@ -22,9 +22,10 @@ function Ticks({ status }) {
 }
 
 function SystemMessage({ message }) {
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
   const locale = SITE_LOCALE;
   const params = { ...message.params };
-  if (params.rate != null) params.rate = formatCurrency(params.rate, locale);
+  if (params.rate != null) params.rate = money(params.rate, locale);
   return (
     <li className="flex justify-center px-4">
       <p className="max-w-xs rounded-full bg-surface-muted px-3 py-1 text-center text-xs text-muted">

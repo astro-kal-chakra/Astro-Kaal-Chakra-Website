@@ -1,11 +1,12 @@
 import { Check, FileText, Star } from "lucide-react";
 import { routes } from "@/config/routes";
-import { formatCompact, formatCurrency } from "@/lib/utils/format";
+import { formatCompact } from "@/lib/utils/format";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { ReportIcon } from "./ReportIcon";
+import { ReportPriceTag } from "./ReportPriceTag";
 import { reportCopy } from "../lib/copy";
 
 const PREVIEW = 4;
@@ -58,10 +59,8 @@ export function ReportCard({ report: r, t, locale }) {
       )}
 
       <div className="mt-auto flex items-end justify-between gap-3 pt-5">
-        <div>
-          {off > 0 && <p className="text-xs text-muted line-through">{formatCurrency(r.originalPrice, locale)}</p>}
-          <p className="font-display text-2xl font-bold">{formatCurrency(r.price, locale)}</p>
-        </div>
+        {/* ₹, or the dollar prices for international users */}
+        <ReportPriceTag report={r} />
         <ButtonLink href={routes.report(r.slug)} variant="gold" aria-label={`View details: ${title}`}>
           View details
         </ButtonLink>

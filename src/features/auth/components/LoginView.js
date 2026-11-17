@@ -6,7 +6,7 @@ import { routes } from "@/config/routes";
 import { SIGNED_IN_ELSEWHERE } from "@/lib/socket/events";
 import { Card } from "@/components/ui/Card";
 import { SIGNED_IN_ELSEWHERE_MESSAGE } from "../context/AuthProvider";
-import { LoginForm } from "./LoginForm";
+import { LoginChooser } from "@/features/international/components/LoginChooser";
 import { SITE_LOCALE } from "@/config/locale";
 
 /** Only allow same-site relative redirects (prevents open redirect via ?next=). */
@@ -33,9 +33,8 @@ export function LoginView() {
           </span>
         </p>
       )}
-      <h1 className="font-display text-2xl font-semibold">Login with your phone</h1>
-      <p className="mb-6 mt-1 text-sm text-muted">{"We'll send a 6-digit OTP. No password needed."}</p>
-      <LoginForm onSuccess={handleSuccess} />
+      {/* Mobile number + OTP (India, as before); "Continue with Google" for visitors outside India */}
+      <LoginChooser heading onSuccess={handleSuccess} />
     </Card>
   );
 }

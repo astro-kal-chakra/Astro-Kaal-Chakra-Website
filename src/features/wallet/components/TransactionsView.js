@@ -6,7 +6,6 @@ import { routes } from "@/config/routes";
 import { useAuth } from "@/features/auth/context/AuthProvider";
 import { TXN_FILTERS, walletService } from "@/lib/api/services/wallet.service";
 import { cn } from "@/lib/utils/cn";
-import { formatCurrency } from "@/lib/utils/format";
 import { useToast } from "@/providers/ToastProvider";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -17,10 +16,12 @@ import { openInvoiceWindow } from "../lib/invoice";
 import { TransactionRow } from "./TransactionRow";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
+import { useMoney } from "@/features/international/components/CurrencyProvider";
 
 const PAGE_SIZE = 10;
 
 export function TransactionsView() {
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
   const locale = SITE_LOCALE;
   const { user } = useAuth();
   const [filter, setFilter] = useState("all");
@@ -72,7 +73,7 @@ export function TransactionsView() {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <h1 className="font-display text-2xl font-semibold sm:text-3xl">Transaction history</h1>
           <p className="text-sm text-muted">
-            Wallet balance: <strong className="text-fg">{formatCurrency(user?.walletBalance ?? 0, locale)}</strong>
+            Wallet balance: <strong className="text-fg">{money(user?.walletBalance ?? 0, locale)}</strong>
           </p>
         </div>
       </div>

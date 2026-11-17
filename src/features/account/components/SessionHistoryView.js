@@ -5,7 +5,7 @@ import { FileText, History, LifeBuoy, MessageCircle, MessagesSquare, Phone, Rota
 import { routes } from "@/config/routes";
 import { sessionHistoryService } from "@/lib/api/services/session-history.service";
 import { cn } from "@/lib/utils/cn";
-import { formatCurrency, formatDuration } from "@/lib/utils/format";
+import { formatDuration } from "@/lib/utils/format";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -20,6 +20,7 @@ import { AccountEmptyCard, AccountErrorState, AccountListSkeleton, AccountLoadMo
 import { usePagedResource } from "../hooks/usePagedResource";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
+import { useMoney } from "@/features/international/components/CurrencyProvider";
 
 const TABS = ["all", "chat", "call", "video"];
 const STATUS_TONE = { completed: "success", missed: "warning", refunded: "brand" };
@@ -100,6 +101,7 @@ function TranscriptModal({ session, onClose }) {
 }
 
 function SessionRow({ session: s, onTranscript }) {
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
   const locale = SITE_LOCALE;
   const kind = TYPE_ICON[s.mode] ? s.mode : "chat";
   const Icon = TYPE_ICON[kind];
@@ -132,18 +134,18 @@ function SessionRow({ session: s, onTranscript }) {
             <div>
               <dt className="text-xs text-muted">Amount</dt>
               <dd className={cn("font-medium tabular-nums", s.status === "refunded" && "line-through opacity-70")}>
-                {s.isFree ? "Free" : formatCurrency(s.totalCharged, locale)}
+                {s.isFree ? "Free" : money(s.totalCharged, locale)}
               </dd>
             </div>
             {!s.isFree && s.ratePerMin > 0 && (
               <div>
                 <dt className="text-xs text-muted">Rate</dt>
-                <dd className="font-medium tabular-nums">{`${formatCurrency(s.ratePerMin, locale)}/min`}</dd>
+                <dd className="font-medium tabular-nums">{`${money(s.ratePerMin, locale)}/min`}</dd>
               </div>
             )}
           </dl>
           {s.unusedReturned > 0 && s.status !== "refunded" && (
-            <p className="mt-1 text-xs text-muted">{`${formatCurrency(s.unusedReturned, locale)} unused time returned`}</p>
+            <p className="mt-1 text-xs text-muted">{`${money(s.unusedReturned, locale)} unused time returned`}</p>
           )}
         </div>
       </div>

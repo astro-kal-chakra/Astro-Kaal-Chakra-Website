@@ -5,18 +5,19 @@ import { CheckCircle2, Info, X, XCircle } from "lucide-react";
 import { routes } from "@/config/routes";
 import { useAuth } from "@/features/auth/context/AuthProvider";
 import { cn } from "@/lib/utils/cn";
-import { formatCurrency } from "@/lib/utils/format";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { Spinner } from "@/components/ui/Skeleton";
 import { useOrderStatus } from "../hooks/useOrderStatus";
 import { useInflightOrder } from "../lib/inflight";
 import { SITE_LOCALE } from "@/config/locale";
+import { useMoney } from "@/features/international/components/CurrencyProvider";
 
 /**
  * "We're checking your last payment" — resumes polling an order the user left
  * mid-payment (closed tab, UPI app switch, crash). Cleared when dismissed.
  */
 export function PaymentRecoveryBanner() {
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
   const locale = SITE_LOCALE;
   const { setUser } = useAuth();
   const [stored, setInflight] = useInflightOrder();
@@ -32,7 +33,7 @@ export function PaymentRecoveryBanner() {
 
   if (!inflight) return null;
 
-  const amount = formatCurrency(order?.total ?? inflight.total ?? 0, locale);
+  const amount = money(order?.total ?? inflight.total ?? 0, locale);
   const dismiss = () => setInflight(null);
 
   const view = {
@@ -41,7 +42,7 @@ export function PaymentRecoveryBanner() {
       tone: "border-green-500/30 bg-green-50 dark:bg-green-900/20",
       iconTone: "text-green-600 dark:text-green-400",
       title: "Your last payment was successful",
-      text: `${formatCurrency(order?.credit ?? 0, locale)} has been added to your wallet.`,
+      text: `${money(order?.credit ?? 0, locale)} has been added to your wallet.`,
     },
     failed: {
       icon: XCircle,

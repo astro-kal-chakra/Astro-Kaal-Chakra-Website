@@ -34,7 +34,8 @@ export const SESSION_MODES = { CHAT: "chat", CALL: "call", VIDEO: "video" };
 /** Paid sessions need max(₹50, 5 minutes of the rate) in the wallet (backend minWalletBalance / minSessionMinutes). */
 export const MIN_BALANCE_MINUTES = 5;
 export const MIN_WALLET_BALANCE = 50;
-export const minBalanceFor = (ratePerMin) => Math.max(MIN_WALLET_BALANCE, ratePerMin * MIN_BALANCE_MINUTES);
+/** `minWallet`: the flat minimum in the viewer's currency (international users: the dashboard's dollar amount). */
+export const minBalanceFor = (ratePerMin, minWallet = MIN_WALLET_BALANCE) => Math.max(minWallet, ratePerMin * MIN_BALANCE_MINUTES);
 /** The backend warns (wallet:low) when fewer than this many prepaid minutes are left. */
 export const LOW_BALANCE_MINUTES = 2;
 /** The astrologer has this long to accept a request (backend requestTimeoutSeconds). */

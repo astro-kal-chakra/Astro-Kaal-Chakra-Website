@@ -13,17 +13,19 @@ import { WALLET_CONFIG } from "@/lib/api/services/wallet.service";
 import { userService } from "@/lib/api/services/user.service";
 import { categoryLabel, label as t } from "@/lib/labels";
 import { cn } from "@/lib/utils/cn";
-import { formatCurrency } from "@/lib/utils/format";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { invalidateRemedyConfig } from "../hooks/useRemedyConfig";
 import { remedyErrorText } from "../lib/remedies";
+import { useCurrency, useMinRecharge, useMoney } from "@/features/international/components/CurrencyProvider";
+import { itemPrice } from "@/features/international/lib/currency";
 
 const SELF = "self";
 
 /** Ask for a remedy: whose chart, category, question, then pay from the wallet (or recharge). */
 export function RemedyRequestForm({ astrologer, config, onClose, onUnavailable }) {
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
   const locale = SITE_LOCALE;
   const { user, setUser } = useAuth();
   const [profiles, setProfiles] = useState(null); // null = loading
@@ -60,9 +62,13 @@ export function RemedyRequestForm({ astrologer, config, onClose, onUnavailable }
   const categories = config.categories?.length ? config.categories : ["other"];
   const ready = Boolean(category) && !qError && !blocked;
 
+  // In the account's currency: rupees, or dollars for international users
+  const { currency } = useCurrency();
+  const price = itemPrice(config, currency);
+  const minRecharge = useMinRecharge(WALLET_CONFIG.minAmount);
   const balance = user?.walletBalance ?? 0;
-  const shortfall = Math.max(0, config.price - balance);
-  const rechargeAmount = Math.max(Math.ceil(shortfall), WALLET_CONFIG.minAmount);
+  const shortfall = Math.max(0, price - balance);
+  const rechargeAmount = Math.max(Math.ceil(shortfall), minRecharge);
 
   // Editing clears the last error. The key is kept after a dropped connection: that request may have gone through.
   const edit = (fn) => (value) => {
@@ -238,16 +244,16 @@ export function RemedyRequestForm({ astrologer, config, onClose, onUnavailable }
       <dl className="space-y-2 rounded-2xl bg-surface-muted p-4 text-sm">
         <div className="flex justify-between gap-3">
           <dt className="text-muted">Remedy price</dt>
-          <dd className="font-semibold">{formatCurrency(config.price, locale)}</dd>
+          <dd className="font-semibold">{money(price)}</dd>
         </div>
         <div className="flex justify-between gap-3">
           <dt className="text-muted">Wallet balance</dt>
-          <dd className={cn("font-semibold", shortfall > 0 && "text-red-600 dark:text-red-400")}>{formatCurrency(balance, locale)}</dd>
+          <dd className={cn("font-semibold", shortfall > 0 && "text-red-600 dark:text-red-400")}>{money(balance, locale)}</dd>
         </div>
         {shortfall > 0 && (
           <div className="flex justify-between gap-3 border-t border-line pt-2">
             <dt className="font-medium">Amount needed</dt>
-            <dd className="font-bold text-red-600 dark:text-red-400">{formatCurrency(shortfall, locale)}</dd>
+            <dd className="font-bold text-red-600 dark:text-red-400">{money(shortfall, locale)}</dd>
           </div>
         )}
       </dl>
@@ -289,12 +295,12 @@ export function RemedyRequestForm({ astrologer, config, onClose, onUnavailable }
         <div className="space-y-2">
           <p className="text-center text-sm text-muted">{"You don't have enough balance for this remedy."}</p>
           <ButtonLink href={`${routes.wallet}?amount=${rechargeAmount}`} variant="gold" size="lg" className="w-full">
-            {`Recharge ${formatCurrency(rechargeAmount, locale)}`}
+            {`Recharge ${money(rechargeAmount, locale)}`}
           </ButtonLink>
         </div>
       ) : (
         <Button type="submit" variant="gold" size="lg" className="w-full" loading={sending}>
-          {sending ? "Sending..." : `Pay ${formatCurrency(config.price, locale)} and send`}
+          {sending ? "Sending..." : `Pay ${money(price)} and send`}
         </Button>
       )}
     </form>

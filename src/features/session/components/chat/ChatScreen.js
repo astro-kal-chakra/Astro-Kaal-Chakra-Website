@@ -7,7 +7,7 @@ import { routes } from "@/config/routes";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { CLIENT_EVENTS, SOCKET_EVENTS } from "@/lib/socket/events";
 import { sessionService } from "@/lib/api/services/session.service";
-import { formatCurrency, formatDuration } from "@/lib/utils/format";
+import { formatDuration } from "@/lib/utils/format";
 import { useToast } from "@/providers/ToastProvider";
 import { Button } from "@/components/ui/Button";
 import { useLeaveWarning } from "../../hooks/useLeaveWarning";
@@ -28,6 +28,7 @@ import {
 import { Composer } from "./Composer";
 import { MessageList } from "./ChatMessages";
 import { SITE_LOCALE } from "@/config/locale";
+import { useMoney } from "@/features/international/components/CurrencyProvider";
 
 const SEND_TIMEOUT_MS = 10000;
 const STATUS_RANK = { failed: -1, sending: 0, sent: 1, delivered: 2, read: 3 };
@@ -50,6 +51,7 @@ function mergeMessages(current, incoming) {
 }
 
 export function ChatScreen({ sessionId }) {
+  const money = useMoney(); // viewer's currency: ₹, or $ for international users
   const locale = SITE_LOCALE;
   const router = useRouter();
   const { toast } = useToast();
@@ -240,7 +242,7 @@ export function ChatScreen({ sessionId }) {
               typing ? (
                 <span className="font-medium text-online">typing…</span>
               ) : isLive ? (
-                session.isFree ? "Free chat" : `${formatCurrency(session.ratePerMin, locale)}/min`
+                session.isFree ? "Free chat" : `${money(session.ratePerMin, locale)}/min`
               ) : (
                 "Session ended"
               )
