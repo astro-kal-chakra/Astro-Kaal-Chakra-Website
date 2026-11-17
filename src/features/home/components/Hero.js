@@ -1,12 +1,11 @@
 import { BadgeCheck, Gift, IndianRupee, Lock, MessageCircle, Phone, Video } from "lucide-react";
 import { routes } from "@/config/routes";
-import { label as t } from "@/lib/labels";
-import { formatTime } from "@/features/tools/lib/format";
 import { ButtonLink } from "@/components/ui/Button";
 import { ChakraDial } from "@/components/ui/ChakraDial";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { ParticleField } from "@/components/ui/ParticleField";
 import { HeroBackdrop } from "./HeroBackdrop";
+import { TodayPanchang } from "./TodayPanchang";
 
 /** Free-chat line follows the admin setting (hidden when free chats are off). */
 const promises = (freeChat) => [
@@ -20,26 +19,6 @@ const MODES = [
   { icon: Phone, label: "Call", href: `${routes.astrologers}?mode=call` },
   { icon: Video, label: "Video", href: `${routes.astrologers}?mode=video` },
 ];
-
-/** Today's panchang for New Delhi (from the backend), shown inside the Kaal Chakra. */
-function TodayInChakra({ p }) {
-  const tithi = p.tithi.index === 29 ? "Amavasya" : t(`tools.names.tithis.${p.tithi.index % 15}`);
-  return (
-    <LocaleLink href={routes.panchang} className="group flex flex-col items-center gap-0.5 px-2" aria-label="Today's panchang">
-      <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">Today · New Delhi</span>
-      <span className="mt-1 font-display text-xl leading-tight text-fg sm:text-2xl">{tithi}</span>
-      <span className="text-xs text-muted">{t(`tools.names.paksha.${p.tithi.paksha}`)}</span>
-      <span className="mt-1 text-sm font-medium text-fg">{t(`tools.names.nakshatras.${p.nakshatra.index}`)}</span>
-      <span className="mt-2 grid grid-cols-2 gap-x-4 text-[11px] leading-snug text-muted">
-        <span>Sunrise</span>
-        <span>Rahu Kaal</span>
-        <span translate="no" className="notranslate font-semibold text-fg">{formatTime(p.sunrise)}</span>
-        <span translate="no" className="notranslate font-semibold text-fg">{formatTime(p.rahuKaal.start)}</span>
-      </span>
-      <span className="mt-2 text-[11px] font-semibold text-accent group-hover:underline">Full panchang →</span>
-    </LocaleLink>
-  );
-}
 
 export function Hero({ panchang, freeChat }) {
   return (
@@ -100,7 +79,8 @@ export function Hero({ panchang, freeChat }) {
 
         {/* rem, not px: the dial grows with the rest of the page on large screens */}
         <ChakraDial className="mx-auto max-w-[26.25rem]">
-          {panchang && <TodayInChakra p={panchang} />}
+          {/* Today's panchang for the visitor's city (New Delhi until the browser knows it) */}
+          <TodayPanchang initial={panchang} />
         </ChakraDial>
       </div>
     </section>

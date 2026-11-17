@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Moon, MoonStar, Sunrise, Sunset } from "lucide-react";
 import { astroToolsService } from "@/lib/api/services/astro-tools.service";
 import { cn } from "@/lib/utils/cn";
@@ -11,6 +11,7 @@ import { Spinner } from "@/components/ui/Skeleton";
 import { PlaceAutocomplete } from "@/features/auth/components/PlaceAutocomplete";
 import { IST, addDays, formatPlainDate, formatTime, isoDateIn } from "../lib/format";
 import { useAstroNames } from "../lib/useAstroNames";
+import { useVisitorPlace } from "../lib/useVisitorPlace";
 import { MockNotice } from "./MockNotice";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
@@ -56,6 +57,8 @@ export function PanchangTool({ initialData, initialDate, defaultCity }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const reqId = useRef(0);
+  const touched = useRef(false); // the visitor changed the date or city themselves
+  const visitorPlace = useVisitorPlace();
 
   const load = async (nextDate, nextPlace) => {
     const id = ++reqId.current;
@@ -73,17 +76,29 @@ export function PanchangTool({ initialData, initialDate, defaultCity }) {
 
   const changeDate = (next) => {
     if (!next) return;
+    touched.current = true;
     setDate(next);
     load(next, place);
   };
 
   const changePlace = (next) => {
+    touched.current = true;
     setPlaceInput(next);
     if (next) {
       setPlace(next);
       load(date, next);
     }
   };
+
+  // Open on the visitor's own city (from their IP), today in its time zone, unless they already chose one
+  useEffect(() => {
+    if (!visitorPlace || touched.current) return;
+    const today = isoDateIn(new Date(), visitorPlace.timezone);
+    setPlace(visitorPlace);
+    setPlaceInput(visitorPlace);
+    setDate(today);
+    load(today, visitorPlace);
+  }, [visitorPlace]);
 
   const tz = data.place?.timezone || IST;
   // moonrise / moonset can be null on days the Moon doesn't rise or set
@@ -112,7 +127,7 @@ export function PanchangTool({ initialData, initialDate, defaultCity }) {
             <Button variant="outline" size="icon" onClick={() => changeDate(addDays(date, 1))} aria-label="Next day">
               <ChevronRight className="size-4" aria-hidden />
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => changeDate(isoDateIn(new Date(), IST))}>
+            <Button variant="ghost" size="sm" onClick={() => changeDate(isoDateIn(new Date(), place?.timezone || IST))}>
               Today
             </Button>
           </div>

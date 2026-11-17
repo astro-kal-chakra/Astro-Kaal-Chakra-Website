@@ -37,6 +37,15 @@ export const astroToolsService = {
    * @param {{ date: string, place: { lat: number, lng: number, timezone?: string } }} p
    * @returns {Promise<object>} tithi, nakshatra, yoga, karana, vaar, sun/moon times, Rahu Kaal…
    */
+  /**
+   * The visitor's approximate city from their IP (browser only; never cached).
+   * @returns {Promise<{ name, region, country, countryCode, lat, lng, timezone: string|null } | null>}
+   */
+  async getMyPlace() {
+    if (env.useMocks) return null;
+    return http("/tools/my-place", { cache: "no-store" });
+  },
+
   async getPanchang({ date, place }) {
     if (env.useMocks) return mockDelay(mockPanchang({ date, place }), delay);
     return http("/tools/panchang", {
