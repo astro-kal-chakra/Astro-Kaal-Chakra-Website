@@ -1,4 +1,4 @@
-import { BadgeCheck, CalendarDays, Hash, Heart, Lock, MessageCircle, ScrollText, Search, Sparkles, Star, Sun, UserCheck } from "lucide-react";
+import { BadgeCheck, CalendarDays, Hash, Heart, Lock, MessageCircle, ScrollText, Search, Sparkles, Star, Sun, SunMoon, UserCheck } from "lucide-react";
 import { routes } from "@/config/routes";
 import { formatDate } from "@/lib/utils/format";
 import { Accordion } from "@/components/ui/Accordion";
@@ -89,7 +89,7 @@ export function FreeTools() {
     { icon: CalendarDays, title: "Panchang", text: "Tithi, nakshatra, Rahu Kaal", href: routes.panchang },
     { icon: Sun, title: "Horoscope", text: "Daily, weekly, monthly", href: routes.horoscope },
     { icon: Hash, title: "Numerology", text: "Your life path number", href: routes.numerology },
-    { icon: Sparkles, title: "Zodiac Finder", text: "Find your sun and moon sign", href: routes.zodiacFinder },
+    { icon: SunMoon, title: "Zodiac Finder", text: "Find your sun and moon sign", href: routes.zodiacFinder },
   ];
   return (
     <section className="container-page py-4 sm:py-6">
@@ -153,6 +153,8 @@ export function ReviewCard({ review: r, locale, astrologerName, as = "li" }) {
 }
 
 export function FaqSection({ faqs }) {
+  // Nothing to answer: no heading and empty box
+  if (!faqs?.length) return null;
   return (
     <section className="container-page grid grid-cols-1 gap-6 py-4 sm:py-6 lg:grid-cols-[1fr_2fr] lg:gap-10">
       <SectionHeading

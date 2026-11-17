@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, MoonStar, Sparkles } from "lucide-react";
+import { ArrowRight, MoonStar, SunMoon } from "lucide-react";
 import { routes } from "@/config/routes";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -50,7 +50,7 @@ export function ZodiacFinderTool() {
           />
         </Field>
         <Button type="submit" variant="gold" size="lg" className="w-full">
-          <Sparkles className="size-5" aria-hidden /> Find my sign
+          <SunMoon className="size-5" aria-hidden /> Find my sign
         </Button>
       </Card>
 

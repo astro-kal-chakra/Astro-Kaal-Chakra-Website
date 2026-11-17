@@ -82,7 +82,8 @@ function Bubble({ message, astrologer, showAvatar, onRetry, fmt }) {
 
 export function TypingIndicator({ astrologer }) {
   return (
-    <li className="flex items-end gap-2 px-3" aria-label={`${astrologer.name} is typing`}>
+    <li className="flex items-end gap-2 px-3">
+      <span className="sr-only">{`${astrologer.name} is typing`}</span>
       <span className="w-7 shrink-0">
         <Avatar src={astrologer.avatarUrl} name={astrologer.name} size={28} />
       </span>

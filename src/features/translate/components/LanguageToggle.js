@@ -4,7 +4,11 @@ import { useSyncExternalStore } from "react";
 import { Languages } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { PAGE_LANGUAGE, TRANSLATE_LANGUAGES } from "../config";
-import { getCurrentLanguage, setLanguage, subscribeLanguage } from "../lib/googleTranslate";
+import { getCurrentLanguage, loadTranslate, setLanguage, subscribeLanguage } from "../lib/googleTranslate";
+
+// Start downloading the translator as soon as someone reaches for the switch (hover, keyboard focus or touch),
+// so it is usually ready by the time they click. Nobody else downloads it.
+const warmUp = { onPointerEnter: loadTranslate, onFocus: loadTranslate, onTouchStart: loadTranslate };
 
 /**
  * Brand-styled language switch that drives Google Translate.
@@ -19,7 +23,7 @@ export function LanguageToggle({ variant = "default", className }) {
 
   if (TRANSLATE_LANGUAGES.length > 3) {
     return (
-      <label translate="no" className={cn("notranslate relative inline-flex items-center", block && "w-full", className)}>
+      <label translate="no" className={cn("notranslate relative inline-flex items-center", block && "w-full", className)} {...warmUp}>
         <Languages className="pointer-events-none absolute left-3 size-4 text-muted" aria-hidden />
         <span className="sr-only">Language</span>
         <select
@@ -45,6 +49,7 @@ export function LanguageToggle({ variant = "default", className }) {
       role="radiogroup"
       aria-label="Language"
       translate="no"
+      {...warmUp}
       className={cn(
         "notranslate inline-flex shrink-0 items-center gap-0.5 rounded-full border border-line bg-surface p-0.5",
         block && "flex w-full",

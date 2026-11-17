@@ -1,4 +1,4 @@
-import { CalendarDays, Hash, HeartHandshake, ScrollText, Sparkles } from "lucide-react";
+import { CalendarDays, Hash, HeartHandshake, ScrollText, SunMoon } from "lucide-react";
 import { routes } from "@/config/routes";
 
 /** Every free tool — used by ToolsNav for internal linking. `key` maps to tools.nav.<key>. */
@@ -6,7 +6,7 @@ export const TOOLS = [
   { key: "kundli", href: routes.kundli, icon: ScrollText },
   { key: "kundliMatching", href: routes.kundliMatching, icon: HeartHandshake },
   { key: "panchang", href: routes.panchang, icon: CalendarDays },
-  { key: "zodiacFinder", href: routes.zodiacFinder, icon: Sparkles },
+  { key: "zodiacFinder", href: routes.zodiacFinder, icon: SunMoon },
   { key: "numerology", href: routes.numerology, icon: Hash },
 ];
 

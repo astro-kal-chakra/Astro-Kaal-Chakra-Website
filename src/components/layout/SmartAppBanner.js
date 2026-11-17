@@ -19,8 +19,11 @@ function detectPlatform() {
 /** `appLinks` = { playStore, appStore } from the backend settings. */
 export function SmartAppBanner({ appLinks }) {
   const platform = useSyncExternalStore(noopSubscribe, detectPlatform, () => null);
-  const store =
+  const link =
     platform === "android" ? appLinks?.playStore || siteConfig.appLinks.playStore : platform === "ios" ? appLinks?.appStore || siteConfig.appLinks.appStore : null;
+  // Only a real store URL: with no app link configured the fallback is "#", and a banner that opens nothing
+  // would also push the whole page down after load (layout shift in PageSpeed).
+  const store = /^https?:\/\//.test(link || "") ? link : null;
   const [dismissed, setDismissed] = useBrowserStorage(KEY, { storage: "sessionStorage", serverValue: "1" });
 
   if (!store || dismissed) return null;
