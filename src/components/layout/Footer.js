@@ -12,16 +12,6 @@ const iconLink =
   "flex size-9 items-center justify-center rounded-full border border-line bg-surface text-muted transition hover:border-brand-300 hover:text-accent motion-safe:hover:-translate-y-0.5";
 
 
-/** Twinkling sparkles over the footer: [left %, top %, size px, delay s]. */
-const SPARKLES = [
-  [6, 14, 12, 0],
-  [31, 72, 9, 1.6],
-  [47, 18, 11, 2.8],
-  [63, 58, 13, 0.9],
-  [79, 22, 10, 2.2],
-  [93, 46, 12, 3.4],
-];
-
 export function Footer({ locale, config }) {
   const columns = [
     {
@@ -67,22 +57,12 @@ export function Footer({ locale, config }) {
     <footer className="relative isolate mt-16 overflow-hidden border-t border-line bg-bg">
       <div aria-hidden className="absolute inset-0 -z-20 bg-surface-muted/70" />
       <div className="hairline" aria-hidden />
-      {/* Kaal Chakra animation (same wheel as the horoscope pages), faint behind the link columns */}
+      {/* Kaal Chakra wheel (same as the horoscope pages), faint behind the link columns. No star sparkles. */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         {/* phones: beside the Legal column; desktop: bottom-right behind the link columns */}
         <div className="absolute -right-28 top-[48%] w-72 opacity-40 sm:w-96 md:top-auto md:-bottom-44 md:-right-16 md:w-[34rem] md:opacity-45 dark:opacity-30">
           <ZodiacWheel />
         </div>
-        {SPARKLES.map(([left, top, size, delay], i) => (
-          <svg
-            key={i}
-            viewBox="0 0 24 24"
-            className="absolute text-gold-500 opacity-70 motion-safe:animate-twinkle dark:text-gold-300"
-            style={{ left: `${left}%`, top: `${top}%`, width: size, height: size, animationDelay: `${delay}s` }}
-          >
-            <path d="M12 0c.6 6.2 5.8 11.4 12 12-6.2.6-11.4 5.8-12 12-.6-6.2-5.8-11.4-12-12C6.2 11.4 11.4 6.2 12 0Z" fill="currentColor" />
-          </svg>
-        ))}
       </div>
       <div className="container-page grid grid-cols-2 gap-x-6 gap-y-10 py-12 md:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div className="col-span-2 space-y-4 md:col-span-1">

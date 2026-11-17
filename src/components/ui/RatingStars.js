@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils/cn";
 
 export function RatingStars({ value = 0, size = 14, className, showValue = false }) {
   return (
-    <span className={cn("inline-flex items-center gap-0.5", className)} aria-label={`${value} out of 5`}>
+    <span role="img" className={cn("inline-flex items-center gap-0.5", className)} aria-label={`${value} out of 5`}>
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}

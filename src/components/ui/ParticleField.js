@@ -284,7 +284,9 @@ export function ParticleField({ contained = false, density = 1, darkOnly = false
       draw(t);
       raf = requestAnimationFrame(loop);
     };
+    let booted = false;
     const start = () => {
+      if (!booted) return; // not set up yet (see boot below)
       cancelAnimationFrame(raf);
       if (darkOnly && palette !== PALETTES.dark) {
         ctx.clearRect(0, 0, w, h); // light theme: nothing drawn, no frame loop
@@ -313,9 +315,16 @@ export function ParticleField({ contained = false, density = 1, darkOnly = false
       }, 100);
     };
 
-    readTheme();
-    resize();
-    start();
+    // Decoration only: set up once the browser is idle after loading, so measuring the canvas and the first
+    // frames don't compete with the page's own startup work (main-thread time / forced reflow in Lighthouse).
+    const boot = () => {
+      booted = true;
+      readTheme();
+      resize();
+      start();
+    };
+    const idleId = "requestIdleCallback" in window ? window.requestIdleCallback(boot, { timeout: 2500 }) : null;
+    const bootTimer = idleId === null ? setTimeout(boot, 1200) : 0;
     // Full-screen background: fade out while the footer (with its own animation) is on screen.
     const stopFooterFade = contained ? () => {} : fadeOutOverFooter(canvas);
     const themeObserver = new MutationObserver(() => {
@@ -345,6 +354,8 @@ export function ParticleField({ contained = false, density = 1, darkOnly = false
     document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
+      if (idleId !== null) window.cancelIdleCallback(idleId);
+      clearTimeout(bootTimer);
       cancelAnimationFrame(raf);
       stopFooterFade();
       clearTimeout(resizeTimer);

@@ -175,8 +175,10 @@
   100% { transform: translateX(120%); }
 }
 
-/* Scroll reveal (components/ui/Reveal.js): only elements that start below the fold get data-reveal. */
-.reveal {
+/* Scroll reveal (components/ui/Reveal.js): only elements that start below the fold get data-reveal.
+   The transition lives on the "shown" state only: hiding is instant (no fade-out, no forced reflow in JS),
+   and hidden → shown fades in. */
+.reveal[data-reveal="shown"] {
   transition:
     opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);

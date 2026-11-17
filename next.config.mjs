@@ -34,6 +34,10 @@ const nextConfig = {
   compiler: isDev ? {} : { removeConsole: { exclude: ["error", "warn"] } },
   experimental: {
     globalNotFound: true,
+    // Put the (small, Tailwind) CSS inside the HTML instead of separate render-blocking <link> files:
+    // first-time visitors (most search traffic) see the page sooner. PageSpeed: "Render-blocking requests".
+    // Production builds only.
+    inlineCss: true,
   },
   images: {
     formats: ["image/avif", "image/webp"],

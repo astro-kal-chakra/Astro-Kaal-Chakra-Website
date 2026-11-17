@@ -277,13 +277,13 @@ export const LABELS = {
     "about": {
       "stats": {
         "astrologers": "Verified astrologers",
-        "astrologersValue": "500+",
+        "astrologersValue": "100+",
         "consultations": "Consultations completed",
-        "consultationsValue": "20 lakh+",
+        "consultationsValue": "10000+",
         "languages": "Languages",
-        "languagesValue": "8+",
+        "languagesValue": "2",
         "rating": "Average rating",
-        "ratingValue": "4.8/5"
+        "ratingValue": "4.5/5"
       },
       "values": {
         "v1Text": "Astrologers are trained to give practical, balanced advice. Fear-based upselling is not allowed.",
@@ -312,7 +312,7 @@ export const LABELS = {
         "b1Title": "Work from anywhere",
         "b2Text": "Go online when it suits you. No minimum hours.",
         "b2Title": "Set your own hours",
-        "b3Text": "The full amount of every session counts as your earnings. A platform charge (30% by default) and 1% TDS are deducted only when you request a payout to your bank.",
+        "b3Text": "The full amount of every session counts as your earnings.",
         "b3Title": "Keep the full session amount",
         "b4Text": "We bring the users; you focus on guidance.",
         "b4Title": "Steady flow of clients",
@@ -417,7 +417,7 @@ export const LABELS = {
         "uploadHint": "JPG, PNG or PDF, up to 5 MB"
       },
       "heroStat1": "Active users",
-      "heroStat1Value": "10 lakh+",
+      "heroStat1Value": "10k+",
       "heroStat2": "Of every session is yours",
       "heroStat2Value": "100%",
       "heroStat3": "Joining fee",
@@ -571,7 +571,7 @@ export const LABELS = {
       "i3Title": "Pay only for time used",
       "i4Text": "Your first chat is free — try it before you recharge.",
       "i4Title": "First chat free",
-      "i5Text": "Consult in Hindi, English and 6+ regional languages.",
+      "i5Text": "Consult in Hindi or English, whichever you are comfortable with.",
       "i5Title": "Your language",
       "i6Text": "Support tickets answered quickly; refund requests are reviewed by our support team.",
       "i6Title": "Help when you need it"

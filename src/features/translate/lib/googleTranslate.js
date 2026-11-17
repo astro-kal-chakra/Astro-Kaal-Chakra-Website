@@ -1,4 +1,4 @@
-import { PAGE_LANGUAGE } from "../config";
+import { PAGE_LANGUAGE, TRANSLATE_LANGUAGES } from "../config";
 
 /**
  * Thin wrapper around the Google Website Translator widget.
@@ -26,6 +26,45 @@ function writeCookie(value) {
   }
 }
 
+/**
+ * Load Google's translator (~110 KB) on demand: only for visitors who chose another language, or the moment
+ * someone reaches for the language switch. Most visitors read the site in English and never download it.
+ * Safe to call any number of times.
+ */
+export function loadTranslate() {
+  if (typeof window === "undefined" || window.google?.translate || document.getElementById("google-translate-script")) return;
+
+  window.googleTranslateElementInit = () => {
+    new window.google.translate.TranslateElement(
+      {
+        pageLanguage: PAGE_LANGUAGE,
+        includedLanguages: TRANSLATE_LANGUAGES.map((l) => l.code).join(","),
+        autoDisplay: false,
+        // Default layout on purpose: it renders the <select class="goog-te-combo"> that setLanguage() drives.
+        // (The SIMPLE layout has no select, so every switch fell back to a full page reload.)
+      },
+      "google_translate_element"
+    );
+    // Google's widget injects (and re-renders) small icon images with missing or empty alt text, which SEO checkers flag:
+    // label every one as soon as it appears.
+    // (Some sit in the widget, one in Google's translation tooltip #goog-gt-tt, which it appends to <body>.)
+    const host = document.getElementById("google_translate_element");
+    const label = () =>
+      document
+        .querySelectorAll("#google_translate_element img:not([alt]), #google_translate_element img[alt=\"\"], #goog-gt-tt img:not([alt]), #goog-gt-tt img[alt=\"\"]")
+        .forEach((img) => img.setAttribute("alt", "Google Translate"));
+    label();
+    if (host) new MutationObserver(label).observe(host, { childList: true, subtree: true });
+    new MutationObserver(label).observe(document.body, { childList: true }); // body's direct children only: cheap
+  };
+
+  const script = document.createElement("script");
+  script.id = "google-translate-script";
+  script.src = "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+  script.async = true;
+  document.body.appendChild(script);
+}
+
 export function subscribeLanguage(callback) {
   window.addEventListener(CHANGE_EVENT, callback);
   return () => window.removeEventListener(CHANGE_EVENT, callback);
@@ -44,11 +83,12 @@ export function setLanguage(code) {
 
   writeCookie(`/${PAGE_LANGUAGE}/${code}`);
   window.dispatchEvent(new Event(CHANGE_EVENT));
+  loadTranslate(); // usually already loading: the switch starts it on hover / focus / touch
 
-  // Translate in place through the widget's <select>. It appears ~1 s after page load, and its
+  // Translate in place through the widget's <select>. It appears ~1 s after the script loads, and its
   // language options are filled in a moment later — setting the value before the option exists
-  // silently does nothing, so wait for the option itself. Only if the widget never becomes ready
-  // (e.g. Google blocked) fall back to a reload, which applies the cookie on load.
+  // silently does nothing, so wait for the option itself (up to 12 s, for slow mobile networks). Only if
+  // the widget never becomes ready (e.g. Google blocked) fall back to a reload, which applies the cookie on load.
   let tries = 0;
   const apply = () => {
     const combo = document.querySelector(".goog-te-combo");
@@ -56,7 +96,7 @@ export function setLanguage(code) {
     if (ready) {
       combo.value = code;
       combo.dispatchEvent(new Event("change"));
-    } else if (++tries < 60) {
+    } else if (++tries < 120) {
       setTimeout(apply, 100);
     } else {
       location.reload();

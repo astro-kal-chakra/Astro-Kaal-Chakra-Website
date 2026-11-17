@@ -89,7 +89,8 @@ export default async function HowItWorksPage({ params }) {
       </div>
 
       <WhyChooseUs />
-      <FaqSection faqs={faqs} />
+      {/* No FAQs from the backend: hide the whole section instead of an empty box */}
+      {faqs.length > 0 && <FaqSection faqs={faqs} />}
 
       <div className="container-page pb-14">
         <ContentCta title="Ready to start?" text="Find an astrologer online right now." cta="Talk to an Astrologer" />
@@ -97,7 +98,8 @@ export default async function HowItWorksPage({ params }) {
 
       <JsonLd
         data={[
-          faqJsonLd(faqs),
+          // an FAQPage with no questions is invalid structured data for Google
+          ...(faqs.length > 0 ? [faqJsonLd(faqs)] : []),
           breadcrumbJsonLd([
             { name: "Home", path: "/" },
             { name: "How it works", path: `${routes.howItWorks}` },

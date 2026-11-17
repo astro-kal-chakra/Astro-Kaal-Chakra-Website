@@ -29,11 +29,9 @@ export function Reveal({ as: Tag = "div", className, children, ...props }) {
             io.disconnect();
             return;
           }
-          // Below the fold: hide instantly (no fade-out), then wait for it to scroll in.
-          el.style.transition = "none";
+          // Below the fold: hide, then wait for it to scroll in. The fade transition is only defined on the
+          // "shown" state (globals.css), so hiding is instant without forcing a layout (no offsetHeight read).
           el.dataset.reveal = "hidden";
-          void el.offsetHeight; // commit the hidden state before transitions come back
-          el.style.transition = "";
           return;
         }
         if (entry.isIntersecting) {

@@ -124,7 +124,7 @@ export function InCall({
             </div>
           )}
           {!micOn && (
-            <span className="absolute bottom-1.5 left-1.5 rounded-full bg-red-600 p-1" aria-label="Muted">
+            <span role="img" className="absolute bottom-1.5 left-1.5 rounded-full bg-red-600 p-1" aria-label="Muted">
               <MicOff className="size-3" aria-hidden />
             </span>
           )}

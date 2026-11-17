@@ -84,13 +84,16 @@ export function AstrologerActions({ astrologer, layout = "card", showFollow = fa
   const modes = astrologerModes(astrologer);
   const onlyTaking = () => modes.filter((x) => x.available).map((x) => x.label.toLowerCase()).join(" and ") || "other";
 
-  // Mobile card (app style): first mode filled, the rest soft; each shows its label and per-minute price
+  // Mobile card: pill buttons. First mode filled ("Chat" / "Chat Free"), the rest outlined with an icon.
   if (layout === "compact") {
-    // Like the app: only the modes that can be started right now (all of them, disabled, if none can)
+    // Only the modes that can be started right now (all of them, disabled, if none can)
     const open = modes.filter((m) => m.available);
     const shown = open.length ? open : modes;
+    // Outlined buttons go icon-only when there isn't room for their label: below ~384px card width with three
+    // buttons, below ~288px with two (home carousel on 320px phones)
+    const crowded = shown.length >= 3;
     return (
-      <div className={cn("flex gap-1.5 @min-[20rem]:gap-2", className)}>
+      <div className={cn("flex gap-2", className)}>
         {status === "online" &&
           shown.map((m, i) => (
             <button
@@ -101,28 +104,29 @@ export function AstrologerActions({ astrologer, layout = "card", showFollow = fa
               title={m.available ? undefined : `${astrologer.name} is not taking requests right now`}
               aria-label={m.available ? `${m.label} with ${astrologer.name}, ${m.free ? "free" : `${formatCurrency(m.price)} per minute`}` : `${m.label} not available right now`}
               className={cn(
-                "flex min-w-0 flex-1 select-none flex-col items-center justify-center gap-0.5 whitespace-nowrap rounded-2xl px-1 py-2.5 transition-colors disabled:pointer-events-none disabled:opacity-50",
+                "inline-flex h-10 min-w-0 select-none items-center justify-center gap-1 whitespace-nowrap rounded-full px-2.5 text-sm font-semibold transition-colors disabled:pointer-events-none disabled:opacity-50 @min-[22rem]:h-11 @min-[22rem]:gap-1.5 @min-[22rem]:px-3 @min-[22rem]:text-[15px]",
                 i === 0
-                  ? "bg-brand-500 text-white shadow-sm shadow-brand-500/30 hover:bg-brand-600 dark:bg-brand-400 dark:text-brand-950"
-                  : "bg-brand-50 text-brand-600 hover:bg-brand-100 dark:bg-brand-950/50 dark:text-brand-200"
+                  ? "flex-auto bg-orange-600 text-white hover:bg-orange-700 dark:bg-brand-400 dark:text-brand-950"
+                  : cn("border-[1.5px] border-gray-700 text-gray-900 hover:bg-gray-50 dark:border-fg/60 dark:text-fg dark:hover:bg-surface-muted", crowded ? "flex-none @min-[24rem]:flex-auto" : "flex-none @min-[18rem]:flex-auto")
               )}
             >
-              <span className="flex items-center gap-1 text-[13px] font-semibold @min-[20rem]:text-sm @min-[24rem]:gap-1.5 @min-[24rem]:text-[15px]">
-                {/* icon hidden on the narrowest cards (home carousel / 320px phones) so the label fits */}
-                <m.icon className="hidden size-[15px] shrink-0 @min-[20rem]:block" aria-hidden /> {m.label}
-              </span>
-              <span className={cn("text-xs font-medium @min-[20rem]:text-[13px]", i === 0 ? "text-white/90 dark:text-brand-950/80" : "text-fg")}>
-                {m.free ? "Free" : `${formatCurrency(m.price)}/m`}
-              </span>
+              {i === 0 ? (
+                m.free ? `${m.label} Free` : m.label
+              ) : (
+                <>
+                  <m.icon className="size-4 shrink-0 @min-[22rem]:size-[18px]" aria-hidden />
+                  <span className={crowded ? "hidden @min-[24rem]:inline" : "hidden @min-[18rem]:inline"}>{m.label}</span>
+                </>
+              )}
             </button>
           ))}
         {status === "busy" && (
-          <Button size="lg" variant="gold" onClick={joinWaitlist} className="flex-1 rounded-2xl">
+          <Button size="md" variant="gold" onClick={joinWaitlist} className="h-11 flex-1">
             <ListPlus className="size-4" aria-hidden /> Join waitlist
           </Button>
         )}
         {status === "offline" && (
-          <Button size="lg" variant="outline" disabled className="flex-1 rounded-2xl">
+          <Button size="md" variant="outline" disabled className="h-11 flex-1">
             Offline now
           </Button>
         )}

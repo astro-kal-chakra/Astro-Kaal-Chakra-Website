@@ -166,7 +166,7 @@ export function LiveRoom({ session, gifts }) {
           >
             <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(white_1px,transparent_1px)] [background-size:24px_24px]" aria-hidden />
             {/* The astrologer's video (Agora renders a <video> in here) */}
-            <div ref={videoRef} className={cn("absolute inset-0 bg-black", !(playing && !ended) && "invisible")} aria-label={a ? `${a.name}'s live video` : "Live video"} />
+            <div ref={videoRef} role="region" className={cn("absolute inset-0 bg-black", !(playing && !ended) && "invisible")} aria-label={a ? `${a.name}'s live video` : "Live video"} />
             {!playing && !ended && (
               <>
                 <span className="absolute size-44 animate-ping rounded-full bg-gold-400/15 [animation-duration:3s]" aria-hidden />

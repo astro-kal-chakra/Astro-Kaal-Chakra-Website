@@ -43,7 +43,7 @@ export async function ToolPageLayout({ lang, ns, navKey, path, cta, children }) 
       {children}
 
       {faqs.length > 0 && (
-        <section aria-labelledby="tool-faq-title" className="max-w-3xl">
+        <section aria-labelledby="tool-faq-title">
           <h2 id="tool-faq-title" className="mb-4 font-display text-xl font-semibold sm:text-2xl">
             Frequently asked questions
           </h2>
