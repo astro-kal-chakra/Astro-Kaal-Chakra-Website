@@ -19,7 +19,7 @@ export async function generateMetadata({ params }) {
   return buildMetadata({
     locale: lang,
     path: routes.becomeAstrologer,
-    title: "Become an Astrologer – Join Our Verified Network",
+    title: "Become an Astrologer – Join Us",
     description: "Consult from home by chat, call or video, set your own hours and keep the full session amount until payout. Apply to join our network of verified astrologers.",
   });
 }

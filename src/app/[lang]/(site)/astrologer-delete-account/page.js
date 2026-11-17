@@ -18,7 +18,7 @@ export async function generateMetadata({ params }) {
     path: routes.astrologerDeleteAccount,
     // Reachable for the Play Store link, but kept out of search results (and out of Google sitelinks).
     noIndex: true,
-    title: `Delete Astrologer Account — ${APP}`,
+    title: "Delete Astrologer Account",
     description: `How astrologers can delete their ${APP} account (by ${COMPANY}) in the app or by request, and what data is deleted or kept.`,
   });
 }

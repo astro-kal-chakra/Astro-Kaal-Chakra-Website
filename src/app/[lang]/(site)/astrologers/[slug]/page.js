@@ -32,8 +32,12 @@ export async function generateMetadata({ params }) {
   return buildMetadata({
     locale: lang,
     path: routes.astrologer(slug),
-    title: `${a.name} – ${a.specialties.join(", ")} Astrologer`,
-    description: `Consult ${a.name}, ${a.experienceYears}+ years experience in ${a.specialties.join(", ")}. Rated ${a.rating}/5 by ${a.reviewCount} users. Speaks ${a.languages.join(", ")}.`,
+    // First two specialties only, so the title fits in Google results (~60 characters with the brand)
+    title: `${a.name} – ${a.specialties.slice(0, 2).join(" & ")} Astrologer`,
+    // No "Rated 0/5 by 0 users" for new astrologers: the rating is mentioned only once there are reviews.
+    description: `Consult ${a.name}, verified Vedic astrologer with ${a.experienceYears}+ years experience in ${a.specialties.join(", ")}.${
+      a.reviewCount > 0 ? ` Rated ${Number(a.rating).toFixed(1)}/5 by ${a.reviewCount} ${a.reviewCount === 1 ? "user" : "users"}.` : ""
+    } Speaks ${a.languages.join(", ")}. Chat, call or video on Astro Kaal Chakra.`,
     type: "profile",
   });
 }

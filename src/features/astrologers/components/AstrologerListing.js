@@ -103,7 +103,8 @@ export function AstrologerListing({ initial, initialFilters, options }) {
   return (
     <div className="space-y-6">
       <AstrologerFilters filters={filters} onChange={setFilters} onReset={reset} languages={options?.languages} specialties={options?.specialties} />
-      <p className="text-sm text-muted">{`${total} astrologers available`}</p>
+      {/* h2 between the page's h1 and the cards' h3s (the heading outline mustn't skip a level) */}
+      <h2 className="text-sm font-normal text-muted">{`${total} verified ${total === 1 ? "astrologer" : "astrologers"} available`}</h2>
 
       {error && !items.length ? (
         <EmptyState

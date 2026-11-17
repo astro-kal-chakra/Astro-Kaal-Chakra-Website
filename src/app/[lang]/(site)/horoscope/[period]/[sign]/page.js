@@ -44,7 +44,17 @@ async function load(params) {
 
 export async function generateMetadata({ params }) {
   const { lang, period, sign, signInfo } = await load(params);
-  const vars = { sign: signInfo[lang], period: t(`horoscope.${period}`), date: formatDate(new Date(), lang) };
+  // Date label that fits the period (and keeps the title short): "18 November 2026", "This Week",
+  // "November 2026", "2026". A weekly or yearly page titled with today's full date read oddly.
+  const now = new Date();
+  const inIndia = (opts) => now.toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", ...opts });
+  const dateLabel = {
+    daily: formatDate(now, lang),
+    weekly: "This Week",
+    monthly: inIndia({ month: "long", year: "numeric" }),
+    yearly: inIndia({ year: "numeric" }),
+  }[period];
+  const vars = { sign: signInfo[lang], period: t(`horoscope.${period}`), date: dateLabel };
   return buildMetadata({
     locale: lang,
     path: routes.horoscopeSign(period, sign),

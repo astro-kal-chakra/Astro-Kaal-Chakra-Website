@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { X } from "lucide-react";
-import { siteConfig } from "@/config/site";
+import { storeLinks } from "./AppStoreButtons";
 import { useBrowserStorage } from "@/hooks/useBrowserStorage";
 
 const KEY = "smart_banner_dismissed";
@@ -19,8 +19,8 @@ function detectPlatform() {
 /** `appLinks` = { playStore, appStore } from the backend settings. */
 export function SmartAppBanner({ appLinks }) {
   const platform = useSyncExternalStore(noopSubscribe, detectPlatform, () => null);
-  const store =
-    platform === "android" ? appLinks?.playStore || siteConfig.appLinks.playStore : platform === "ios" ? appLinks?.appStore || siteConfig.appLinks.appStore : null;
+  const links = storeLinks(appLinks);
+  const store = platform === "android" ? links.playStore : platform === "ios" ? links.appStore : null;
   const [dismissed, setDismissed] = useBrowserStorage(KEY, { storage: "sessionStorage", serverValue: "1" });
 
   if (!store || dismissed) return null;

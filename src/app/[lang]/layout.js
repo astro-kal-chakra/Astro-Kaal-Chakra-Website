@@ -42,7 +42,6 @@ export async function generateMetadata() {
       template: `%s | ${siteConfig.name}`,
     },
     description: siteConfig.description,
-    keywords: siteConfig.keywords,
     applicationName: siteConfig.name,
     icons: {
       icon: [

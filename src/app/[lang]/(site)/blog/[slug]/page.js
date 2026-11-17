@@ -43,7 +43,8 @@ export async function generateMetadata({ params }) {
   return buildMetadata({
     locale: lang,
     path: routes.blogPost(slug),
-    title: post.title,
+    // Long post titles go out without the " | Astro Kaal Chakra" suffix so Google doesn't cut the keywords off
+    title: post.title.length > 40 ? { absolute: post.title } : post.title,
     description: post.excerpt,
     type: "article",
   });
@@ -119,7 +120,7 @@ export default async function BlogPostPage({ params }) {
         <div className="mx-auto mt-10 grid grid-cols-1 max-w-6xl gap-10 lg:grid-cols-[minmax(0,1fr)_280px]">
           <div className="min-w-0">
             {tocItems.length > 1 && <TableOfContents id="toc-mobile" title="In this article" sections={tocItems} className="mb-8 lg:hidden" />}
-            {post.html ? <ArticleHtml html={post.html} /> : <ArticleBody sections={post.sections} tipLabel="Astrologer's tip" />}
+            {post.html ? <ArticleHtml html={post.html} title={post.title} /> : <ArticleBody sections={post.sections} tipLabel="Astrologer's tip" />}
 
             <p className="mt-10 text-xs text-muted">
               {`Updated ${formatDate(post.updatedAt, lang)}`}
@@ -166,14 +167,14 @@ export default async function BlogPostPage({ params }) {
 
       {helpers.length > 0 && (
         <section className="mt-14">
-          <SectionHeading title="Astrologers who can help" action={{ href: routes.astrologers, label: "View all" }} />
+          <SectionHeading title="Astrologers who can help" action={{ href: routes.astrologers, label: "Talk to a verified astrologer" }} />
           <AstrologerLiveRow astrologers={helpers} />
         </section>
       )}
 
       {related.length > 0 && (
         <section className="mt-14">
-          <SectionHeading title="Related articles" action={{ href: routes.blog, label: "View all" }} />
+          <SectionHeading title="Related articles" action={{ href: routes.blog, label: "More astrology articles" }} />
           <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((p) => (
               <li key={p.slug}>

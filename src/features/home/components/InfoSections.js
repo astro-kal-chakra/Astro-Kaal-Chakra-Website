@@ -8,7 +8,9 @@ import { ChakraGlyph } from "@/components/ui/ChakraDial";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { RatingStars } from "@/components/ui/RatingStars";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { AppStoreButtons } from "@/components/layout/AppStoreButtons";
+import { AppStoreButtons, storeLinks } from "@/components/layout/AppStoreButtons";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { softwareApplicationJsonLd } from "@/lib/seo/jsonld";
 
 export function HowItWorks({ freeChat }) {
   const free = freeChat?.enabled ? `Your first chat is free for ${freeChat.minutes} minutes. After that you` : "You";
@@ -102,10 +104,10 @@ export function FreeTools() {
                 <span className="flex size-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600 transition group-hover:bg-brand-600 group-hover:text-white dark:bg-brand-950/50 dark:text-brand-300">
                   <tool.icon className="size-5" aria-hidden />
                 </span>
-                <span>
-                  <span className="block font-semibold text-fg">{tool.title}</span>
-                  <span className="block text-xs text-muted">{tool.text}</span>
-                </span>
+                <div>
+                  <h3 className="font-semibold text-fg">{tool.title}</h3>
+                  <p className="text-xs text-muted">{tool.text}</p>
+                </div>
               </Card>
             </LocaleLink>
           </li>
@@ -159,7 +161,7 @@ export function FaqSection({ faqs }) {
         eyebrow="FAQ"
         title="Questions, answered"
         subtitle="Billing, privacy, refunds and more."
-        action={{ href: routes.faqs, label: "All FAQs" }}
+        action={{ href: routes.faqs, label: "All astrology consultation FAQs" }}
         className="flex-col items-start"
       />
       <Accordion items={faqs} />
@@ -167,8 +169,10 @@ export function FaqSection({ faqs }) {
   );
 }
 
-/** Closing band: the app. */
+/** Closing band: the app. Hidden until the app is live on at least one store (no dead "#" buttons). */
 export function AppBand({ appLinks }) {
+  const links = storeLinks(appLinks);
+  if (!links.playStore && !links.appStore) return null;
   return (
     <section className="container-page pb-8 pt-4 sm:pt-6">
       <div className="relative overflow-hidden rounded-3xl border border-line bg-surface-muted/70 p-7 sm:p-10">
@@ -181,6 +185,7 @@ export function AppBand({ appLinks }) {
           <AppStoreButtons tone="light" links={appLinks} />
         </div>
       </div>
+      <JsonLd data={softwareApplicationJsonLd(links)} />
     </section>
   );
 }

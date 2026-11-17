@@ -125,8 +125,10 @@ export function Footer({ locale, config }) {
           </div>
         </div>
         {columns.map((col) => (
-          <div key={col.title} className="min-w-0">
-            <h3 className="eyebrow mb-4">{col.title}</h3>
+          // Link groups, not content: a labelled <nav> instead of an <h3> (footer h3s ended up nested under the
+          // page's last section in the heading outline).
+          <nav key={col.title} aria-label={col.title} className="min-w-0">
+            <p className="eyebrow mb-4">{col.title}</p>
             <ul className="space-y-2.5 text-sm">
               {col.links.map(([href, label]) => (
                 <li key={href}>
@@ -136,7 +138,7 @@ export function Footer({ locale, config }) {
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
         ))}
       </div>
 

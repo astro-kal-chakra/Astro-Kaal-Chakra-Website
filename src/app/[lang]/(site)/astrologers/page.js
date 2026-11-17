@@ -12,7 +12,7 @@ export async function generateMetadata({ params }) {
   return buildMetadata({
     locale: lang,
     path: "/astrologers",
-    title: "Talk to Astrologers Online – Chat, Call & Video",
+    title: "Talk to Astrologer Online – Chat & Call",
     description: "Browse verified astrologers by language, specialty, price and rating. See who is online right now and start a private consultation.",
   });
 }
@@ -35,7 +35,7 @@ export default async function AstrologersPage({ params, searchParams }) {
       <header className="bg-aura border-b border-line">
         <div className="container-page py-8 sm:py-10">
           <p className="eyebrow">Consult</p>
-          <h1 className="mt-2 font-display text-3xl text-fg sm:text-4xl">Talk to an astrologer</h1>
+          <h1 className="mt-2 font-display text-3xl text-fg sm:text-4xl">Talk to Astrologer Online</h1>
           <p className="mt-2 max-w-2xl text-muted">
             {`Chat, call or video with verified astrologers. Each astrologer sets their own per-minute rate${config.freeChat?.enabled ? `; your first ${config.freeChat.minutes}-minute chat is free` : ""}.`}
           </p>

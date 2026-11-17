@@ -108,7 +108,7 @@ export function ReportDetail({ report: r, others, t, locale }) {
 
       {others.length > 0 && (
         <section className="mt-14">
-          <SectionHeading title="Other reports" action={{ href: routes.reports, label: "View all" }} />
+          <SectionHeading title="Other reports" action={{ href: routes.reports, label: "All astrology reports" }} />
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {others.map((o) => (
               <ReportCard key={o.slug} report={o} t={t} locale={locale} />

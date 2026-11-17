@@ -16,7 +16,7 @@ import { label as t } from "@/lib/labels";
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
-  return buildMetadata({ locale: lang, path: routes.about, title: "About Us – Verified Astrologers, Honest Guidance", description: "Learn who we are, how we verify every astrologer and why millions trust us for private astrology consultations." });
+  return buildMetadata({ locale: lang, path: routes.about, title: "About Us – Verified Astrologers", description: "Learn who we are, how we verify every astrologer and why millions trust us for private astrology consultations." });
 }
 
 const STATS = ["astrologers", "consultations", "rating", "languages"];

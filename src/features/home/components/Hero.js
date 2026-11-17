@@ -51,11 +51,13 @@ export function Hero({ panchang, freeChat }) {
           gets taller on wide screens and must stay below the Chat / Call / Video row. */}
       <div className="container-page relative grid grid-cols-1 items-center gap-12 py-12 md:grid-cols-[1.15fr_1fr] md:pt-20 md:pb-[max(5rem,calc(4.9vw+1.75rem))]">
         <div>
-          <p className="eyebrow">Kaal Chakra · the wheel of time</p>
-          <h1 className="mt-4 font-display text-[2.5rem] leading-[1.08] tracking-tight text-fg sm:text-6xl">
-            Ask the astrologer.
-            <br />
-            <span className="text-accent">Find clarity</span> today.
+          <p className="eyebrow">Ask the astrologer · Find clarity today</p>
+          {/* The H1 carries the main search phrase ("talk to online astrologer") for Google. */}
+          <h1 className="mt-4 font-display text-[2.3rem] leading-[1.08] tracking-tight text-fg sm:text-[3.4rem]">
+            Talk to an <span className="text-accent">Online Astrologer</span>
+            <span className="mt-3 block text-[1.35rem] leading-snug text-muted sm:text-[1.9rem]">
+              Chat, Call &amp; Video with Verified Vedic Astrologers
+            </span>
           </h1>
           <p className="mt-5 max-w-xl text-lg text-muted">
             Chat, call or video with verified Vedic astrologers on love, career, marriage and health. See each astrologer&apos;s per-minute rate before you

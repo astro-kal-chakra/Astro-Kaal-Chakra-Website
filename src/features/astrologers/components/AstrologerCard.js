@@ -61,8 +61,10 @@ function MobileAstrologerCard({ astrologer: a, priority }) {
 
   return (
     // The card is the size container: everything inside adapts to the card's width, not the screen's
+    // A <div> with a <p> name: the desktop card (rendered alongside it, hidden by CSS on phones) is the
+    // <article> with the <h3>, so each astrologer appears once in the page's heading outline.
     <Card
-      as="article"
+      as="div"
       interactive
       className="@container h-full min-w-0 rounded-3xl border-brand-100/80 shadow-[0_6px_24px_-12px_rgb(194_65_12/0.18)] md:hidden dark:border-line"
     >
@@ -80,10 +82,10 @@ function MobileAstrologerCard({ astrologer: a, priority }) {
           <div className="min-w-0 flex-1">
             <div className="flex items-start gap-1">
               <LocaleLink href={href} className="min-w-0 flex-1">
-                <h3 className="flex items-start gap-1.5 text-base font-bold leading-snug text-fg @min-[20rem]:text-lg">
+                <p className="flex items-start gap-1.5 text-base font-bold leading-snug text-fg @min-[20rem]:text-lg">
                   <span className="min-w-0 break-words">{a.name}</span>
                   {a.isVerified && <BadgeCheck className="mt-[3px] size-5 shrink-0 fill-brand-500 text-white dark:text-surface" aria-label="Verified" />}
-                </h3>
+                </p>
               </LocaleLink>
               <FollowHeart astrologer={a} className="-mr-2 -mt-2" />
             </div>
@@ -175,13 +177,24 @@ function DesktopAstrologerCard({ astrologer: a, priority }) {
           <p className="flex items-center gap-1 truncate text-xs text-muted">
             <Languages className="size-3.5 shrink-0" aria-hidden /> {a.languages.join(", ")}
           </p>
-          <p className="mt-1.5 flex items-center gap-3 text-xs text-muted">
-            <span className="flex items-center gap-0.5 font-semibold text-fg">
-              <Star className="size-3.5 fill-brand-400 text-brand-400" aria-hidden /> {a.rating.toFixed(1)}
-            </span>
-            <span>{`${a.experienceYears} yrs exp`}</span>
+          {/* Real text separators (" · ") between the three facts: without them the page text reads
+              "3.05 yrs exp3" (rating + experience + sessions run together) for Google and screen readers. */}
+          <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 text-xs text-muted">
+            {a.reviewCount > 0 ? (
+              <span className="flex items-center gap-0.5 font-semibold text-fg" aria-label={`Rated ${a.rating.toFixed(1)} out of 5`}>
+                <Star className="size-3.5 fill-brand-400 text-brand-400" aria-hidden /> {a.rating.toFixed(1)}
+              </span>
+            ) : (
+              <span className="flex items-center gap-0.5 font-semibold text-brand-700 dark:text-brand-300">
+                <Award className="size-3.5" aria-hidden /> New
+              </span>
+            )}
+            <span aria-hidden>·</span>
+            <span>{`${a.experienceYears} ${a.experienceYears === 1 ? "yr" : "yrs"} experience`}</span>
+            <span aria-hidden>·</span>
             <span className="flex items-center gap-0.5">
-              <Users className="size-3.5" aria-hidden /> {formatCompact(a.totalSessions, locale)}
+              <Users className="size-3.5" aria-hidden />
+              {`${formatCompact(a.totalSessions || 0, locale)} ${a.totalSessions === 1 ? "consultation" : "consultations"}`}
             </span>
           </p>
         </div>

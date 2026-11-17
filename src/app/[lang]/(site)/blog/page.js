@@ -34,7 +34,7 @@ export async function generateMetadata({ params, searchParams }) {
   return buildMetadata({
     locale: lang,
     path: blogHref({ category, page }),
-    title: catLabel ? `${catLabel} – ${"Astrology Blog"}` : "Astrology Blog – Vedic Astrology, Planets, Remedies & Festivals",
+    title: catLabel ? `${catLabel} – ${"Astrology Blog"}` : "Astrology Blog – Planets & Remedies",
     description: "Read articles by verified astrologers on Vedic astrology, planetary transits, remedies, festivals, love, career, numerology and tarot.",
     noIndex: Boolean(q),
   });

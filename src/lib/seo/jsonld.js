@@ -87,3 +87,17 @@ export const articleJsonLd = ({ title, description, path, datePublished, dateMod
   author: { "@id": ORG_ID },
   publisher: { "@type": "Organization", "@id": ORG_ID, name: siteConfig.name, logo: { "@type": "ImageObject", url: abs(siteConfig.logo) } },
 });
+
+/** The mobile app, once it is on a store: lets Google show it as an app result. `links` = live store URLs only. */
+export const softwareApplicationJsonLd = ({ playStore, appStore }) => ({
+  "@context": "https://schema.org",
+  "@type": "MobileApplication",
+  name: siteConfig.name,
+  operatingSystem: [playStore && "Android", appStore && "iOS"].filter(Boolean).join(", "),
+  applicationCategory: "LifestyleApplication",
+  description: siteConfig.description,
+  url: playStore || appStore,
+  sameAs: [playStore, appStore].filter(Boolean),
+  publisher: { "@id": ORG_ID },
+  offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
+});

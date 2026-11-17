@@ -34,7 +34,12 @@ export function HomeAstrologers({ online, all }) {
   const current = everyone.map(withPresence);
   const onlineNow = current.filter(isAvailable).slice(0, 6);
   const byId = Object.fromEntries(current.map((a) => [a.id, a]));
-  const top = all.map((a) => byId[a.id]);
+  // Nobody appears in both rows: repeating the same cards is thin, duplicate content for visitors and Google.
+  const shown = new Set(onlineNow.map((a) => a.id));
+  const top = all
+    .map((a) => byId[a.id])
+    .filter((a) => !shown.has(a.id))
+    .slice(0, 6);
 
   return (
     <>

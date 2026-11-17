@@ -14,7 +14,7 @@ import { label as t } from "@/lib/labels";
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
-  return buildMetadata({ locale: lang, path: routes.howItWorks, title: "How It Works – Chat, Video Call, Wallet & Free First Chat", description: "Step-by-step guide to consulting an astrologer: choose an expert, recharge your wallet, start a chat or video call, use your free first chat or join the waitlist." });
+  return buildMetadata({ locale: lang, path: routes.howItWorks, title: "How It Works – Chat, Call & Wallet", description: "Step-by-step guide to consulting an astrologer: choose an expert, recharge your wallet, start a chat or video call, use your free first chat or join the waitlist." });
 }
 
 /** Each guide: anchor id, dictionary group, icon, step count, primary link. */

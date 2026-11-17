@@ -5,7 +5,7 @@ import { label as t } from "@/lib/labels";
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
-  return buildMetadata({ locale: lang, path: "/horoscope", title: "Horoscope Today – Daily, Weekly, Monthly & Yearly", description: "Read free daily, weekly, monthly and yearly horoscopes for all 12 zodiac signs." });
+  return buildMetadata({ locale: lang, path: "/horoscope", title: "Horoscope Today – All 12 Zodiac Signs", description: "Read free daily, weekly, monthly and yearly horoscopes for all 12 zodiac signs." });
 }
 
 export default async function HoroscopeIndexPage({ params }) {

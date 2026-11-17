@@ -11,7 +11,7 @@ export async function generateMetadata({ params }) {
   return buildMetadata({
     locale: lang,
     path: routes.reports,
-    title: "Astrology Reports – Detailed Kundli, Marriage Matching & Yearly Predictions",
+    title: "Astrology Reports – Kundli & Marriage",
     description: "Get detailed, personalised astrology reports prepared by expert Vedic astrologers: Kundli report, marriage matching, yearly prediction and career report. Delivered as PDF within hours.",
   });
 }

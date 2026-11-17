@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
-  return buildMetadata({ locale: lang, path: routes.live, title: "Live Astrology Sessions – Watch & Ask Questions", description: "Join live sessions with verified astrologers. Watch for free, chat with the community and ask your own question." });
+  return buildMetadata({ locale: lang, path: routes.live, title: "Live Astrology Sessions", description: "Join live sessions with verified astrologers. Watch for free, chat with the community and ask your own question." });
 }
 
 export default async function LivePage({ params }) {

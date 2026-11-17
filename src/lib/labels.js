@@ -510,7 +510,7 @@ export const LABELS = {
       },
       "jumpTo": "Jump to",
       "metaDescription": "Step-by-step guide to consulting an astrologer: choose an expert, recharge your wallet, start a chat or video call, use your free first chat or join the waitlist.",
-      "metaTitle": "How It Works – Chat, Video Call, Wallet & Free First Chat",
+      "metaTitle": "How It Works – Chat, Call & Wallet",
       "stepLabel": "Step {n}",
       "subtitle": "Everything you need to know about chatting, video calls, your wallet, the free first chat and the waitlist.",
       "title": "Your consultation, step by step",
@@ -833,7 +833,7 @@ export const LABELS = {
       "breadcrumbTools": "Free tools"
     },
     "kundli": {
-      "metaTitle": "Free Kundli Online – Janam Kundli with North & South Indian Charts",
+      "metaTitle": "Free Kundli Online – Janam Kundli",
       "metaDescription": "Generate your free Janam Kundli online. Get your ascendant, moon sign, nakshatra, North and South Indian birth charts, planetary positions and Vimshottari dasha.",
       "title": "Free Kundli Generator",
       "intro": "Your Kundli (Janam Kundli or birth chart) is a map of the sky at the exact moment you were born. Enter your birth details to see your ascendant, moon sign and nakshatra, your Lagna chart in North and South Indian styles, planetary positions and your Vimshottari dasha periods.",
@@ -914,7 +914,7 @@ export const LABELS = {
       ]
     },
     "matching": {
-      "metaTitle": "Kundli Matching – Free Guna Milan & Manglik Check for Marriage",
+      "metaTitle": "Kundli Matching – Free Guna Milan",
       "metaDescription": "Free Kundli matching by name and date of birth. Get Ashtakoot Guna Milan score out of 36, koota-wise breakdown and Manglik dosha check for both partners.",
       "title": "Kundli Matching (Guna Milan)",
       "intro": "Kundli matching compares the birth charts of a boy and a girl to check marriage compatibility. The Ashtakoot system scores eight aspects (kootas) for a total of 36 gunas, and we also check both charts for Manglik dosha.",
@@ -1198,7 +1198,7 @@ export const LABELS = {
       }
     },
     "numerology": {
-      "metaTitle": "Numerology Calculator – Life Path, Destiny & Soul Urge Numbers",
+      "metaTitle": "Numerology Calculator – Life Path",
       "metaDescription": "Free numerology calculator. Enter your name and date of birth to find your life path, destiny (expression), soul urge and personality numbers with meanings.",
       "title": "Numerology Calculator",
       "intro": "Numerology studies the vibration of numbers in your name and birth date. Enter your full name and date of birth to calculate your life path, destiny, soul urge and personality numbers using the Pythagorean system.",
@@ -1288,7 +1288,7 @@ export const LABELS = {
       ]
     },
     "panchang": {
-      "metaTitle": "Today's Panchang – Tithi, Nakshatra, Rahu Kaal & Muhurat",
+      "metaTitle": "Today's Panchang – Tithi & Rahu Kaal",
       "metaDescription": "Check today's Panchang: tithi, nakshatra, yoga, karana, vaar, sunrise, sunset, moonrise, Rahu Kaal, Gulika, Yamaganda and Abhijit muhurat for your city.",
       "title": "Today's Panchang",
       "intro": "Panchang is the Hindu calendar of five limbs: tithi, vaar, nakshatra, yoga and karana. Check today's Panchang with sunrise and sunset, Rahu Kaal and auspicious muhurat timings for your city, or pick any other date.",
@@ -1344,7 +1344,7 @@ export const LABELS = {
       ]
     },
     "zodiac": {
-      "metaTitle": "Zodiac Sign Finder – What Is My Zodiac Sign by Date of Birth?",
+      "metaTitle": "Zodiac Sign Finder by Date of Birth",
       "metaDescription": "Find your zodiac (sun) sign instantly from your date of birth. See your sign's dates, element, ruling planet and today's horoscope.",
       "title": "Zodiac Sign Finder",
       "intro": "Not sure of your zodiac sign? Enter your date of birth to instantly find your sun sign, along with its element, ruling planet and key traits. Then read today's horoscope for your sign.",

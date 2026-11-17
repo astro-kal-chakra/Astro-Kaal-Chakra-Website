@@ -11,7 +11,7 @@ import { FaqBrowser } from "@/features/content/faq/FaqBrowser";
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
-  return buildMetadata({ locale: lang, path: routes.faqs, title: "FAQs – Consultations, Wallet, Refunds & Privacy", description: "Answers to common questions about astrology consultations, payments and wallet, refunds, privacy and your account." });
+  return buildMetadata({ locale: lang, path: routes.faqs, title: "FAQs – Consultations & Refunds", description: "Answers to common questions about astrology consultations, payments and wallet, refunds, privacy and your account." });
 }
 
 export default async function FaqsPage({ params }) {
