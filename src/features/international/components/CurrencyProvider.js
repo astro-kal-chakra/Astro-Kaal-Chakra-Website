@@ -15,7 +15,9 @@ const CurrencyContext = createContext(RUPEES);
 /**
  * Which currency this viewer sees.
  *  - International off (the default): always rupees, nothing is checked.
- *  - On: a signed-in user's account currency; a visitor's country (GET /geo, remembered for a week).
+ *  - On: a signed-in user's account currency; a visitor's country from their IP (GET /geo).
+ *    The last answer (cookie) shows prices at once; the IP is still checked on every page load and a
+ *    change (travel, VPN switched off) is applied straight away.
  * Until it is known, `ready` is false and prices show a placeholder instead of a wrong currency.
  * `settings`: the dashboard's international settings from the site config (dollars).
  */
@@ -28,14 +30,15 @@ export function CurrencyProvider({ international, children }) {
     if (!enabled) return;
     let live = true;
     const saved = readCurrencyCookie();
-    const check = saved
-      ? Promise.resolve(saved)
-      : http("/geo").then((g) => {
-          const c = g?.currency === USD ? USD : INR;
-          writeCurrencyCookie(c);
-          return c;
-        });
-    check.then((c) => live && setVisitor(c)).catch(() => live && setVisitor(INR));
+    // The remembered answer first (no placeholder flash), then always the fresh one from the IP
+    if (saved) Promise.resolve().then(() => live && setVisitor(saved));
+    http("/geo")
+      .then((g) => {
+        const c = g?.currency === USD ? USD : INR;
+        writeCurrencyCookie(c);
+        if (live) setVisitor(c);
+      })
+      .catch(() => live && !saved && setVisitor(INR));
     return () => {
       live = false;
     };

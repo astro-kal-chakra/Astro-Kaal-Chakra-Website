@@ -1,7 +1,7 @@
 /**
  * "Sign in with Google" through Google Identity Services (no Firebase). Google shows its own button and
  * account chooser and gives back an ID token (a signed JWT); the backend checks it against our OAuth
- * client ID (POST /web/auth/google) and sets our login cookies.
+ * client ID (POST /web/auth/social) and sets our login cookies.
  * The client ID comes from the backend's site config (international settings), so nothing to set here.
  */
 
@@ -31,16 +31,24 @@ export function loadGoogleIdentity() {
  * Draws Google's official button into `el`; `onToken(idToken)` runs after the person picks their account.
  * Returns once the button is on screen.
  */
+// Google wants initialize() once per page; the button that's on screen now gets the result
+let initializedFor = null;
+let latestOnToken = null;
+
 export async function renderGoogleButton(el, clientId, onToken, { width } = {}) {
   const gis = await loadGoogleIdentity();
-  gis.initialize({
-    client_id: clientId,
-    callback: (res) => res?.credential && onToken(res.credential),
-    ux_mode: "popup",
-    auto_select: false,
-    cancel_on_tap_outside: true,
-    itp_support: true,
-  });
+  latestOnToken = onToken;
+  if (initializedFor !== clientId) {
+    gis.initialize({
+      client_id: clientId,
+      callback: (res) => res?.credential && latestOnToken?.(res.credential),
+      ux_mode: "popup",
+      auto_select: false,
+      cancel_on_tap_outside: true,
+      itp_support: true,
+    });
+    initializedFor = clientId;
+  }
   el.innerHTML = "";
   gis.renderButton(el, {
     type: "standard",

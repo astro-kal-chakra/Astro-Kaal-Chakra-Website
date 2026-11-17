@@ -110,7 +110,8 @@ export const authService = {
    * @returns {Promise<{ user, isNewUser, referral? }>}
    */
   async googleLogin({ idToken, referralCode } = {}) {
-    return http("/auth/google", { method: "POST", body: { idToken, ...(referralCode ? { referralCode } : {}) } });
+    // Not "/auth/google": ad / privacy blockers drop requests whose URL contains "google"
+    return http("/auth/social", { method: "POST", body: { provider: "google", idToken, ...(referralCode ? { referralCode } : {}) } });
   },
 
   async me() {

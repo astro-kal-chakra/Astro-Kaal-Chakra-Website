@@ -74,19 +74,18 @@ function GoogleLogin({ clientId, onSuccess }) {
 /**
  * The login form for this visitor:
  *  - in India (and whenever international users are switched off): mobile number + OTP, exactly as before
- *  - outside India: "Continue with Google", with "Use mobile number instead" for Indian numbers
+ *  - outside India (by the visitor's IP): "Continue with Google" only, no mobile number login
  * `heading`: also shows the page title (login page; the modal has its own title).
  */
 export function LoginChooser({ onSuccess, heading = false }) {
   const { international, ready, settings } = useCurrency();
-  const [phoneInstead, setPhoneInstead] = useState(false);
 
   // International users on, country not known yet: a moment's wait instead of the wrong form
   if (settings?.enabled && !ready) {
     return <div className="h-40 animate-pulse rounded-2xl bg-current/5" aria-busy="true" aria-label="Loading" />;
   }
 
-  if (!international || phoneInstead) {
+  if (!international) {
     return (
       <>
         {heading && (
@@ -96,11 +95,6 @@ export function LoginChooser({ onSuccess, heading = false }) {
           </>
         )}
         <LoginForm onSuccess={onSuccess} />
-        {international && (
-          <button type="button" onClick={() => setPhoneInstead(false)} className="mt-4 w-full text-center text-sm font-medium text-primary hover:underline">
-            Continue with Google instead
-          </button>
-        )}
       </>
     );
   }
@@ -115,9 +109,6 @@ export function LoginChooser({ onSuccess, heading = false }) {
       )}
       <GoogleLogin clientId={settings?.googleClientId} onSuccess={onSuccess} />
       <p className="mt-4 text-xs text-muted">Prices are shown in US dollars for customers outside India.</p>
-      <button type="button" onClick={() => setPhoneInstead(true)} className="mt-4 w-full text-center text-sm font-medium text-primary hover:underline">
-        Have an Indian mobile number? Use mobile number instead
-      </button>
     </>
   );
 }
