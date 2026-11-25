@@ -59,7 +59,7 @@ export function HomeAstrologers({ online, all }) {
           <SectionHeading
             eyebrow="Top rated"
             title="Our astrologers"
-            subtitle="Verified Vedic astrologers. Follow your favourites to know when they come online or go live."
+            subtitle="Verified Vedic astrologers. Follow your favourites to know when they go live."
             action={{ href: routes.astrologers, label: "View all astrologers" }}
           />
           <Row astrologers={top} />

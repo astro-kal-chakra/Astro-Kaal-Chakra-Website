@@ -65,7 +65,7 @@ export const LABELS = {
     },
     "navDesc": {
       "birthProfiles": "Family members for kundli & matching",
-      "following": "Get alerts when they come online",
+      "following": "Get alerts when they go live",
       "notifications": "Alerts, offers and reminders",
       "profile": "Name, birth details and email",
       "referral": "Invite friends, earn wallet credit",
@@ -86,7 +86,7 @@ export const LABELS = {
         "sessions": "Sessions & queue"
       },
       "categoryDesc": {
-        "follows": "When an astrologer you follow comes online or goes live",
+        "follows": "When an astrologer you follow goes live",
         "horoscope": "Your daily prediction every morning",
         "offers": "Discounts and festive offers",
         "payments": "Recharge success, refunds and low balance",
@@ -149,9 +149,9 @@ export const LABELS = {
       "unknownTime": "I don't know the birth time"
     },
     "push": {
-      "text": "Turn on notifications to know when your astrologer is ready or someone you follow comes online.",
-      "textAfterSession": "Get notified about your session summary, replies and when your astrologer is next online.",
-      "textFollow": "Turn on notifications and we'll tell you the moment this astrologer comes online or goes live."
+      "text": "Turn on notifications to know when your astrologer is ready or someone you follow goes live.",
+      "textAfterSession": "Get notified about your session summary and replies from your astrologer.",
+      "textFollow": "Turn on notifications and we'll tell you the moment this astrologer goes live."
     },
     "referral": {
       "how1Text": "Send your code or link to friends and family.",

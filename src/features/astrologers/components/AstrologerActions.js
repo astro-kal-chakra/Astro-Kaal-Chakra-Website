@@ -31,7 +31,7 @@ function useFollowToggle(astrologer) {
         await astrologerService.follow(astrologer.id, next);
         setFollowing(astrologer.id, next);
         setJustFollowed(next);
-        if (next) toast({ type: "success", title: `You'll be notified when ${astrologer.name} comes online or goes live` });
+        if (next) toast({ type: "success", title: `You'll be notified when ${astrologer.name} goes live` });
       } catch {
         toast({ type: "error", title: "Something went wrong" });
       } finally {

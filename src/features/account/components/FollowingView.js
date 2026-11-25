@@ -33,7 +33,7 @@ export function FollowingView() {
   };
 
   return (
-    <AccountShell title="Followed astrologers" subtitle="We'll notify you when they come online.">
+    <AccountShell title="Followed astrologers" subtitle="We'll notify you when they go live.">
       {status === "loading" && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3" aria-busy="true">
           {Array.from({ length: 3 }).map((_, i) => (
