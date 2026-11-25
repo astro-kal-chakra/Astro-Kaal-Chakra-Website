@@ -10,7 +10,7 @@ import { ContentBreadcrumbs } from "@/features/content/components/ContentBreadcr
 import { DeletionRequestForm } from "@/features/content/delete-account/DeletionRequestForm";
 
 const APP = "Astro-Kaal-Chakra";
-const COMPANY = "Ritvex Technologies";
+const COMPANY = "Sparkroot Technologies";
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;

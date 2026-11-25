@@ -64,9 +64,9 @@ export const siteConfig = {
   ],
   /** The company behind the brand: footer credit + Organization `parentOrganization` in JSON-LD. */
   parentCompany: {
-    name: "RITVEX Technologies Private Limited",
+    name: "Sparkroot Technologies Private Limited",
     url: "https://www.ritvex.in",
-    linkedin: "https://www.linkedin.com/company/ritvex-technologies/",
+    linkedin: "https://www.linkedin.com/in/sparkroot-technologies-private-limited-ba3521445/",
   },
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "",

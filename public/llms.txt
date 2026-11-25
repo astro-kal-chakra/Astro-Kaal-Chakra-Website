@@ -2,7 +2,7 @@
 
 > Astro Kaal Chakra is an Indian online astrology platform: users chat, call or video with verified Vedic astrologers about love, marriage, career, finance and health, paying per minute from a prepaid wallet (first chat is free for new users). It also offers free astrology tools — Janam Kundli, Kundli Matching (Guna Milan), daily Panchang, horoscopes, numerology and a zodiac sign finder. Available in English and Hindi, on the web and as a mobile app.
 
-Operated by RITVEX Technologies Private Limited, India. Support: support@astrokaalchakra.com, +91 92510 64637.
+Operated by Sparkroot Technologies Private Limited, India. Support: support@astrokaalchakra.com, +91 92510 64637.
 
 ## Consult an astrologer
 
