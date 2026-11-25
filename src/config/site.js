@@ -61,6 +61,7 @@ export const siteConfig = {
   socialLinks: [
     "https://www.instagram.com/astro_kaal_chakra",
     "https://www.facebook.com/people/Astro-Kaal-Chakra/pfbid02JJwnkfrdA9AkzogrqYjgg3C4THYag79hiFdH4QKmYu9H2nwBVW9jbh5PbhVkynvHl/",
+    "https://www.linkedin.com/showcase/astro-kaal-chakra/",
   ],
   /** The company behind the brand: footer credit + Organization `parentOrganization` in JSON-LD. */
   parentCompany: {
