@@ -1344,10 +1344,10 @@ export const LABELS = {
       ]
     },
     "zodiac": {
-      "metaTitle": "Zodiac Sign Finder by Date of Birth",
-      "metaDescription": "Find your zodiac (sun) sign instantly from your date of birth. See your sign's dates, element, ruling planet and today's horoscope.",
+      "metaTitle": "What Is My Zodiac Sign by Date of Birth?",
+      "metaDescription": "What is my zodiac sign? Find your sun sign, star sign or birth sign free by date of birth, see all 12 sign dates, and learn how to find your rashi.",
       "title": "Zodiac Sign Finder",
-      "intro": "Not sure of your zodiac sign? Enter your date of birth to instantly find your sun sign, along with its element, ruling planet and key traits. Then read today's horoscope for your sign.",
+      "intro": "Not sure of your zodiac sign? Enter your date of birth to instantly find your sun sign (star sign), along with its element, ruling planet and key traits. Then read today's horoscope for your sign, or find your rashi (moon sign) with your birth time.",
       "dobLabel": "Your date of birth",
       "submit": "Find my sign",
       "resultLabel": "Your zodiac sign is",

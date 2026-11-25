@@ -33,7 +33,7 @@ export function Footer({ locale, config }) {
         [routes.kundliMatching, "Kundli Milan (Guna Matching)"],
         [routes.panchang, "Today's Panchang"],
         [routes.horoscope, "Daily Horoscope"],
-        [routes.zodiacFinder, "Zodiac Sign Finder"],
+        [routes.zodiacFinder, "Find Your Zodiac Sign"],
         [routes.numerology, "Numerology Calculator"],
         [routes.reports, "Reports"],
       ],

@@ -32,7 +32,8 @@ export function ZodiacFinderTool() {
   };
 
   return (
-    <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
+    // id: "find my sign" links in the guide below (and from other pages) jump straight to the form
+    <div id="find-your-sign" className="grid scroll-mt-24 grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
       <Card as="form" onSubmit={onSubmit} noValidate className="space-y-5 p-5 sm:p-6">
         <Field label="Your date of birth" htmlFor="zodiac-dob" error={error ? t(error) : undefined}>
           <Input

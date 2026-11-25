@@ -12,9 +12,10 @@ import { TOOL_FAQS } from "../lib/faqs";
 /**
  * Server shell shared by every free-tool page: breadcrumb, H1 + SEO intro, the tool,
  * FAQs (+ FAQPage JSON-LD), links to the other tools and the astrologer CTA.
- * @param {{ lang: string, ns: string, navKey: string, path: string, cta?: { titleKey: string, textKey: string } }} props
+ * @param {{ lang: string, ns: string, navKey: string, path: string, heading?: string, cta?: { titleKey: string, textKey: string } }} props
+ *   `heading`: H1 text when it should differ from the tool name (the breadcrumb keeps the tool name)
  */
-export async function ToolPageLayout({ lang, ns, navKey, path, cta, children }) {
+export async function ToolPageLayout({ lang, ns, navKey, path, heading, cta, children }) {
   const title = t(`tools.${ns}.title`);
   const faqs = TOOL_FAQS[ns] || [];
 
@@ -36,7 +37,7 @@ export async function ToolPageLayout({ lang, ns, navKey, path, cta, children }) 
             </li>
           </ol>
         </nav>
-        <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h1>
+        <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{heading || title}</h1>
         <p className="mt-3 text-base leading-relaxed text-muted sm:text-lg">{t(`tools.${ns}.intro`)}</p>
       </header>
 

@@ -81,7 +81,7 @@ export function HomeGuide() {
           <p>
             Not ready to talk yet? Read your <LocaleLink href={routes.horoscope} className={linkClass}>daily horoscope for all 12 zodiac signs</LocaleLink>,
             check today&apos;s <LocaleLink href={routes.panchang} className={linkClass}>Panchang with tithi, nakshatra and Rahu Kaal</LocaleLink>, find your{" "}
-            <LocaleLink href={routes.zodiacFinder} className={linkClass}>moon sign and sun sign</LocaleLink> or calculate your{" "}
+            <LocaleLink href={routes.zodiacFinder} className={linkClass}>zodiac sign by date of birth</LocaleLink> or calculate your{" "}
             <LocaleLink href={routes.numerology} className={linkClass}>life path number in numerology</LocaleLink>. For a detailed written reading, see our{" "}
             <LocaleLink href={routes.reports} className={linkClass}>personalised astrology reports</LocaleLink>.
           </p>

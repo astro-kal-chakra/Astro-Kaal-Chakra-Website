@@ -66,6 +66,30 @@ export const TOOL_FAQS = {
     {
       "q": "I was born on the cusp. Which sign am I?",
       "a": "Sign boundaries can shift by a day in some years. If you were born on a boundary date, a full birth chart with your birth time gives the exact answer."
+    },
+    {
+      "q": "What is my zodiac sign by date of birth?",
+      "a": "Enter your date of birth in the zodiac sign finder on this page and it shows your sign instantly. You can also check the zodiac sign dates table: for example, if you were born between 21 March and 19 April you are Aries, and between 23 July and 22 August you are Leo."
+    },
+    {
+      "q": "What is my zodiac sign by date of birth and time?",
+      "a": "Your sun (zodiac) sign needs only your date of birth. Your birth time matters for your moon sign (rashi) and ascendant (lagna), which you can find with the free Kundli by entering your date, time and place of birth."
+    },
+    {
+      "q": "What is my rashi by date of birth?",
+      "a": "Your rashi is your moon sign. Because the Moon changes sign every two to two-and-a-half days, your rashi needs your exact birth time and place as well as your date of birth. Generate a free Kundli to see your rashi, nakshatra and lagna."
+    },
+    {
+      "q": "How do I find my sun sign?",
+      "a": "Your sun sign is the zodiac sign the Sun was in on your birthday. Enter your date of birth in the finder on this page, or look up your birthday in the zodiac sign dates table."
+    },
+    {
+      "q": "What is my birth sign, star sign or astrology sign?",
+      "a": "Birth sign, star sign, astrology sign and sun sign are all names for the same thing: the zodiac sign found from your date of birth. Use the finder on this page to know yours."
+    },
+    {
+      "q": "How do I check my horoscope by date of birth?",
+      "a": "First find your zodiac sign from your date of birth with this finder, then open the daily, weekly, monthly or yearly horoscope for that sign. For a personal reading made from your own birth chart, generate a free Kundli or talk to an astrologer."
     }
   ],
   "numerology": [
