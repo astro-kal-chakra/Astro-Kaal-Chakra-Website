@@ -49,6 +49,8 @@ export const routes = {
   myReports: "/account/reports",
   myRemedies: "/account/remedies",
   remedy: (id) => `/account/remedies/${id}`,
+  myReportRequests: "/account/report-requests",
+  reportRequest: (id) => `/account/report-requests/${id}`, // the backend's notification links use this path
   referral: "/account/referral",
   notifications: "/account/notifications",
   notificationSettings: "/account/notifications/settings",

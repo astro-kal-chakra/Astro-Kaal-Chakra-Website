@@ -156,9 +156,9 @@ export default async function BlogPostPage({ params }) {
           <aside className="space-y-6">
             <div className="hidden lg:sticky lg:top-20 lg:block lg:space-y-6">
               {tocItems.length > 1 && <TableOfContents id="toc-desktop" title="In this article" sections={tocItems} />}
-              {signs.length > 0 && <SignLinks t={t} signs={signs} lang={lang} id="signs-desktop" />}
+              {signs.length > 0 && <SignLinks signs={signs} lang={lang} id="signs-desktop" />}
             </div>
-            {signs.length > 0 && <SignLinks t={t} signs={signs} lang={lang} id="signs-mobile" className="lg:hidden" />}
+            {signs.length > 0 && <SignLinks signs={signs} lang={lang} id="signs-mobile" className="lg:hidden" />}
           </aside>
         </div>
       </article>
@@ -212,7 +212,7 @@ export default async function BlogPostPage({ params }) {
   );
 }
 
-function SignLinks({ t, signs, lang, id, className }) {
+function SignLinks({ signs, lang, id, className }) {
   return (
     <nav aria-labelledby={id} className={cn("rounded-2xl border border-line bg-surface p-5", className)}>
       <h2 id={id} className="text-sm font-semibold uppercase tracking-wide text-muted">

@@ -9,6 +9,7 @@ import { AccountShell } from "@/features/account/components/AccountShell";
 import { useAccountResource } from "@/features/account/hooks/useAccountResource";
 import { accountNavFor } from "@/features/account/lib/nav";
 import { useRemediesEnabled } from "@/features/remedies/hooks/useRemedyConfig";
+import { useReportRequestsEnabled } from "@/features/report-requests/hooks/useReportRequestConfig";
 import { userService } from "@/lib/api/services/user.service";
 import { formatCompact, formatCurrency, maskPhone } from "@/lib/utils/format";
 import { useToast } from "@/providers/ToastProvider";
@@ -68,7 +69,8 @@ export function AccountView() {
   const { user, logout } = useAuth();
   const { toast } = useToast();
   const remedies = useRemediesEnabled();
-  const MENU = accountNavFor({ remedies }).filter((item) => item.key !== "dashboard");
+  const reportRequests = useReportRequestsEnabled();
+  const MENU = accountNavFor({ remedies, reportRequests }).filter((item) => item.key !== "dashboard");
   const router = useRouter();
   const [confirm, setConfirm] = useState(null); // null | "single" | "all"
   const [busy, setBusy] = useState(false);

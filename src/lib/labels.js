@@ -40,6 +40,8 @@ export const LABELS = {
       "referral": "Refer & Earn",
       "remedies": "My Remedies",
       "remedy": "Remedy",
+      "reportRequest": "Report",
+      "reportRequests": "My Astrologer Reports",
       "savedKundlis": "Saved Kundlis",
       "sessions": "Session History",
       "settings": "Settings",
@@ -56,6 +58,7 @@ export const LABELS = {
       "profile": "My profile",
       "referral": "Refer & earn",
       "remedies": "My remedies",
+      "reportRequests": "Reports from astrologers",
       "reports": "My reports",
       "savedKundlis": "Saved kundlis",
       "sessions": "Session history",
@@ -70,6 +73,7 @@ export const LABELS = {
       "profile": "Name, birth details and email",
       "referral": "Invite friends, earn wallet credit",
       "remedies": "Remedies from astrologers",
+      "reportRequests": "Reports written for you by astrologers",
       "reports": "Detailed reports you purchased",
       "savedKundlis": "Charts you generated",
       "sessions": "Past chats and calls, rebook",
@@ -111,7 +115,8 @@ export const LABELS = {
         "offer": "Offers",
         "payment_success": "Payments",
         "queue_turn": "Queue",
-        "remedy": "Remedies"
+        "remedy": "Remedies",
+        "report": "Reports"
       }
     },
     "profile": {
@@ -656,6 +661,42 @@ export const LABELS = {
       "PROFILE_NOT_FOUND": "That birth profile was not found. Please choose another one.",
       "REMEDIES_OFF": "Remedies are not available right now. Please try again later.",
       "TOO_MANY_PENDING": "You already have remedy requests waiting with this astrologer.",
+      "VALIDATION_ERROR": "Please check the details and try again."
+    }
+  },
+  "reportRequests": {
+    "status": {
+      "cancelled": "Cancelled",
+      "declined": "Declined",
+      "delivered": "Delivered",
+      "expired": "Not delivered in time",
+      "pending": "Being written",
+      "refunded": "Refunded",
+      "unassigned": "Choosing astrologer"
+    },
+    "tabs": {
+      "all": "All",
+      "done": "Done",
+      "open": "Open"
+    },
+    "refundBy": {
+      "admin": "Refunded by our support team",
+      "astrologer": "Refunded because the astrologer declined",
+      "system": "Refunded automatically",
+      "user": "Refunded because you cancelled"
+    },
+    "errors": {
+      "ASTRO_BUSY": "This astrologer has many reports to write right now. Please choose another astrologer or try later.",
+      "ASTROLOGER_REQUIRED": "Please choose an astrologer.",
+      "BIRTH_DETAILS_REQUIRED": "Please add a birth date first.",
+      "CANNOT_CANCEL": "The astrologer has already started on this report, so it can no longer be cancelled.",
+      "CANNOT_RATE": "This report can no longer be rated.",
+      "INSUFFICIENT_BALANCE": "Not enough balance in your wallet. Please recharge to continue.",
+      "NOT_ACCEPTING": "This astrologer is not taking report requests right now. Please choose another astrologer.",
+      "PROFILE_NOT_FOUND": "That birth profile was not found. Please choose another one.",
+      "PROFILES_REQUIRED": "Please choose the person this report is for.",
+      "REPORTS_OFF": "Reports are not available right now. Please try again later.",
+      "TOO_MANY_PENDING": "You already have reports waiting with this astrologer.",
       "VALIDATION_ERROR": "Please check the details and try again."
     }
   },

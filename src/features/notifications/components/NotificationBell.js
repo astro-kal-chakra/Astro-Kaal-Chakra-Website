@@ -42,6 +42,9 @@ function BellDropdown({ className }) {
       // Remedy ready / follow-up answered / refunded: a toast that opens that remedy
       if (n?.type === "remedy" && n.data?.remedyId && n.title)
         toast({ id: `remedy-${n.id || `${n.data.remedyId}-${n.data.action}`}`, type: "success", title: n.title, message: n.body, action: { label: "Open", href: routes.remedy(n.data.remedyId) }, duration: 10000 });
+      // Report delivered / refunded: a toast that opens that report
+      if (n?.type === "report" && n.data?.reportRequestId && n.title)
+        toast({ id: `report-${n.id || `${n.data.reportRequestId}-${n.data.action}`}`, type: "success", title: n.title, message: n.body, action: { label: "Open", href: routes.reportRequest(n.data.reportRequestId) }, duration: 10000 });
     };
     socket.on(SOCKET_EVENTS.NOTIFICATION, onNew);
     return () => socket.off(SOCKET_EVENTS.NOTIFICATION, onNew);

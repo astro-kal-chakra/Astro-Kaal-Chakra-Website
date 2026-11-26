@@ -7,7 +7,7 @@ import { LocaleLink } from "@/components/ui/LocaleLink";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ReportCard } from "./ReportCard";
 import { ReportIcon } from "./ReportIcon";
-import { ReportPurchasePanel } from "./ReportPurchasePanel";
+import { ReportOrderPanel } from "@/features/report-requests/components/ReportOrderPanel";
 import { reportFaqs } from "./ReportsLanding";
 import { reportCopy } from "../lib/copy";
 
@@ -103,7 +103,8 @@ export function ReportDetail({ report: r, others, t, locale }) {
           </section>
         </div>
 
-        <ReportPurchasePanel report={r} />
+        {/* The older instant purchase unless "Get a report from an astrologer" is on (dashboard) */}
+        <ReportOrderPanel report={r} />
       </div>
 
       {others.length > 0 && (

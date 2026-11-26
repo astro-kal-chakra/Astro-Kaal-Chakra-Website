@@ -1,4 +1,4 @@
-import { Bell, FileText, Gift, HandHeart, Heart, History, LayoutDashboard, LifeBuoy, ScrollText, Settings, UserRound, Users, Wallet } from "lucide-react";
+import { Bell, FilePen, FileText, Gift, HandHeart, Heart, History, LayoutDashboard, LifeBuoy, ScrollText, Settings, UserRound, Users, Wallet } from "lucide-react";
 import { routes } from "@/config/routes";
 
 /**
@@ -13,6 +13,7 @@ export const ACCOUNT_NAV = [
   { key: "following", href: routes.following, icon: Heart },
   { key: "birthProfiles", href: routes.birthProfiles, icon: Users },
   { key: "savedKundlis", href: routes.savedKundlis, icon: ScrollText },
+  { key: "reportRequests", href: routes.myReportRequests, icon: FilePen, feature: "reportRequests" },
   { key: "reports", href: routes.myReports, icon: FileText },
   { key: "remedies", href: routes.myRemedies, icon: HandHeart, feature: "remedies" },
   { key: "referral", href: routes.referral, icon: Gift },
@@ -21,5 +22,5 @@ export const ACCOUNT_NAV = [
   { key: "settings", href: routes.settings, icon: Settings },
 ];
 
-/** The menu without switched-off features: accountNavFor({ remedies: true }). */
+/** The menu without switched-off features: accountNavFor({ remedies: true, reportRequests: true }). */
 export const accountNavFor = (features = {}) => ACCOUNT_NAV.filter((item) => !item.feature || features[item.feature]);

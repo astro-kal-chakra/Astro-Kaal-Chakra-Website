@@ -13,6 +13,7 @@ import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { ReportRequestsLinkCard } from "@/features/report-requests/components/ReportRequestsLinkCard";
 import { ReportIcon } from "./ReportIcon";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
@@ -44,6 +45,8 @@ export function MyReportsView() {
           Browse reports
         </ButtonLink>
       </div>
+
+      <ReportRequestsLinkCard />
 
       {items === null ? (
         <div className="space-y-3">

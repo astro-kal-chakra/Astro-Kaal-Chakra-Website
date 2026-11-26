@@ -18,6 +18,7 @@ import { AstrologerProfileLive } from "@/features/astrologers/components/Astrolo
 import { ReviewCard } from "@/features/home/components/InfoSections";
 import { MoreReviews } from "@/features/astrologers/components/MoreReviews";
 import { RemedyProfileCard } from "@/features/remedies/components/RemedyProfileCard";
+import { AstrologerReportCard } from "@/features/report-requests/components/AstrologerReportCard";
 import { categoryLabel, label as t } from "@/lib/labels";
 
 export async function generateStaticParams() {
@@ -167,6 +168,9 @@ export default async function AstrologerProfilePage({ params }) {
               </li>
             </ul>
             <RemedyProfileCard astrologer={{ id: a.id, slug: a.slug, name: a.name }} />
+            <AstrologerReportCard
+              astrologer={{ id: a.id, slug: a.slug, name: a.name, avatar: a.avatarUrl || null, rating: a.rating, ratingCount: a.reviewCount, experienceYears: a.experienceYears, languages: a.languages, isVerified: a.isVerified }}
+            />
           </Card>
         </aside>
       </div>

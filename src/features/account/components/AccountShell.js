@@ -9,6 +9,7 @@ import { maskPhone } from "@/lib/utils/format";
 import { Avatar } from "@/components/ui/Avatar";
 import { LocaleLink } from "@/components/ui/LocaleLink";
 import { useRemediesEnabled } from "@/features/remedies/hooks/useRemedyConfig";
+import { useReportRequestsEnabled } from "@/features/report-requests/hooks/useReportRequestConfig";
 import { accountNavFor } from "../lib/nav";
 import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
@@ -19,6 +20,7 @@ export function AccountSidebarNav({ className }) {
   const { user } = useAuth();
   const pathname = usePathname();
   const remedies = useRemediesEnabled();
+  const reportRequests = useReportRequestsEnabled();
   const rel = pathname.replace(new RegExp(`^/${locale}(?=/|$)`), "") || "/";
   const isActive = (href) => (href === routes.account ? rel === href : rel === href || rel.startsWith(`${href}/`));
 
@@ -32,7 +34,7 @@ export function AccountSidebarNav({ className }) {
         </div>
       </div>
       <ul className="space-y-0.5">
-        {accountNavFor({ remedies }).map(({ key, href, icon: Icon }) => {
+        {accountNavFor({ remedies, reportRequests }).map(({ key, href, icon: Icon }) => {
           const active = isActive(href);
           return (
             <li key={key}>
