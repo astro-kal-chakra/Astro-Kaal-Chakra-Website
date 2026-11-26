@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BadgeCheck, Search, Sparkles, Star } from "lucide-react";
+import { BadgeCheck, Search, Star } from "lucide-react";
 import { reportRequestService } from "@/lib/api/services/reportRequest.service";
 import { cn } from "@/lib/utils/cn";
 import { Avatar } from "@/components/ui/Avatar";
@@ -103,9 +103,6 @@ export function AstrologerChooser({ value, onChange, allowAnyExpert }) {
     <div className="space-y-2">
       {allowAnyExpert && (
         <button type="button" role="radio" aria-checked={value === ANY_EXPERT} onClick={() => onChange(ANY_EXPERT)} className={optionClass(value === ANY_EXPERT)}>
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-gold-100 text-gold-700 dark:bg-gold-700/30 dark:text-gold-300">
-            <Sparkles className="size-5" aria-hidden />
-          </span>
           <span className="min-w-0 flex-1">
             <span className="block text-sm font-medium">Any expert</span>
             <span className="block text-xs text-muted">Our team chooses the best available astrologer for this report.</span>

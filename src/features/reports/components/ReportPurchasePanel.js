@@ -20,6 +20,12 @@ import { label as t } from "@/lib/labels";
 import { SITE_LOCALE } from "@/config/locale";
 import { reportCopy } from "../lib/copy";
 
+/**
+ * A saved profile's birth place as text. The API sends it as an object ({ name, region, … }); rendering the
+ * object itself crashed the page ("Something went wrong") as soon as a user with a saved profile clicked Buy.
+ */
+const placeText = (place) => (typeof place === "string" ? place : place?.name ? (place.region ? `${place.name}, ${place.region}` : place.name) : "");
+
 /** Price card + purchase sheet (pick birth profile(s) → pay from wallet / recharge). */
 export function ReportPurchasePanel({ report }) {
   const locale = SITE_LOCALE;
@@ -171,7 +177,9 @@ function PurchaseSheet({ report, profiles, onClose }) {
                     {p.name} <span className="text-xs font-normal text-muted">· {t(`wallet.reports.relation.${p.relation}`)}</span>
                   </span>
                   <span className="block truncate text-xs text-muted">
-                    {formatDate(p.dob, locale)} · {p.tob} · {p.place}
+                    {formatDate(p.dob, locale)}
+                    {p.tob ? ` · ${p.tob}` : ""}
+                    {placeText(p.place) ? ` · ${placeText(p.place)}` : ""}
                   </span>
                 </span>
               </label>
